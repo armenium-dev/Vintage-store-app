@@ -16,3 +16,4 @@ yarn-error.log
 *.zip
 *.sql
 *.log
+/public_html

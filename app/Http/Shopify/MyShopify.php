@@ -6,18 +6,29 @@ use App;
 use Illuminate\Support\Facades\Log;
 
 class MyShopify {
+
 	private $api_version = '';
 
-	public function connect(){
+    private $local_shop_id = 1;
+
+    public function __construct($local_shop_id = 1){
+        $this->local_shop_id = $local_shop_id;
 		$this->api_version = env('SHOPIFY_API_VERSION');
+    }
+
+    public function getApiVersion(){
+        return $this->api_version;
+    }
+
+    public function connect(){
 
 		$shopify = App::make('ShopifyAPI');
 
 		$shopify->setup([
-			'API_KEY'      => env('SHOPIFY_API_KEY'),
-			'API_SECRET'   => env('SHOPIFY_API_SECRET'),
-			'SHOP_DOMAIN'  => env('SHOPIFY_SHOP_DOMAIN'),
-			'ACCESS_TOKEN' => env('SHOPIFY_ACCESS_TOKEN'),
+			'API_KEY'      => env('SHOPIFY_SHOP_'.$this->local_shop_id.'_API_KEY'),
+			'API_SECRET'   => env('SHOPIFY_SHOP_'.$this->local_shop_id.'_API_SECRET'),
+			'SHOP_DOMAIN'  => env('SHOPIFY_SHOP_'.$this->local_shop_id.'_DOMAIN'),
+			'ACCESS_TOKEN' => env('SHOPIFY_SHOP_'.$this->local_shop_id.'_ADMIN_ACCESS_TOKEN'),
 		]);
 
 		return $shopify;
@@ -33,6 +44,8 @@ class MyShopify {
 			$url = $url_fragment.$url;
 		}
 
+        $url = str_replace('{API_VERSION}', $this->api_version, $url);
+
 		Log::stack(['laravel'])->debug('API URL: '.$url);
 
 		return $url;
@@ -41,7 +54,8 @@ class MyShopify {
 	public function get($url){
 		$get = $this->connect()->call([
 			'METHOD' => 'GET',
-			'URL'    => $this->create_url($url)
+			'URL'    => $this->create_url($url),
+            'RETURNARRAY' => true
 		]);
 
 		return $get;
@@ -51,7 +65,8 @@ class MyShopify {
 		$post = $this->connect()->call([
 			'METHOD' => 'POST',
 			'URL'    => $this->create_url($url),
-			'DATA'   => $data
+			'DATA'   => $data,
+            'RETURNARRAY' => true
 		]);
 
 		return $post;
@@ -61,16 +76,8 @@ class MyShopify {
 		$update = $this->connect()->call([
 			'METHOD' => 'PUT',
 			'URL'    => $this->create_url($url),
-			'DATA'   => $data
-		]);
-
-		return $update;
-	}
-
-	public function updateDefaultAddress($url){
-		$update = $this->connect()->call([
-			'METHOD' => 'PUT',
-			'URL'    => $this->create_url($url),
+			'DATA'   => $data,
+            'RETURNARRAY' => true
 		]);
 
 		return $update;
@@ -79,7 +86,8 @@ class MyShopify {
 	public function delete($url){
 		$delete = $this->connect()->call([
 			'METHOD' => 'DELETE',
-			'URL'    => $this->create_url($url)
+			'URL'    => $this->create_url($url),
+            'RETURNARRAY' => true
 		]);
 
 		return $delete;

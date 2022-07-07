@@ -10,6 +10,9 @@ use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use PHPUnit\Util\Json;
+use Shopify\Rest\Admin2022_07\Webhook;
+use Shopify\Utils;
 
 class ShopifyController extends Controller {
 
@@ -19,7 +22,7 @@ class ShopifyController extends Controller {
     private $update_interval = 86400;
 
     public function __construct(){
-        $this->shopify = new MyShopify;
+        $this->shopify = new MyShopify(1);
         #$this->updateShopifyProductsTable();
     }
 
@@ -38,7 +41,7 @@ class ShopifyController extends Controller {
         $shopify_products = [];
 
         $products_url = "/admin/products.json?since_id={since_id}&limit={$limit}&fields=id,title";
-        $pages_count = ceil($this->getShopifyProductsCount() / $limit);
+        $pages_count = intval(ceil($this->getShopifyProductsCount() / $limit));
 
         $since_id = 0;
         for($i = 1; $i <= $pages_count; $i++){
@@ -109,15 +112,15 @@ class ShopifyController extends Controller {
 
         if(!empty($shopify_products)){
             $shopify_ids = array_keys($shopify_products);
-            $Products = DB::table('products')->whereIn('shopify_id', $shopify_ids)->get();
+            $Products = DB::table('products')->whereIn('product_id', $shopify_ids)->get();
 
             foreach($Products->all() as $product){
-                if($product->name != $shopify_products[$product->shopify_id]){
+                if($product->name != $shopify_products[$product->product_id]){
                     $sync_products[] = [
                         'id' => $product->id,
-                        'shopify_id' => $product->shopify_id,
+                        'product_id' => $product->product_id,
                         'name' => $product->name,
-                        'shopify_name' => $shopify_products[$product->shopify_id],
+                        'shopify_name' => $shopify_products[$product->product_id],
                     ];
                 }
             }
@@ -126,6 +129,70 @@ class ShopifyController extends Controller {
         #dd($sync_products);
 
         return $sync_products;
+    }
+
+    public function shopifySync(){
+        $sync_products = $this->getSyncShopifyProducts();
+
+        return view('shopify.list', ['SyncProducts' => $sync_products]);
+    }
+
+    public function createWebhooks(){
+        $wh_ops = Settings::getLike('webhook');
+        #dd($wh_ops);
+
+        if(!empty($wh_ops)){
+            foreach($wh_ops as $k => $v){
+                if(intval($v) == 0){
+                    $shop_id = intval(substr(explode('shop_', $k)[1], 0, 1));
+                    $id = $this->_createWebhook($shop_id);
+                    if(false !== $id){
+                        Settings::set($k, $id);
+                    }
+                }
+            }
+        }
+
+        return redirect()->route('list-webhooks');
+    }
+
+    private function _createWebhook($shop_id = 1){
+        $shopify_client = new MyShopify($shop_id);
+        $json_data = json_encode([
+            "webhook" => [
+                "address" => "https://vintage-store-app.digidez.com/shop$shop_id-webhook",
+                "format" => "json",
+                "fields" => ["id"],
+                "topic" => "orders/fulfilled",
+            ]
+        ]);
+        #dd($json_data);
+        $result = $shopify_client->post('/webhooks.json', $json_data);
+        #dd($result);
+
+        return isset($result['webhook']) ? $result['webhook']['id'] : false;
+    }
+
+    public function listWebhooks(){
+        $wh_ops = Settings::getLike('webhook');
+
+        if(!empty($wh_ops)){
+            foreach($wh_ops as $k => $v){
+                if(intval($v) != 0){
+                    $shop_id = intval(substr(explode('shop_', $k)[1], 0, 1));
+                    $data = $this->_getWebhooks($shop_id);
+                    dump($data['webhooks']);
+                }
+            }
+        }
+
+    }
+
+    private function _getWebhooks($shop_id = 1){
+        $shopify_client = new MyShopify($shop_id);
+        $result = $shopify_client->get('/webhooks.json');
+
+        return $result;
     }
 
 }

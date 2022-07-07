@@ -4,6 +4,8 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\WelcomeController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\ShopifyController;
+use App\Http\Controllers\SettingsController;
 
 /*
 |--------------------------------------------------------------------------
@@ -17,9 +19,11 @@ use App\Http\Controllers\DashboardController;
 */
 
 Route::get('/', [WelcomeController::class, 'index']);
-
-
-Route::get('/dashboard', [DashboardController::class, 'index'])->middleware(['auth'])->name('dashboard');
+Route::get('dashboard', [DashboardController::class, 'index'])->middleware(['auth'])->name('dashboard');
+Route::get('shopify-sync', [ShopifyController::class, 'shopifySync'])->middleware(['auth'])->name('shopifysync');
+Route::get('create-webhooks', [ShopifyController::class, 'createWebhooks'])->middleware(['auth'])->name('createWebhooks');
+Route::get('list-webhooks', [ShopifyController::class, 'listWebhooks'])->middleware(['auth'])->name('listWebhooks');
+Route::resource('settings', SettingsController::class);
 
 
 /**
