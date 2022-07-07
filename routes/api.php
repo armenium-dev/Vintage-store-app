@@ -20,3 +20,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 Route::post('shop1-webhook', [ShopifyController::class, 'shop1Webhook'])->name('shop1-webhook');
+Route::post('shop2-webhook', [ShopifyController::class, 'shop2Webhook'])->name('shop2-webhook');
+Route::post('shop3-webhook', [ShopifyController::class, 'shop3Webhook'])->name('shop3-webhook');
+
+

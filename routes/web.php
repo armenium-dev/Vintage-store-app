@@ -25,6 +25,9 @@ Route::get('create-webhooks', [ShopifyController::class, 'createWebhooks'])->mid
 Route::get('list-webhooks', [ShopifyController::class, 'listWebhooks'])->middleware(['auth'])->name('list-webhooks');
 Route::resource('settings', SettingsController::class);
 
+# Test routings
+Route::get('get-order', [ShopifyController::class, 'getOrder'])->middleware(['auth']);
+
 
 /**
  * https://laravel.com/docs/9.x/authentication
