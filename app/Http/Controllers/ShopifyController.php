@@ -153,7 +153,7 @@ class ShopifyController extends Controller {
             }
         }
 
-        return redirect()->route('list-webhooks');
+        return redirect()->route('listWebhooks');
     }
 
     private function _createWebhook($shop_id = 1){
