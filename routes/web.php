@@ -26,7 +26,7 @@ Route::get('list-webhooks', [ShopifyController::class, 'listWebhooks'])->middlew
 Route::resource('settings', SettingsController::class);
 
 # Test routings
-Route::get('get-order', [ShopifyController::class, 'getOrder'])->middleware(['auth']);
+Route::get('get-order-products', [ShopifyController::class, 'getOrderProducts'])->middleware(['auth']);
 
 
 /**

@@ -17,3 +17,5 @@ yarn-error.log
 *.sql
 *.log
 /public_html
+composer.lock
+package-lock.json

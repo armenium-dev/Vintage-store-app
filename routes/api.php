@@ -1,8 +1,8 @@
 <?php
 
+use App\Http\Controllers\API\Shopify\WebhookController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\API\ShopifyController;
 
 /*
 |--------------------------------------------------------------------------
@@ -19,8 +19,8 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::post('shop1-webhook', [ShopifyController::class, 'shop1Webhook'])->name('shop1-webhook');
-Route::post('shop2-webhook', [ShopifyController::class, 'shop2Webhook'])->name('shop2-webhook');
-Route::post('shop3-webhook', [ShopifyController::class, 'shop3Webhook'])->name('shop3-webhook');
+Route::post('shop1-webhook', [WebhookController::class, 'shop1Webhook'])->name('shop1-webhook');
+Route::post('shop2-webhook', [WebhookController::class, 'shop2Webhook'])->name('shop2-webhook');
+Route::post('shop3-webhook', [WebhookController::class, 'shop3Webhook'])->name('shop3-webhook');
 
 

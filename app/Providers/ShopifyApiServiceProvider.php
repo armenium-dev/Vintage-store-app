@@ -6,7 +6,7 @@ use Illuminate\Support\ServiceProvider;
 use Illuminate\Foundation\AliasLoader;
 use App\Http\Shopify\ShopifyApi;
 
-class ShopifyServiceProvider extends ServiceProvider{
+class ShopifyApiServiceProvider extends ServiceProvider{
 
     /**
      * Indicates if loading of the provider is deferred.
