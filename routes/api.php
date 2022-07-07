@@ -2,6 +2,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\API\ShopifyController;
 
 /*
 |--------------------------------------------------------------------------
@@ -18,4 +19,4 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-#Route::post('shop1-webhook','API\ShopifyController@create')->name('design.create');
+Route::post('shop1-webhook', [ShopifyController::class, 'shop1Webhook'])->name('shop1-webhook');

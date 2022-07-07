@@ -160,7 +160,7 @@ class ShopifyController extends Controller {
         $shopify_client = new MyShopify($shop_id);
         $json_data = json_encode([
             "webhook" => [
-                "address" => "https://vintage-store-app.digidez.com/shop$shop_id-webhook",
+                "address" => "https://vintage-store-app.digidez.com/api/shop$shop_id-webhook",
                 "format" => "json",
                 "fields" => ["id"],
                 "topic" => "orders/fulfilled",

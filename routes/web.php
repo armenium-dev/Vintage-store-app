@@ -20,9 +20,9 @@ use App\Http\Controllers\SettingsController;
 
 Route::get('/', [WelcomeController::class, 'index']);
 Route::get('dashboard', [DashboardController::class, 'index'])->middleware(['auth'])->name('dashboard');
-Route::get('shopify-sync', [ShopifyController::class, 'shopifySync'])->middleware(['auth'])->name('shopifysync');
-Route::get('create-webhooks', [ShopifyController::class, 'createWebhooks'])->middleware(['auth'])->name('createWebhooks');
-Route::get('list-webhooks', [ShopifyController::class, 'listWebhooks'])->middleware(['auth'])->name('listWebhooks');
+Route::get('shopify-sync', [ShopifyController::class, 'shopifySync'])->middleware(['auth'])->name('shopify-sync');
+Route::get('create-webhooks', [ShopifyController::class, 'createWebhooks'])->middleware(['auth'])->name('create-webhooks');
+Route::get('list-webhooks', [ShopifyController::class, 'listWebhooks'])->middleware(['auth'])->name('list-webhooks');
 Route::resource('settings', SettingsController::class);
 
 

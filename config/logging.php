@@ -123,6 +123,12 @@ return [
             'path' => storage_path('logs/cron.log'),
             'level' => 'debug',
         ],
+
+        'webhook' => [
+            'driver' => 'single',
+            'path' => storage_path('logs/webhook.log'),
+            'level' => 'debug',
+        ],
     ],
 
 ];
