@@ -200,13 +200,15 @@ class ShopifyController extends Controller{
 	}
 	
 	public function getOrder(Request $request){
-		$shop_id = $request->get('shop_id');
+		$shop_id  = $request->get('shop_id');
 		$order_id = $request->get('order_id');
 		
 		$shopify_client = new MyShopify($shop_id);
-		$result         = $shopify_client->get('/orders/'.$order_id.'.json');
 		
-		dd($result);
+		$result = $shopify_client->get('/orders/'.$order_id.'.json');
+		
+		#dump($result['order']['fulfillments']);
+		dd($result['order']['line_items']);
 	}
 	
 }
