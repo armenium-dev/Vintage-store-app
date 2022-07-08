@@ -6,10 +6,17 @@ use App\Http\Controllers\ShopifyController;
 use App\Http\Shopify\MyShopify;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Http\JsonResponse;
 
-class WebhookController{
+class WebhooksController {
 
-	public function shop1Webhook(Request $request){
+    public $ShopifyController;
+
+    public function __construct(ShopifyController $ShopifyController){
+        $this->ShopifyController = $ShopifyController;
+    }
+
+    public function shop1Webhook(Request $request): JsonResponse{
 		Log::stack(['webhook'])->debug('Shop 1');
 		Log::stack(['webhook'])->debug($request->post());
 
@@ -19,7 +26,7 @@ class WebhookController{
 		$verified = $this->_verify_webhook($data, $hmac_header, 1);
 
 		if($verified){
-
+            $this->ShopifyController->parseAndStoreOrderData(1, $request->post('id'));
 			# Process webhook payload
 			# ...
 		    return response()->json(['status' => 200]);
@@ -30,31 +37,24 @@ class WebhookController{
 
 	}
 
-	public function shop2Webhook(Request $request){
+	public function shop2Webhook(Request $request): JsonResponse{
 		Log::stack(['webhook'])->debug('Shop 2');
 		Log::stack(['webhook'])->debug($request->post());
 
 		return response()->json(['status' => 200]);
 	}
 
-	public function shop3Webhook(Request $request){
+	public function shop3Webhook(Request $request): JsonResponse{
 		Log::stack(['webhook'])->debug('Shop 3');
 		Log::stack(['webhook'])->debug($request->post());
 
 		return response()->json(['status' => 200]);
 	}
 
-	private function _verify_webhook($data, $hmac_header, $shop_id){
+	private function _verify_webhook($data, $hmac_header, $shop_id): bool{
 		$calculated_hmac = base64_encode(hash_hmac('sha256', $data, env("SHOPIFY_SHOP_".$shop_id."_API_SECRET"), true));
 
 		return hash_equals($hmac_header, $calculated_hmac);
 	}
 
-	public function getOrderProducts(ShopifyController $shopify, $shop_id, $order_id){
-
-		$shopify_client = new MyShopify($shop_id);
-		$result = $shopify_client->get('/orders/'.$order_id.'.json');
-        $result = $shopify->getOrderProducts();
-		dd($result);
-	}
 }

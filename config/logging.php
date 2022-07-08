@@ -129,6 +129,12 @@ return [
             'path' => storage_path('logs/webhook.log'),
             'level' => 'debug',
         ],
+
+        'api' => [
+            'driver' => 'single',
+            'path' => storage_path('logs/api.log'),
+            'level' => 'debug',
+        ],
     ],
 
 ];

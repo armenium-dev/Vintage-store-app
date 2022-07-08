@@ -18,6 +18,8 @@ class Link extends Model {
      */
     protected $fillable = [
         'shop_id',
+        'product_id',
+        'variant_id',
         'link_depop',
         'link_asos',
     ];

@@ -27,7 +27,7 @@ class MyShopify {
 		$shopify->setup([
 			'API_KEY'      => env('SHOPIFY_SHOP_'.$this->local_shop_id.'_API_KEY'),
 			'API_SECRET'   => env('SHOPIFY_SHOP_'.$this->local_shop_id.'_API_SECRET'),
-			'SHOP_DOMAIN'  => env('SHOPIFY_SHOP_'.$this->local_shop_id.'_DOMAIN'),
+			'SHOP_DOMAIN'  => env('SHOPIFY_SHOP_'.$this->local_shop_id.'_API_DOMAIN'),
 			'ACCESS_TOKEN' => env('SHOPIFY_SHOP_'.$this->local_shop_id.'_ADMIN_ACCESS_TOKEN'),
 		]);
 
@@ -46,7 +46,7 @@ class MyShopify {
 
         $url = str_replace('{API_VERSION}', $this->api_version, $url);
 
-		Log::stack(['laravel'])->debug('API URL: '.$url);
+		Log::stack(['api'])->debug('API URL: '.$url);
 
 		return $url;
 	}
