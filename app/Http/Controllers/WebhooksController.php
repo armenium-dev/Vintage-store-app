@@ -24,7 +24,9 @@ class WebhooksController extends Controller{
 			foreach($wh_ops as $k => $v){
 				if(intval($v) == 0){
 					$shop_id = intval(substr(explode('shop_', $k)[1], 0, 1));
-					$id      = $this->_createWebhook($shop_id);
+					$webhook_topic = str_replace('shop_'.$shop_id.'_webhook/', '', $k);
+					$id = $this->_createWebhook($shop_id, $webhook_topic);
+					
 					if(false !== $id){
 						Settings::set($k, $id);
 					}
@@ -35,14 +37,14 @@ class WebhooksController extends Controller{
 		return redirect()->route('listWebhooks');
 	}
 
-	private function _createWebhook($shop_id = 1): mixed{
+	private function _createWebhook($shop_id = 1, $topic): mixed{
 		$shopify_client = new MyShopify($shop_id);
 		$json_data      = json_encode([
 			"webhook" => [
 				"address" => "https://vintage-store-app.digidez.com/api/shop$shop_id-webhook",
 				"format"  => "json",
 				"fields"  => ["id"],
-				"topic"   => "orders/fulfilled",
+				"topic"   => $topic,
 			]
 		]);
 		#dd($json_data);
