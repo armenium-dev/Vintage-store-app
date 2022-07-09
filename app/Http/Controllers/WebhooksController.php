@@ -57,13 +57,17 @@ class WebhooksController extends Controller{
 
 	public function listWebhooks(){
 		$wh_ops = Settings::getLike('webhook');
-
+		$shops = [];
+		
 		if(!empty($wh_ops)){
 			foreach($wh_ops as $k => $v){
 				if(intval($v) != 0){
 					$shop_id = intval(substr(explode('shop_', $k)[1], 0, 1));
-					$data    = $this->_getWebhooks($shop_id);
-					dump($data['webhooks']);
+					if(!in_array($shop_id, $shops)){
+						$data = $this->_getWebhooks($shop_id);
+						dump($data['webhooks']);
+						$shops[] = $shop_id;
+					}
 				}
 			}
 		}

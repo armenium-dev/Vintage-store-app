@@ -22,7 +22,7 @@ use App\Http\Controllers\WebhooksController;
 Route::get('/', [WelcomeController::class, 'index']);
 Route::get('dashboard', [DashboardController::class, 'index'])->middleware(['auth'])->name('dashboard');
 Route::get('shopify-sync', [ShopifyController::class, 'shopifySync'])->middleware(['auth'])->name('shopifySync');
-Route::get('create-webhooks', [WebhooksController::class, 'createWebhooks'])->middleware(['auth'])->name('createWebhooks');
+Route::get('create-webhooks ', [WebhooksController::class, 'createWebhooks'])->middleware(['auth'])->name('createWebhooks');
 Route::get('list-webhooks', [WebhooksController::class, 'listWebhooks'])->middleware(['auth'])->name('listWebhooks');
 Route::resource('settings', SettingsController::class);
 
