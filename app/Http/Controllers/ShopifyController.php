@@ -11,7 +11,7 @@ use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-
+use App\Models\Order;
 
 class ShopifyController extends Controller{
 
@@ -127,12 +127,23 @@ class ShopifyController extends Controller{
 		return $sync_products;
 	}
 
+	/**
+	 * ACTION
+	 *
+	 * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
+	 */
 	public function shopifySync(){
 		$sync_products = $this->getSyncShopifyProducts();
 
 		return view('shopify.list', ['SyncProducts' => $sync_products]);
 	}
 
+	/**
+	 * ACTION
+	 *
+	 * @param Request $request
+	 * @return bool
+	 */
 	public function setOrderProducts(Request $request){
 		$shop_id = $request->get('shop_id');
 		$order_id = $request->get('order_id');
@@ -203,22 +214,29 @@ class ShopifyController extends Controller{
 	}
 
 	private function _getOrderProducts($shop_id, $order_id){
-		$product_ids = $products = [];
+		$products = [];
 
 		$shopify_client = new MyShopify($shop_id);
 
-		$result = $shopify_client->get('/orders/' . $order_id . '.json');
+		$result = $shopify_client->get('/orders/'.$order_id.'.json');
+		#dd($result);
 
-		if(isset($result['order']['line_items'])){
-			foreach($result['order']['line_items'] as $product){
-				$product_ids[] = $product['product_id'];
+		if(!isset($result['ERROR'])){
+			Order::updateOrCreate(
+				['shop_id' => $shop_id, 'order_id' => $result['order']['id']],
+				[
+					'shop_id' => $shop_id,
+					'order_id' => $result['order']['id'],
+					'payment_status' => $result['order']['financial_status'],
+					'fulfillment_status' => $result['order']['fulfillment_status'],
+					'data' => json_encode($result['order']),
+				]
+			);
 
-				$products[] = $shopify_client->get('/products/' . $product['product_id'] . '.json');
-
-				/*$products[$product['product_id']]['product'] = $shopify_client->get('/products/'.$product['product_id'].'.json')['product'];
-				if(isset($product['variant_id']) && !empty($product['variant_id'])){
-					$products[$product['product_id']]['variant'] = $shopify_client->get('/products/' . $product['product_id'] . '/variants/' . $product['variant_id'] . '.json')['variant'];
-				}*/
+			if(isset($result['order']['line_items'])){
+				foreach($result['order']['line_items'] as $product){
+					$products[] = $shopify_client->get('/products/'.$product['product_id'].'.json');
+				}
 			}
 		}
 

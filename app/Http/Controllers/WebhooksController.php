@@ -37,7 +37,7 @@ class WebhooksController extends Controller{
 		return redirect()->route('listWebhooks');
 	}
 
-	private function _createWebhook($shop_id = 1, $topic): mixed{
+	private function _createWebhook($shop_id, $topic): mixed{
 		$shopify_client = new MyShopify($shop_id);
 		$json_data      = json_encode([
 			"webhook" => [

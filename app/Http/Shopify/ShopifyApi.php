@@ -255,7 +255,8 @@ class ShopifyApi{
         curl_close($ch);
 
         if($_ERROR['NUMBER']){
-            throw new \Exception('ERROR #' . $_ERROR['NUMBER'] . ': ' . $_ERROR['MESSAGE']);
+            #throw new \Exception('ERROR #' . $_ERROR['NUMBER'] . ': ' . $_ERROR['MESSAGE']);
+			return ['ERROR' => $_ERROR];
         }
 
         // Send back in format that user requested
