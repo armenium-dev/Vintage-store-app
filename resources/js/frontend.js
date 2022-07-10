@@ -13,10 +13,10 @@
 			messages: {
 				ajax_error: 'SYSTEM TECHNICAL ERROR'
 			},
-			routes: {},
-			els: {
-				body: $("body"),
+			routes: {
+				remove_link: "link-remove",
 			},
+			els: {},
 			Core: {
 				Init: function(){
 					FJS.Uploader.init();
@@ -49,11 +49,21 @@
 						case "submit_uploader_form":
 							FJS.Uploader.submit($this);
 							break;
+						case "delete_link":
+							FJS.Links.remove($this);
+							break;
 						default:
 							break;
 					}
 
 					e.preventDefault();
+				},
+			},
+			Common: {
+				createAjaxUrl: function(endpoint){
+					let baseurl = $('meta[name="baseurl"]').attr('content');
+
+					return baseurl + '/' + endpoint;
 				},
 			},
 			Uploader: {
@@ -80,6 +90,32 @@
 					return flag;
 				},
 				submit: function($form){
+				},
+			},
+			Links: {
+				remove: function($btn){
+					let entry_id = $btn.data('id'),
+						$parent = $($btn.data('parent'));
+
+					$.ajax({
+						type: "POST",
+						url: FJS.Common.createAjaxUrl(FJS.routes.remove_link),
+						headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
+						data: {id: entry_id},
+						dataType: "json",
+						beforeSend: function(xhr){
+							$btn.attr('disabled', true);
+						}
+					}).done(function(response){
+						if(response.error == 0){
+							$parent.find('ol').addClass('line-through color-gray');
+							$btn.addClass('hidden');
+						}
+					}).fail(function(){
+						$btn.attr('disabled', false);
+						console.log(FJS.messages.ajax_error);
+					});
+
 				},
 			},
 		};

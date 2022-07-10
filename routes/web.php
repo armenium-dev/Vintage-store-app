@@ -29,6 +29,7 @@ Route::get('webhooks-update', [WebhooksController::class, 'updateWebhooks'])->mi
 Route::get('webhooks-list', [WebhooksController::class, 'listWebhooks'])->middleware(['auth'])->name('listWebhooks');
 Route::resource('settings', SettingsController::class);
 Route::get('links', [LinksController::class, 'index'])->middleware(['auth'])->name('links');
+Route::post('link-remove', [LinksController::class, 'remove'])->middleware(['auth'])->name('linkRemove');
 Route::get('upload-csv', [UploaderController::class, 'index'])->middleware(['auth'])->name('uploadCsv');
 Route::post('do-upload-csv', [UploaderController::class, 'duUploadCsv'])->middleware(['auth'])->name('doUploadCsv');
 

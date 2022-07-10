@@ -18,24 +18,19 @@ class WebhooksController {
 
     public function shop1Webhook(Request $request): JsonResponse{
 		Log::stack(['webhook'])->debug('Shop 1');
-		Log::stack(['webhook'])->debug($request->post());
-		#Log::stack(['webhook'])->debug($_SERVER);
+		Log::stack(['webhook'])->debug($request->post('id'));
 
 		$hmac_header = $_SERVER['HTTP_X_SHOPIFY_HMAC_SHA256'];
 		$data        = file_get_contents('php://input');
-		Log::stack(['webhook'])->debug($data);
 
 		$verified = $this->_verify_webhook($data, $hmac_header, 1);
 
 		if($verified){
-			Log::stack(['webhook'])->debug('verified');
-			Log::stack(['webhook'])->debug($verified);
+			#Log::stack(['webhook'])->debug('verified');
             $this->ShopifyController->parseAndStoreOrderData(1, $request->post('id'));
-			# Process webhook payload
-			# ...
 		    return response()->json(['status' => 200]);
 		}else{
-			Log::stack(['webhook'])->debug('not verified');
+			#Log::stack(['webhook'])->debug('not verified');
 			return response()->json(['status' => 401]);
 			#http_response_code(401);
 		}
@@ -46,14 +41,40 @@ class WebhooksController {
 		Log::stack(['webhook'])->debug('Shop 2');
 		Log::stack(['webhook'])->debug($request->post());
 
-		return response()->json(['status' => 200]);
+		$hmac_header = $_SERVER['HTTP_X_SHOPIFY_HMAC_SHA256'];
+		$data        = file_get_contents('php://input');
+
+		$verified = $this->_verify_webhook($data, $hmac_header, 2);
+
+		if($verified){
+			#Log::stack(['webhook'])->debug('verified');
+			$this->ShopifyController->parseAndStoreOrderData(2, $request->post('id'));
+			return response()->json(['status' => 200]);
+		}else{
+			#Log::stack(['webhook'])->debug('not verified');
+			return response()->json(['status' => 401]);
+			#http_response_code(401);
+		}
 	}
 
 	public function shop3Webhook(Request $request): JsonResponse{
 		Log::stack(['webhook'])->debug('Shop 3');
 		Log::stack(['webhook'])->debug($request->post());
 
-		return response()->json(['status' => 200]);
+		$hmac_header = $_SERVER['HTTP_X_SHOPIFY_HMAC_SHA256'];
+		$data        = file_get_contents('php://input');
+
+		$verified = $this->_verify_webhook($data, $hmac_header, 3);
+
+		if($verified){
+			#Log::stack(['webhook'])->debug('verified');
+			$this->ShopifyController->parseAndStoreOrderData(3, $request->post('id'));
+			return response()->json(['status' => 200]);
+		}else{
+			#Log::stack(['webhook'])->debug('not verified');
+			return response()->json(['status' => 401]);
+			#http_response_code(401);
+		}
 	}
 
 	private function _verify_webhook($data, $hmac_header, $shop_id): bool{

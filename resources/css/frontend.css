@@ -1,1 +1,3 @@
 /* Custom styles */
+.line-through {-webkit-text-decoration-line:line-through; text-decoration-line:line-through;}
+.color-gray {color:#999;}
