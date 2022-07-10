@@ -17,15 +17,16 @@
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 bg-white border-b border-gray-200">
-                    <form action="{{ route('doUploadCsv') }}" method="post" enctype="multipart/form-data">
+                    <form action="{{ route('uploadCsvFiles') }}" method="post" enctype="multipart/form-data">
+                        @csrf
                         <div class="columns-2 gap-5">
                             <div class="">
                                 <label class="mb-4 block">{{ __('DEPOP CSV') }}</label>
-                                <input type="file" class="block mb-5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 cursor-pointer dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400" name="depop_csv_file">
+                                <input type="file" name="depopCsvFile" class="block mb-5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 cursor-pointer dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400">
                             </div>
                             <div class="">
                                 <label class="mb-4 block">{{ __('ASOS CSV') }}</label>
-                                <input type="file" class="block mb-5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 cursor-pointer dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400" name="asos_csv_file">
+                                <input type="file" name="asosCsvFile" class="block mb-5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 cursor-pointer dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400">
                             </div>
                         </div>
                         <div class="text-center mt-10 flex justify-center">

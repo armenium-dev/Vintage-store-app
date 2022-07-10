@@ -8,7 +8,7 @@ use App\Http\Controllers\ShopifyController;
 use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\WebhooksController;
 use App\Http\Controllers\LinksController;
-use App\Http\Controllers\UploaderController;
+use App\Http\Controllers\UploadsController;
 
 /*
 |--------------------------------------------------------------------------
@@ -30,8 +30,8 @@ Route::get('webhooks-list', [WebhooksController::class, 'listWebhooks'])->middle
 Route::resource('settings', SettingsController::class);
 Route::get('links', [LinksController::class, 'index'])->middleware(['auth'])->name('links');
 Route::post('link-remove', [LinksController::class, 'remove'])->middleware(['auth'])->name('linkRemove');
-Route::get('upload-csv', [UploaderController::class, 'index'])->middleware(['auth'])->name('uploadCsv');
-Route::post('do-upload-csv', [UploaderController::class, 'duUploadCsv'])->middleware(['auth'])->name('doUploadCsv');
+Route::get('upload-csv', [UploadsController::class, 'index'])->middleware(['auth'])->name('uploadCsv');
+Route::post('upload-csv-files', [UploadsController::class, 'uploadCsvFiles'])->middleware(['auth'])->name('uploadCsvFiles');
 
 # Test routes
 Route::get('set-order-products', [ShopifyController::class, 'setOrderProducts'])->middleware(['auth']);
