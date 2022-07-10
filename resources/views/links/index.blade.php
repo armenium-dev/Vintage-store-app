@@ -18,28 +18,28 @@
             <div class="bg-white shadow-sm sm:rounded-lg">
                 <div class="p-6 bg-white border-b border-gray-200">
                     <div class="flex">
-                        <div class="flex-1">
+                        <div class="flex-1 px-2">
                             <h2 class="mb-4 text-center font-bold uppercase text-lg">{{ env('SHOPIFY_SHOP_1_NAME') }}</h2>
                             @forelse($shop_1_links as $link)
                                 @include('links.partials.item')
                             @empty
-                                <h3 class="text-center">{{__('No links')}}</h3>
+                                <h3 class="text-center text-gray-300 min-h-95p flex justify-center items-center border border-gray-100">---- {{__('No sales')}} ----</h3>
                             @endforelse
                         </div>
-                        <div class="flex-1">
+                        <div class="flex-1 px-2">
                             <h2 class="mb-4 text-center font-bold uppercase text-lg">{{ env('SHOPIFY_SHOP_2_NAME') }}</h2>
                             @forelse($shop_2_links as $link)
                                 @include('links.partials.item')
                             @empty
-                                <h3 class="text-center">{{__('No links')}}</h3>
+                                <h3 class="text-center text-gray-300 min-h-95p flex justify-center items-center border border-gray-100">---- {{__('No sales')}} ----</h3>
                             @endforelse
                         </div>
-                        <div class="flex-1">
+                        <div class="flex-1 px-2">
                             <h2 class="mb-4 text-center font-bold uppercase text-lg">{{ env('SHOPIFY_SHOP_3_NAME') }}</h2>
                             @forelse($shop_3_links as $link)
                                 @include('links.partials.item')
                             @empty
-                                <h3 class="text-center">{{__('No links')}}</h3>
+                                <h3 class="text-center text-gray-300 min-h-95p flex justify-center items-center border border-gray-100">---- {{__('No sales')}} ----</h3>
                             @endforelse
                         </div>
                     </div>

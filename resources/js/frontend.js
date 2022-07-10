@@ -104,15 +104,17 @@
 						data: {id: entry_id},
 						dataType: "json",
 						beforeSend: function(xhr){
-							$btn.attr('disabled', true);
+							$btn.attr('disabled', true).find('span').text('Removing...');
 						}
 					}).done(function(response){
 						if(response.error == 0){
 							$parent.find('ol').addClass('line-through color-gray');
-							$btn.addClass('hidden');
+							setTimeout(function(){
+								$btn.addClass('hidden');
+							}, 1000);
 						}
 					}).fail(function(){
-						$btn.attr('disabled', false);
+						$btn.attr('disabled', false).find('span').text('Remove');
 						console.log(FJS.messages.ajax_error);
 					});
 

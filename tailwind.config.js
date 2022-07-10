@@ -1,5 +1,6 @@
 const defaultTheme = require('tailwindcss/defaultTheme');
 
+
 /** @type {import('tailwindcss').Config} */
 module.exports = {
     content: [
@@ -13,11 +14,20 @@ module.exports = {
             fontFamily: {
                 sans: ['Nunito', ...defaultTheme.fontFamily.sans],
             },
+            minHeight: {
+                '1/2': '50%',
+                '4/5': '80%',
+                '95p': '95%',
+            }
         },
     },
-
+    variants: {
+        extend: {
+            animation: ({after}) => after(['motion-safe', 'motion-reduce']),
+        }
+    },
     plugins: [
         require('flowbite/plugin'),
-        require('@tailwindcss/forms')
+        require('@tailwindcss/forms'),
     ],
 };
