@@ -43,7 +43,7 @@ class WebhooksController extends Controller{
 			"webhook" => [
 				"address" => "https://vintage-store-app.digidez.com/api/shop$shop_id-webhook",
 				"format"  => "json",
-				"fields"  => ["id"],
+				"fields"  => ["id", "topic"],
 				"topic"   => $topic,
 			]
 		]);
@@ -53,6 +53,37 @@ class WebhooksController extends Controller{
 		#dd($result);
 
 		return isset($result['webhook']) ? $result['webhook']['id'] : false;
+	}
+
+	public function updateWebhooks(): RedirectResponse {
+		$wh_ops = Settings::getLike('webhook');
+		#dd($wh_ops);
+
+		if(!empty($wh_ops)){
+			foreach($wh_ops as $k => $webhook_id){
+				$shop_id = intval(substr(explode('shop_', $k)[1], 0, 1));
+				$result = $this->_updateWebhook($shop_id, $webhook_id);
+			}
+		}
+
+		return redirect()->route('listWebhooks');
+	}
+
+	private function _updateWebhook($shop_id, $webhook_id): mixed{
+		$shopify_client = new MyShopify($shop_id);
+
+		$json_data = json_encode([
+			"webhook" => [
+				"id" => $webhook_id,
+				"fields"  => ["id", "topic"],
+			]
+		]);
+
+		$result = $shopify_client->update('/webhooks/'.$webhook_id.'.json', $json_data);
+
+		#dd($result);
+
+		return isset($result['webhook']) ? $result['webhook']['id'] : true;
 	}
 
 	public function listWebhooks(){

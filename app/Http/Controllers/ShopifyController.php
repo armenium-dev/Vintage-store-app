@@ -162,7 +162,21 @@ class ShopifyController extends Controller{
 				$tags = $this->_pareseProductTags($product['product']['tags']);
 				$variants = $product['product']['variants'];
 
-				$p = DB::table('products')->where(['shop_id' => $shop_id, 'product_id' => $product_id, 'variant_id' => 0])->get();
+				Product::updateOrCreate(
+					['shop_id' => $shop_id, 'product_id' => $product_id, 'variant_id' => 0],
+					[
+						'shop_id' => $shop_id,
+						'product_id' => $product_id,
+						'variant_id' => 0,
+						'title' => $title,
+						'qty' => 0,
+						'status' => $status,
+						'link_depop' => $tags['link_depop'],
+						'link_asos' => $tags['link_asos'],
+					]
+				);
+
+				/*$p = DB::table('products')->where(['shop_id' => $shop_id, 'product_id' => $product_id, 'variant_id' => 0])->get();
 				if($p->count() == 0){
 					Product::create([
 						'shop_id' => $shop_id,
@@ -175,11 +189,21 @@ class ShopifyController extends Controller{
 						'link_asos' => $tags['link_asos'],
 					]);
 				}
-				unset($p);
+				unset($p);*/
 
 				if(count($variants)){
 					foreach($variants as $variant){
-						$p = DB::table('products')->where(['shop_id' => $shop_id, 'product_id' => $product_id, 'variant_id' => $variant['id']])->get();
+						Product::updateOrCreate(
+							['shop_id' => $shop_id, 'product_id' => $product_id, 'variant_id' => $variant['id']],
+							[
+								'shop_id' => $shop_id,
+								'product_id' => $variant['product_id'],
+								'variant_id' => $variant['id'],
+								'title' => $variant['title'],
+								'qty' => $variant['inventory_quantity'],
+							]
+						);
+						/*$p = DB::table('products')->where(['shop_id' => $shop_id, 'product_id' => $product_id, 'variant_id' => $variant['id']])->get();
 						if($p->count() == 0){
 							Product::create([
 								'shop_id' => $shop_id,
@@ -189,21 +213,33 @@ class ShopifyController extends Controller{
 								'qty' => $variant['inventory_quantity'],
 							]);
 						}
-						unset($p);
+						unset($p);*/
 
 						if(intval($variant['inventory_quantity']) == 0 && (!empty($tags['link_depop']) || !empty($tags['link_asos']))){
-							$l = DB::table('links')->where(['shop_id' => $shop_id, 'product_id' => $variant['product_id'], 'variant_id' => $variant['id']])->get();
+							Link::updateOrCreate(
+								['shop_id' => $shop_id, 'order_id' => $order_id, 'product_id' => $variant['product_id'], 'variant_id' => $variant['id']],
+								[
+									'shop_id' => $shop_id,
+									'order_id' => $order_id,
+									'product_id' => $variant['product_id'],
+									'variant_id' => $variant['id'],
+									'link_depop' => $tags['link_depop'],
+									'link_asos' => $tags['link_asos'],
+								]
+							);
+							/*$l = DB::table('links')->where(['shop_id' => $shop_id, 'product_id' => $variant['product_id'], 'variant_id' => $variant['id']])->get();
 							if($l->count() == 0){
 								#dd($variant);
 								Link::create([
 									'shop_id' => $shop_id,
+									'order_id' => $order_id,
 									'product_id' => $variant['product_id'],
 									'variant_id' => $variant['id'],
 									'link_depop' => $tags['link_depop'],
 									'link_asos' => $tags['link_asos'],
 								]);
 							}
-							unset($l);
+							unset($l);*/
 						}
 					}
 				}

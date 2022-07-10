@@ -7,6 +7,8 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ShopifyController;
 use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\WebhooksController;
+use App\Http\Controllers\LinksController;
+use App\Http\Controllers\UploaderController;
 
 /*
 |--------------------------------------------------------------------------
@@ -22,11 +24,15 @@ use App\Http\Controllers\WebhooksController;
 Route::get('/', [WelcomeController::class, 'index']);
 Route::get('dashboard', [DashboardController::class, 'index'])->middleware(['auth'])->name('dashboard');
 Route::get('shopify-sync', [ShopifyController::class, 'shopifySync'])->middleware(['auth'])->name('shopifySync');
-Route::get('create-webhooks ', [WebhooksController::class, 'createWebhooks'])->middleware(['auth'])->name('createWebhooks');
-Route::get('list-webhooks', [WebhooksController::class, 'listWebhooks'])->middleware(['auth'])->name('listWebhooks');
+Route::get('webhooks-create', [WebhooksController::class, 'createWebhooks'])->middleware(['auth'])->name('createWebhooks');
+Route::get('webhooks-update', [WebhooksController::class, 'updateWebhooks'])->middleware(['auth'])->name('updateWebhooks');
+Route::get('webhooks-list', [WebhooksController::class, 'listWebhooks'])->middleware(['auth'])->name('listWebhooks');
 Route::resource('settings', SettingsController::class);
+Route::get('links', [LinksController::class, 'index'])->middleware(['auth'])->name('links');
+Route::get('upload-csv', [UploaderController::class, 'index'])->middleware(['auth'])->name('uploadCsv');
+Route::post('do-upload-csv', [UploaderController::class, 'duUploadCsv'])->middleware(['auth'])->name('doUploadCsv');
 
-# Test routings
+# Test routes
 Route::get('set-order-products', [ShopifyController::class, 'setOrderProducts'])->middleware(['auth']);
 
 
