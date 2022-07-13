@@ -9,7 +9,9 @@ use App\Console\Commands\SyncShopifyProducts;
 class Kernel extends ConsoleKernel{
 
     protected $commands = [
-        Commands\SyncShopifyProducts::class,
+        #Commands\SyncShopifyProducts::class,
+        Commands\Depop::class,
+        Commands\Asos::class,
     ];
 
     /**
@@ -19,8 +21,9 @@ class Kernel extends ConsoleKernel{
      * @return void
      */
     protected function schedule(Schedule $schedule){
-        // $schedule->command('inspire')->hourly();
-        ##$schedule->command('syncsopifyproducts:run')->everyMinute();
+        //$schedule->command('syncsopifyproducts:run')->everyMinute();
+        $schedule->command('depop:run')->everyMinute();
+        $schedule->command('asos:run')->everyMinute();
     }
 
     /**

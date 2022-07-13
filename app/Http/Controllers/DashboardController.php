@@ -12,9 +12,12 @@ class DashboardController extends Controller{
     }
 
     public function index(){
-		$count = Link::all()->count();
+		$shopify_count = Link::where(['shop_type' => 'shopify'])->count();
+		$depop_count = Link::where(['shop_type' => 'depop'])->count();
+		$asos_count = Link::where(['shop_type' => 'asos'])->count();
+		$others_count = $depop_count+$asos_count;
 
-        return view('dashboard', compact('count'));
+        return view('dashboard', compact('shopify_count', 'others_count'));
     }
 
 }

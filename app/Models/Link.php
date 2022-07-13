@@ -23,6 +23,7 @@ class Link extends Model {
         'variant_id',
         'link_depop',
         'link_asos',
+        'shop_type',
     ];
 
 	private $order = null;

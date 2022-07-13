@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Settings;
+use App\Models\Uploads;
 use Illuminate\Http\Request;
 use App\Http\Requests\UploadRequest;
 
@@ -16,26 +17,27 @@ class UploadsController extends Controller {
 	 * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
 	 */
 	public function index(){
-		return view('uploader.index', []);
+		return view('uploads.index', []);
+	}
+	/**
+	 * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
+	 */
+	public function result(){
+		return view('uploads.result', []);
 	}
 
 	/**
 	 * @param  \Illuminate\Http\Request  $request
-	 * @return \Illuminate\Http\Response
+	 * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
 	 */
-	public function uploadCsvFiles(UploadRequest $request){
-		$depopCsvFile_path = $request->file('depopCsvFile')->store('uploads');
-		$asosCsvFile_path = $request->file('asosCsvFile')->store('uploads');
-		dd([$depopCsvFile_path, $asosCsvFile_path]);
+	public function uploadFiles(UploadRequest $request){
+		$depopFile_path = $request->file('depopFile')->store('uploads');
+		$asosFile_path = $request->file('asosFile')->store('uploads');
 
-		$nameImage = str_replace(" ","-",$getProduct->title);
-		$svg = $nameImage.'-'.time();
-		$depopCsvFile->move(public_path('uploads'), $svg.'.svg');
+		Uploads::create(['file' => $depopFile_path]);
+		Uploads::create(['file' => $asosFile_path]);
 
-		$request->merge(['name' => $getProduct->title,'url_svg'=>$svg]);
-		$product = Product::create($request->all());
-
-		return redirect('builder/'.$product->id)->with('status', 'Jersey created');
+		return redirect(route('uploadResult'))->with('status', 'Files uploaded successfully!');
 	}
 
 

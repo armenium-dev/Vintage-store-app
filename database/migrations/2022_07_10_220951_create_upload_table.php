@@ -15,6 +15,7 @@ return new class extends Migration {
 			$table->id();
 			$table->string('file')->nullable();
 			$table->integer('parsed')->default(0);
+			$table->longText('content')->nullable();
 			$table->timestamps();
 			$table->softDeletes();
 		});

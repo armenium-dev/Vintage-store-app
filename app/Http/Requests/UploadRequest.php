@@ -22,16 +22,19 @@ class UploadRequest extends FormRequest{
 	 */
 	public function rules(){
 		return [
-			'depopCsvFile' => 'required|file|mimes:csv|max:20480',
-			'asosCsvFile' => 'required|file|mimes:csv|max:20480',
+			'depopFile' => 'required|file|mimes:csv|max:20480',
+			'asosFile' => 'required|file|mimes:html|max:20480',
 		];
 	}
 
 	public function messages(){
 		return [
-			'depopCsvFile.required' => 'An Image is required',
-			'depopCsvFile.image' => 'File Must be an image',
-			'depopCsvFile.mimes' => 'The Image must be an extension SVG',
+			'depopFile.required' => 'An CSV is required',
+			'depopFile.file' => 'File Must be an CSV',
+			'depopFile.mimes' => 'The CSV must be an extension CSV',
+			'asosFile.required' => 'An HTML is required',
+			'asosFile.file' => 'File Must be an HTML',
+			'asosFile.mimes' => 'The HTML must be an extension HTML',
 		];
 	}
 }

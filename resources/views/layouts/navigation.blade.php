@@ -17,13 +17,18 @@
                     </x-nav-link>
                 </div>
                 <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex">
-                    <x-nav-link :href="route('links')" :active="request()->routeIs('links')">
+                    <x-nav-link :href="route('linksShopify')" :active="request()->routeIs('linksShopify')">
                         {{ __('Sales on Shopify') }}
                     </x-nav-link>
                 </div>
                 <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex">
-                    <x-nav-link :href="route('uploadCsv')" :active="request()->routeIs('uploadCsv')">
+                    <x-nav-link :href="route('linksDepopAsos')" :active="request()->routeIs('linksDepopAsos')">
                         {{ __('Sales on Depop/Asos') }}
+                    </x-nav-link>
+                </div>
+                <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex">
+                    <x-nav-link :href="route('uploadForm')" :active="request()->routeIs('uploadForm')">
+                        {{ __('Upload Files') }}
                     </x-nav-link>
                 </div>
             </div>

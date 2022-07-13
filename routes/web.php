@@ -28,10 +28,12 @@ Route::get('webhooks-create', [WebhooksController::class, 'createWebhooks'])->mi
 Route::get('webhooks-update', [WebhooksController::class, 'updateWebhooks'])->middleware(['auth'])->name('updateWebhooks');
 Route::get('webhooks-list', [WebhooksController::class, 'listWebhooks'])->middleware(['auth'])->name('listWebhooks');
 Route::resource('settings', SettingsController::class);
-Route::get('links', [LinksController::class, 'index'])->middleware(['auth'])->name('links');
+Route::get('links-shopify', [LinksController::class, 'linksShopify'])->middleware(['auth'])->name('linksShopify');
+Route::get('links-depop-asos', [LinksController::class, 'linksDepopAsos'])->middleware(['auth'])->name('linksDepopAsos');
 Route::post('link-remove', [LinksController::class, 'remove'])->middleware(['auth'])->name('linkRemove');
-Route::get('upload-csv', [UploadsController::class, 'index'])->middleware(['auth'])->name('uploadCsv');
-Route::post('upload-csv-files', [UploadsController::class, 'uploadCsvFiles'])->middleware(['auth'])->name('uploadCsvFiles');
+Route::get('upload', [UploadsController::class, 'index'])->middleware(['auth'])->name('uploadForm');
+Route::get('upload-result', [UploadsController::class, 'result'])->middleware(['auth'])->name('uploadResult');
+Route::post('upload-files', [UploadsController::class, 'uploadFiles'])->middleware(['auth'])->name('uploadFiles');
 
 # Test routes
 Route::get('set-order-products', [ShopifyController::class, 'setOrderProducts'])->middleware(['auth']);

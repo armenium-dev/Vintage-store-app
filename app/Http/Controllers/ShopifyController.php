@@ -225,6 +225,7 @@ class ShopifyController extends Controller{
 									'variant_id' => $variant['id'],
 									'link_depop' => $tags['link_depop'],
 									'link_asos' => $tags['link_asos'],
+									'shop_type' => 'shopify',
 								]
 							);
 							/*$l = DB::table('links')->where(['shop_id' => $shop_id, 'product_id' => $variant['product_id'], 'variant_id' => $variant['id']])->get();
