@@ -15,7 +15,7 @@
                         </div>
                     @endif
                     <h2 class="text-center font-bold mb-3">Shortly after processing the files, you will be redirected to the results page.</h2>
-                    <div class="text-center">Or follow this <a href="{{route('linksDepopAsos')}}" class="underline">link</a> to see the results after processing the files.</div>
+                    <div class="text-center">Or follow this <a href="{{route('salesDepopAsos')}}" class="underline">link</a> to see the results after processing the files.</div>
                 </div>
             </div>
         </div>

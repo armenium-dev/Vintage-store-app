@@ -6,12 +6,10 @@ use Illuminate\Support\Facades\Log;
 
 class Parser {
 
-	private $test_mode = true;
-
 	public function runParsing($file_type): int{
 		$res = 0;
 
-		$uploads = Uploads::where(['parsed' => 0])->where('file', 'like', '%.'.$file_type.'')->pluck('file', 'id')->all();
+		$uploads = Uploads::where(['parsed' => 0, 'file_type' => $file_type])->pluck('file', 'id')->all();
 
 		if(!empty($uploads)){
 			foreach($uploads as $id => $file){
@@ -80,7 +78,6 @@ class Parser {
 
 		return $res;
 	}
-
 
 }
 

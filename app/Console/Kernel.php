@@ -4,14 +4,15 @@ namespace App\Console;
 
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
-use App\Console\Commands\SyncShopifyProducts;
+use App\Console\Commands\ShopifySync;
 
 class Kernel extends ConsoleKernel{
 
     protected $commands = [
-        #Commands\SyncShopifyProducts::class,
         Commands\Depop::class,
         Commands\Asos::class,
+        Commands\ShopifySync::class,
+        Commands\ShopifyProducts::class,
     ];
 
     /**
@@ -21,9 +22,10 @@ class Kernel extends ConsoleKernel{
      * @return void
      */
     protected function schedule(Schedule $schedule){
-        //$schedule->command('syncsopifyproducts:run')->everyMinute();
-        $schedule->command('depop:run')->everyMinute();
-        $schedule->command('asos:run')->everyMinute();
+        #$schedule->command('depop:run')->everyMinute();
+        #$schedule->command('asos:run')->everyMinute();
+        #$schedule->command('shopifyproducts:run')->everyMinute();
+        $schedule->command('shopifysync:run')->everyMinute();//->twiceDaily(1, 13);
     }
 
     /**

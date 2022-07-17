@@ -10,8 +10,6 @@ use App\Http\Shopify\MyShopify;
 
 class ProductsController extends Controller {
 
-    private $test_session = null;
-
     /**
      * Display a listing of the resource.
      *
@@ -82,20 +80,5 @@ class ProductsController extends Controller {
         //
     }
 
-    public function getCount(){
-
-
-        /*$this->test_session = Utils::loadCurrentSession(
-            $requestHeaders,
-            $requestCookies,
-            $isOnline
-        );
-
-        Collect::count(
-            $this->test_session, // Session
-            [], // Url Ids
-            [], // Params
-        );*/
-    }
 
 }

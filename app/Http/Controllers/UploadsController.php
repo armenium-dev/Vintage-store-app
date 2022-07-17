@@ -34,8 +34,12 @@ class UploadsController extends Controller {
 		$depopFile_path = $request->file('depopFile')->store('uploads');
 		$asosFile_path = $request->file('asosFile')->store('uploads');
 
-		Uploads::create(['file' => $depopFile_path]);
-		Uploads::create(['file' => $asosFile_path]);
+		$depopFile_extension = pathinfo($depopFile_path, PATHINFO_EXTENSION);
+		$asosFile_extension = pathinfo($asosFile_path, PATHINFO_EXTENSION);
+
+
+		Uploads::create(['file' => $depopFile_path, 'file_type' => $depopFile_extension]);
+		Uploads::create(['file' => $asosFile_path, 'file_type' => $asosFile_extension]);
 
 		return redirect(route('uploadResult'))->with('status', 'Files uploaded successfully!');
 	}

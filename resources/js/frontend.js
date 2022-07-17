@@ -14,7 +14,7 @@
 				ajax_error: 'SYSTEM TECHNICAL ERROR'
 			},
 			routes: {
-				remove_link: "link-remove",
+				remove_sale: "sales-remove",
 			},
 			els: {},
 			Core: {
@@ -49,8 +49,11 @@
 						case "submit_uploader_form":
 							FJS.Uploader.submit($this);
 							break;
-						case "delete_link":
-							FJS.Links.remove($this);
+						case "delete_sale":
+							FJS.Sales.remove($this);
+							break;
+						case "copy_to_clipboard":
+							FJS.Common.copyToClipboard($this);
 							break;
 						default:
 							break;
@@ -64,6 +67,26 @@
 					let baseurl = $('meta[name="baseurl"]').attr('content');
 
 					return baseurl + '/' + endpoint;
+				},
+				copyToClipboard: function($btn){
+					let $source = $($btn.data('source')),
+						text = $source.text();
+
+					if(navigator && navigator.clipboard && navigator.clipboard.writeText){
+						return navigator.clipboard.writeText(text);
+					}else{
+						const el = document.createElement('textarea');
+						el.value = text;
+						el.setAttribute('readonly', '');
+						el.style.position = 'absolute';
+						el.style.left = '-9999px';
+						document.body.appendChild(el);
+						el.select();
+						document.execCommand('copy');
+						document.body.removeChild(el);
+					}
+
+					$source.addClass('color-red');
 				},
 			},
 			Uploader: {
@@ -92,14 +115,14 @@
 				submit: function($form){
 				},
 			},
-			Links: {
+			Sales: {
 				remove: function($btn){
 					let entry_id = $btn.data('id'),
 						$parent = $($btn.data('parent'));
 
 					$.ajax({
 						type: "POST",
-						url: FJS.Common.createAjaxUrl(FJS.routes.remove_link),
+						url: FJS.Common.createAjaxUrl(FJS.routes.remove_sale),
 						headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
 						data: {id: entry_id},
 						dataType: "json",

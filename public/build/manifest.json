@@ -5,17 +5,17 @@
     "isEntry": true
   },
   "resources/js/frontend.js": {
-    "file": "assets/frontend.35e3d13f.js",
+    "file": "assets/frontend.254e6bdc.js",
     "src": "resources/js/frontend.js",
     "isEntry": true
   },
   "resources/css/frontend.css": {
-    "file": "assets/frontend.c0485a65.css",
+    "file": "assets/frontend.f1f0a6e4.css",
     "src": "resources/css/frontend.css",
     "isEntry": true
   },
   "resources/css/app.css": {
-    "file": "assets/app.4dd9eff4.css",
+    "file": "assets/app.83240ad7.css",
     "src": "resources/css/app.css",
     "isEntry": true
   }

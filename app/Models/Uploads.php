@@ -18,7 +18,9 @@ class Uploads extends Model{
 	 */
 	protected $fillable = [
 		'file',
+		'file_type',
 		'parsed',
+		'processed',
 		'content',
 	];
 

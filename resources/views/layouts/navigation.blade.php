@@ -17,12 +17,12 @@
                     </x-nav-link>
                 </div>
                 <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex">
-                    <x-nav-link :href="route('linksShopify')" :active="request()->routeIs('linksShopify')">
+                    <x-nav-link :href="route('salesShopify')" :active="request()->routeIs('salesShopify')">
                         {{ __('Sales on Shopify') }}
                     </x-nav-link>
                 </div>
                 <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex">
-                    <x-nav-link :href="route('linksDepopAsos')" :active="request()->routeIs('linksDepopAsos')">
+                    <x-nav-link :href="route('salesDepopAsos')" :active="request()->routeIs('salesDepopAsos')">
                         {{ __('Sales on Depop/Asos') }}
                     </x-nav-link>
                 </div>

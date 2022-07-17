@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\Link;
+use App\Models\Sales;
 
 class DashboardController extends Controller{
 
@@ -12,9 +12,9 @@ class DashboardController extends Controller{
     }
 
     public function index(){
-		$shopify_count = Link::where(['shop_type' => 'shopify'])->count();
-		$depop_count = Link::where(['shop_type' => 'depop'])->count();
-		$asos_count = Link::where(['shop_type' => 'asos'])->count();
+		$shopify_count = Sales::where(['shop_source' => 'shopify'])->count();
+		$depop_count = Sales::where(['shop_source' => 'depop'])->count();
+		$asos_count = Sales::where(['shop_source' => 'asos'])->count();
 		$others_count = $depop_count+$asos_count;
 
         return view('dashboard', compact('shopify_count', 'others_count'));

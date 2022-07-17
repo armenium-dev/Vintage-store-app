@@ -21,10 +21,12 @@ class Product extends Model {
         'product_id',
         'variant_id',
         'title',
+        'body',
         'qty',
         'status',
         'link_depop',
         'link_asos',
+        'p_updated_at',
     ];
 
 

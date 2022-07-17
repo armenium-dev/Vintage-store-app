@@ -19,8 +19,8 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::post('shop1-webhook', [WebhooksController::class, 'shop1Webhook'])->name('shop1-webhook');
-Route::post('shop2-webhook', [WebhooksController::class, 'shop2Webhook'])->name('shop2-webhook');
-Route::post('shop3-webhook', [WebhooksController::class, 'shop3Webhook'])->name('shop3-webhook');
+Route::post('shop-1-webhook-orders', [WebhooksController::class, 'shop1WebhookOrders'])->name('shop1WebhookOrders');
+Route::post('shop-2-webhook-orders', [WebhooksController::class, 'shop2WebhookOrders'])->name('shop2WebhookOrders');
+Route::post('shop-3-webhook-orders', [WebhooksController::class, 'shop3WebhookOrders'])->name('shop3WebhookOrders');
 
 

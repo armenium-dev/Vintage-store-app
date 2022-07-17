@@ -17,27 +17,39 @@
                     <div class="flex">
                         <div class="flex-1 px-2">
                             <h2 class="mb-4 text-center font-bold uppercase text-lg">{{ env('SHOPIFY_SHOP_1_NAME') }}</h2>
-                            @forelse($shop_1_links as $link)
-                                @include('links.partials.item')
+                            <ol class="marker:text-sky-400 space-y-4 text-slate-500 list-decimal pl-4 text-sm">
+                            @forelse($shop_1_sales as $sale)
+                                <li class="border-b border-gray-200 last:border-0 mb-4 pb-4">
+                                    @include('sales.partials.item')
+                                </li>
                             @empty
                                 <h3 class="text-center text-gray-300 min-h-95p flex justify-center items-center border border-gray-100">---- {{__('No sales')}} ----</h3>
                             @endforelse
+                            </ol>
                         </div>
                         <div class="flex-1 px-2">
                             <h2 class="mb-4 text-center font-bold uppercase text-lg">{{ env('SHOPIFY_SHOP_2_NAME') }}</h2>
-                            @forelse($shop_2_links as $link)
-                                @include('links.partials.item')
+                            <ol class="marker:text-sky-400 space-y-4 text-slate-500 list-decimal pl-4 text-sm">
+                            @forelse($shop_2_sales as $sale)
+                                <li class="border-b border-gray-200 last:border-0 mb-4 pb-4">
+                                    @include('sales.partials.item')
+                                </li>
                             @empty
                                 <h3 class="text-center text-gray-300 min-h-95p flex justify-center items-center border border-gray-100">---- {{__('No sales')}} ----</h3>
                             @endforelse
+                            </ol>
                         </div>
                         <div class="flex-1 px-2">
                             <h2 class="mb-4 text-center font-bold uppercase text-lg">{{ env('SHOPIFY_SHOP_3_NAME') }}</h2>
-                            @forelse($shop_3_links as $link)
-                                @include('links.partials.item')
+                            <ol class="marker:text-sky-400 space-y-4 text-slate-500 list-decimal pl-4 text-sm">
+                            @forelse($shop_3_sales as $sale)
+                                <li class="border-b border-gray-200 last:border-0 mb-4 pb-4">
+                                    @include('sales.partials.item')
+                                </li>
                             @empty
                                 <h3 class="text-center text-gray-300 min-h-95p flex justify-center items-center border border-gray-100">---- {{__('No sales')}} ----</h3>
                             @endforelse
+                            </ol>
                         </div>
                     </div>
                 </div>
