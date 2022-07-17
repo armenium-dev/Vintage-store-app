@@ -19,17 +19,30 @@ use App\Http\Shopify\MyShopify;
 class SyncShopifyController extends Controller {
 	use AuthorizesRequests, DispatchesJobs, ValidatesRequests;
 
-	public $shopify;
 	private $update_interval = 86400;
+	private $limit_max = 250;
+	private $limit_partials = 20;
+	private $shopifyApi;
+	private $shop_id;
+	private $since_id;
+	private $option_name;
+	private $fields = ['id', 'title', 'body_html', 'tags', 'updated_at', 'status', 'variants'];
 
-	public function syncShopProducts(): string{
+	public function syncShopsProducts(): string{
 		$res = [];
 
-		foreach($this->getShopsIDs() as $shop_id){
-			$this->shopify = new MyShopify($shop_id);
-
-			#$res[] = $this->updateShopifyProductsTable();
-			$res[] = $this->_getShopifyProducts();
+		$shops = Settings::getLike('_sync_since_id');
+		
+		foreach($shops as $name => $value){
+			$this->option_name = $name;
+			$this->shop_id = intval(explode('_', $name)[1]);
+			$this->since_id = $value;
+			Log::stack(['cron'])->debug(['shop_id' => $this->shop_id, 'since_id' => $this->since_id]);
+			
+			$this->shopifyApi = new MyShopify($this->shop_id);
+			
+			$res[] = $this->updateShopifyProductsTable();
+			#$res[] = $this->_getShopifyProducts();
 			sleep(1);
 		}
 
@@ -38,28 +51,24 @@ class SyncShopifyController extends Controller {
 
 	public function getShopifyProductsCount(): int{
 		$count_url = '/products/count.json';
-		$result = $this->shopify->get($count_url);
+		$result = $this->shopifyApi->get($count_url);
 
 		return $result['count'];
 	}
 
-	/**
-	 * @return array
-	 */
-	private function _getShopifyProducts(): array{
-		$limit = 250;
+	private function _getShopifyAllProducts(): array{
 		$shopify_products = [];
 
-		$products_url = "/products.json?since_id={since_id}&limit={$limit}&fields=id";
+		$products_url = "/products.json?since_id={since_id}&limit={$this->limit_max}&fields=id";
 		$products_count = $this->getShopifyProductsCount();
-		$pages_count = intval(ceil($products_count / $limit));
+		$pages_count = intval(ceil($products_count / $this->limit_max));
 
 		Log::stack(['cron'])->debug([$products_count, $pages_count]);
 
 		$since_id = 0;
 		for($i = 1; $i <= $pages_count; $i++){
 			$url = str_replace('{since_id}', $since_id, $products_url);
-			$result = $this->shopify->get($url);
+			$result = $this->shopifyApi->get($url);
 			foreach($result['products'] as $product){
 				$shopify_products[] = $product['id'];
 				$since_id = $product['id'];
@@ -72,11 +81,25 @@ class SyncShopifyController extends Controller {
 		return $shopify_products;
 	}
 
-	public function updateShopifyProductsTable(){
-		$shopify_products_count = $this->getShopifyProductsCount();
-		$products_shopify = Product::all(['shopify_id', 'title']);
+	private function _getShopifyProducts(): array{
+		$since_id = $this->since_id;
+		
+		$url = sprintf("/products.json?since_id=%d&limit=%d&fields=%s", $since_id, $this->limit_partials, implode(',', $this->fields));
+		$result = $this->shopifyApi->get($url);
+		
+		$since_id = empty($result['products']) ? 0 : end($result['products'])['id'];
 
+		Settings::set($this->option_name, $since_id);
+		
+		return $result['products'];
+	}
+
+	public function updateShopifyProductsTable(){
 		$shopify_products = $this->_getShopifyProducts();
+		
+		if(empty($shopify_products)) return '';
+
+		/*$products_shopify = Product::all(['shopify_id', 'title'])->toArray();
 
 		$tmp_products_shopify = $products_shopify->toArray();
 		$products_shopify = [];
@@ -101,14 +124,11 @@ class SyncShopifyController extends Controller {
 				Product::whereIn('shopify_id', $shopify_ids)->delete();
 			}
 
-		}
+		}*/
 
 
 	}
 
-	/**
-	 * @return array
-	 */
 	public function getSyncShopifyProducts(): array{
 		$sync_products = [];
 

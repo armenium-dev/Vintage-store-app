@@ -44,7 +44,7 @@ class ShopifySync extends Command {
 	public function handle(){
 		Log::stack(['cron'])->debug('---------- Begin '.$this->description.' ----------');
 
-		$result = $this->ActionController->syncShopProducts();
+		$result = $this->ActionController->syncShopsProducts();
 
 		Log::stack(['cron'])->debug('Sync result = '.$result);
 
