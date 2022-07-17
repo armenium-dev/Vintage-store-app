@@ -28,7 +28,7 @@ class SyncShopifyController extends Controller {
 	private $option_name;
 	private $fields = ['id', 'title', 'body_html', 'tags', 'updated_at', 'status', 'variants'];
 
-	public function syncShopsProducts(): string{
+	public function syncShopsProducts(): array{
 		$res = [];
 
 		$shops = Settings::getLike('_sync_since_id');
@@ -37,34 +37,110 @@ class SyncShopifyController extends Controller {
 			$this->option_name = $name;
 			$this->shop_id = intval(explode('_', $name)[1]);
 			$this->since_id = $value;
+
 			Log::stack(['cron'])->debug(['shop_id' => $this->shop_id, 'since_id' => $this->since_id]);
 			
 			$this->shopifyApi = new MyShopify($this->shop_id);
 			
-			$res[] = $this->updateShopifyProductsTable();
-			#$res[] = $this->_getShopifyProducts();
+			$res[$this->shop_id] = $this->_updateOrCreateShopifyProducts();
+
 			sleep(1);
 		}
 
+		return $res;
+	}
+	
+	private function _updateOrCreateShopifyProducts(): string{
+		$res = [];
+		
+		$shopify_products = $this->_getShopifyProducts();
+
+		if(empty($shopify_products)) return '';
+		
+		foreach($shopify_products as $s_product){
+			$create_or_updaate_variants = false;
+			$product_id = $s_product['id'];
+			$tags = $this->_pareseProductTags($s_product['tags']);
+			$variants = $s_product['variants'];
+			
+			$res[] = $product_id;
+			
+			$product = Product::where(['shop_id' => $this->shop_id, 'product_id' => $product_id, 'variant_id' => 0])->first();
+			Log::stack(['cron'])->debug($product);
+			
+			if($product->count() == 0){
+				Log::stack(['cron'])->debug('Create product ID '.$product_id);
+				Product::create([
+					'shop_id' => $this->shop_id,
+					'product_id' => $product_id,
+					'variant_id' => 0,
+					'title' => $s_product['title'],
+					'body' => $s_product['body_html'],
+					'qty' => 0,
+					'status' => $s_product['status'],
+					'p_updated_at' => $s_product['updated_at'],
+					'link_depop' => $tags['link_depop'],
+					'link_asos' => $tags['link_asos'],
+				]);
+				$create_or_updaate_variants = true;
+			}else{
+				if($s_product['updated_at'] !== $product['p_updated_at']){
+					Log::stack(['cron'])->debug('Update product ID '.$product['id']);
+					$product->update([
+						'title' => $s_product['title'],
+						'body' => $s_product['body_html'],
+						'status' => $s_product['status'],
+						'p_updated_at' => $s_product['updated_at'],
+					]);
+					$create_or_updaate_variants = true;
+				}
+			}
+			
+			if($create_or_updaate_variants){
+				if(count($variants)){
+					foreach($variants as $variant){
+						Product::updateOrCreate(
+							['shop_id' => $this->shop_id, 'product_id' => $product_id, 'variant_id' => $variant['id']],
+							[
+								'shop_id' => $this->shop_id,
+								'product_id' => $variant['product_id'],
+								'variant_id' => $variant['id'],
+								'title' => $variant['title'],
+								'qty' => $variant['inventory_quantity'],
+							]
+						);
+					}
+				}
+			}
+			
+		}
+		#Log::stack(['cron'])->debug($res);
+		
 		return implode(', ', $res);
 	}
 
-	public function getShopifyProductsCount(): int{
-		$count_url = '/products/count.json';
-		$result = $this->shopifyApi->get($count_url);
-
-		return $result['count'];
+	private function _getShopifyProducts(): array{
+		$since_id = $this->since_id;
+		
+		$url = sprintf("/products.json?since_id=%d&limit=%d&fields=%s", $since_id, $this->limit_partials, implode(',', $this->fields));
+		$result = $this->shopifyApi->get($url);
+		
+		$since_id = empty($result['products']) ? 0 : end($result['products'])['id'];
+		
+		#Settings::set($this->option_name, $since_id);
+		
+		return $result['products'];
 	}
-
+	
 	private function _getShopifyAllProducts(): array{
 		$shopify_products = [];
-
+		
 		$products_url = "/products.json?since_id={since_id}&limit={$this->limit_max}&fields=id";
 		$products_count = $this->getShopifyProductsCount();
 		$pages_count = intval(ceil($products_count / $this->limit_max));
-
+		
 		Log::stack(['cron'])->debug([$products_count, $pages_count]);
-
+		
 		$since_id = 0;
 		for($i = 1; $i <= $pages_count; $i++){
 			$url = str_replace('{since_id}', $since_id, $products_url);
@@ -75,90 +151,47 @@ class SyncShopifyController extends Controller {
 			}
 			sleep(1);
 		}
-
+		
 		Log::stack(['cron'])->debug($shopify_products);
-
+		
 		return $shopify_products;
 	}
-
-	private function _getShopifyProducts(): array{
-		$since_id = $this->since_id;
+	
+	private function _getShopifyProductsCount(): int{
+		$count_url = '/products/count.json';
+		$result = $this->shopifyApi->get($count_url);
 		
-		$url = sprintf("/products.json?since_id=%d&limit=%d&fields=%s", $since_id, $this->limit_partials, implode(',', $this->fields));
-		$result = $this->shopifyApi->get($url);
-		
-		$since_id = empty($result['products']) ? 0 : end($result['products'])['id'];
-
-		Settings::set($this->option_name, $since_id);
-		
-		return $result['products'];
+		return $result['count'];
 	}
-
-	public function updateShopifyProductsTable(){
-		$shopify_products = $this->_getShopifyProducts();
+	
+	private function _pareseProductTags($tags){
+		$t = ['link_asos' => '', 'link_depop' => ''];
 		
-		if(empty($shopify_products)) return '';
-
-		/*$products_shopify = Product::all(['shopify_id', 'title'])->toArray();
-
-		$tmp_products_shopify = $products_shopify->toArray();
-		$products_shopify = [];
-		foreach($tmp_products_shopify as $product){
-			$products_shopify[$product['shopify_id']] = $product['title'];
-		}
-
-		if($shopify_products){
-			foreach($shopify_products as $product_id => $product_name){
-				if(in_array($product_id, array_keys($products_shopify))){
-					if($products_shopify[$product_id] != $product_name){
-						Product::where(['shopify_id' => $product_id])->update(['title' => $product_name]);
-					}
-					unset($products_shopify[$product_id]);
-				}else{
-					Product::create(['shopify_id' => $product_id, 'title' => $product_name]);
-				}
+		if(empty($tags)) return $t;
+		
+		$a = array_map('trim', explode(',', $tags));
+		
+		foreach($a as $v){
+			if($v != 'NOTASOS' && strstr($v, 'asos') !== false){
+				$t['link_asos'] = $v;
 			}
-
-			if(!empty($products_shopify)){
-				$shopify_ids = array_keys($products_shopify);
-				Product::whereIn('shopify_id', $shopify_ids)->delete();
-			}
-
-		}*/
-
-
-	}
-
-	public function getSyncShopifyProducts(): array{
-		$sync_products = [];
-
-		$shopify_products = $this->getShopifyProducts();
-
-		if(!empty($shopify_products)){
-			$shopify_ids = array_keys($shopify_products);
-			$Products = DB::table('products')->whereIn('product_id', $shopify_ids)->get();
-
-			foreach($Products->all() as $product){
-				if($product->name != $shopify_products[$product->product_id]){
-					$sync_products[] = ['id' => $product->id, 'product_id' => $product->product_id, 'name' => $product->name, 'shopify_name' => $shopify_products[$product->product_id],];
-				}
+			if($v != 'NOTDEPOP' && strstr($v, 'depop') !== false){
+				$t['link_depop'] = $v;
 			}
 		}
-
-		#dd($sync_products);
-
-		return $sync_products;
+		
+		return $t;
 	}
-
+	
 	/**
 	 * ACTION
 	 *
 	 * @return \Illuminate\Contracts\View\View
 	 */
 	public function shopifySync(){
-		$sync_products = $this->getSyncShopifyProducts();
-
-		return view('shopify.list', ['SyncProducts' => $sync_products]);
+		$sync_products = $this->syncShopsProducts();
+		dd($sync_products);
+		#return view('shopify.list', ['SyncProducts' => $sync_products]);
 	}
 
 }
