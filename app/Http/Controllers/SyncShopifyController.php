@@ -19,9 +19,8 @@ use App\Http\Shopify\MyShopify;
 class SyncShopifyController extends Controller {
 	use AuthorizesRequests, DispatchesJobs, ValidatesRequests;
 
-	private $update_interval = 86400;
 	private $limit_max = 250;
-	private $limit_partials = 20;
+	private $limit_partials = 250;
 	private $shopifyApi;
 	private $shop_id;
 	private $since_id;
@@ -38,7 +37,7 @@ class SyncShopifyController extends Controller {
 			$this->shop_id = intval(explode('_', $name)[1]);
 			$this->since_id = $value;
 
-			Log::stack(['cron'])->debug(['shop_id' => $this->shop_id, 'since_id' => $this->since_id]);
+			#Log::stack(['cron'])->debug(['shop_id' => $this->shop_id, 'since_id' => $this->since_id]);
 			
 			$this->shopifyApi = new MyShopify($this->shop_id);
 			
@@ -50,26 +49,27 @@ class SyncShopifyController extends Controller {
 		return $res;
 	}
 	
-	private function _updateOrCreateShopifyProducts(): string{
+	private function _updateOrCreateShopifyProducts(): int{
 		$res = [];
 		
 		$shopify_products = $this->_getShopifyProducts();
 
-		if(empty($shopify_products)) return '';
+		if(empty($shopify_products)) return 0;
 		
 		foreach($shopify_products as $s_product){
 			$create_or_updaate_variants = false;
 			$product_id = $s_product['id'];
 			$tags = $this->_pareseProductTags($s_product['tags']);
 			$variants = $s_product['variants'];
-			
-			$res[] = $product_id;
-			
-			$product = Product::where(['shop_id' => $this->shop_id, 'product_id' => $product_id, 'variant_id' => 0])->first();
-			Log::stack(['cron'])->debug($product);
-			
-			if($product->count() == 0){
-				Log::stack(['cron'])->debug('Create product ID '.$product_id);
+
+			if(empty($tags['link_depop']) && empty($tags['link_asos'])) continue;
+
+
+			$product = Product::where(['shop_id' => $this->shop_id, 'product_id' => $product_id, 'variant_id' => 0])->get()->toArray();
+			#Log::stack(['cron'])->debug($product);
+
+			if(count($product) == 0){
+				#Log::stack(['cron'])->debug('Create product ID '.$product_id);
 				Product::create([
 					'shop_id' => $this->shop_id,
 					'product_id' => $product_id,
@@ -83,40 +83,41 @@ class SyncShopifyController extends Controller {
 					'link_asos' => $tags['link_asos'],
 				]);
 				$create_or_updaate_variants = true;
+				$res[] = $product_id;
 			}else{
+				$product = $product[0];
 				if($s_product['updated_at'] !== $product['p_updated_at']){
-					Log::stack(['cron'])->debug('Update product ID '.$product['id']);
-					$product->update([
+					#Log::stack(['cron'])->debug('Update product ID '.$product['id']);
+					Product::where(['shop_id' => $this->shop_id, 'product_id' => $product_id, 'variant_id' => 0])->update([
 						'title' => $s_product['title'],
 						'body' => $s_product['body_html'],
 						'status' => $s_product['status'],
 						'p_updated_at' => $s_product['updated_at'],
 					]);
 					$create_or_updaate_variants = true;
+					$res[] = $product_id;
 				}
 			}
 			
-			if($create_or_updaate_variants){
-				if(count($variants)){
-					foreach($variants as $variant){
-						Product::updateOrCreate(
-							['shop_id' => $this->shop_id, 'product_id' => $product_id, 'variant_id' => $variant['id']],
-							[
-								'shop_id' => $this->shop_id,
-								'product_id' => $variant['product_id'],
-								'variant_id' => $variant['id'],
-								'title' => $variant['title'],
-								'qty' => $variant['inventory_quantity'],
-							]
-						);
-					}
+			if($create_or_updaate_variants && count($variants)){
+				foreach($variants as $variant){
+					Product::updateOrCreate(
+						['shop_id' => $this->shop_id, 'product_id' => $product_id, 'variant_id' => $variant['id']],
+						[
+							'shop_id' => $this->shop_id,
+							'product_id' => $variant['product_id'],
+							'variant_id' => $variant['id'],
+							'title' => $variant['title'],
+							'qty' => $variant['inventory_quantity'],
+						]
+					);
 				}
 			}
-			
+
 		}
 		#Log::stack(['cron'])->debug($res);
 		
-		return implode(', ', $res);
+		return count($res);
 	}
 
 	private function _getShopifyProducts(): array{
@@ -127,7 +128,7 @@ class SyncShopifyController extends Controller {
 		
 		$since_id = empty($result['products']) ? 0 : end($result['products'])['id'];
 		
-		#Settings::set($this->option_name, $since_id);
+		Settings::set($this->option_name, $since_id);
 		
 		return $result['products'];
 	}
@@ -184,7 +185,7 @@ class SyncShopifyController extends Controller {
 	}
 	
 	/**
-	 * ACTION
+	 * ACTION for manual testing
 	 *
 	 * @return \Illuminate\Contracts\View\View
 	 */

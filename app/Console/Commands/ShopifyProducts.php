@@ -43,9 +43,10 @@ class ShopifyProducts extends Command {
 	public function handle(){
 		Log::stack(['cron'])->debug('---------- Begin '.$this->description.' ----------');
 
-		$result = $this->ShopifyController->makeOffShopifyProducts();
+		$result = $this->ShopifyController->turnOffShopifyProducts();
 
-		Log::stack(['cron'])->debug('Parse result = '.$result);
+		Log::stack(['cron'])->debug('Turn off result');
+		Log::stack(['cron'])->debug($result);
 
 		Log::stack(['cron'])->debug('---------- End '.$this->description.' ----------');
 	}

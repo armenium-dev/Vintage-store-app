@@ -14,13 +14,13 @@ class UploadsController extends Controller {
 	}
 
 	/**
-	 * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
+	 * @return \Illuminate\Contracts\View\View
 	 */
 	public function index(){
 		return view('uploads.index', []);
 	}
 	/**
-	 * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
+	 * @return \Illuminate\Contracts\View\View
 	 */
 	public function result(){
 		return view('uploads.result', []);
@@ -28,7 +28,7 @@ class UploadsController extends Controller {
 
 	/**
 	 * @param  \Illuminate\Http\Request  $request
-	 * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+	 * @return \Illuminate\Routing\Redirector
 	 */
 	public function uploadFiles(UploadRequest $request){
 		$depopFile_path = $request->file('depopFile')->store('uploads');

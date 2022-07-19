@@ -28,7 +28,7 @@ class ShopifyController extends Controller {
 	}
 
 	/**
-	 * ACTION
+	 * ACTION for manual testing
 	 *
 	 * @param Request $request
 	 * @return bool
@@ -41,7 +41,11 @@ class ShopifyController extends Controller {
 	}
 
 	public function parseAndStoreOrderData($shop_id, $order_id){
-		$products = $this->_getOrderProducts($shop_id, $order_id);
+		$data = $this->_getOrderProducts($shop_id, $order_id);
+
+		$add_order = false;
+		$products = $data['products'];
+		$order = $data['order'];
 
 		if(!empty($products)){
 			foreach($products as $product){
@@ -52,6 +56,8 @@ class ShopifyController extends Controller {
 				$p_updated_at = $product['product']['updated_at'];
 				$tags = $this->_pareseProductTags($product['product']['tags']);
 				$variants = $product['product']['variants'];
+
+				if(empty($tags['link_depop']) && empty($tags['link_asos'])) continue;
 
 				Product::updateOrCreate(
 					['shop_id' => $shop_id, 'product_id' => $product_id, 'variant_id' => 0],
@@ -133,6 +139,12 @@ class ShopifyController extends Controller {
 						}
 					}
 				}
+
+				$add_order = true;
+			}
+
+			if($add_order){
+				$this->_addOrder($shop_id, $order);
 			}
 		}
 
@@ -148,7 +160,7 @@ class ShopifyController extends Controller {
 		#dd($result);
 
 		if(!isset($result['ERROR'])){
-			Order::updateOrCreate(
+			/*Order::updateOrCreate(
 				['shop_id' => $shop_id, 'order_id' => $result['order']['id']],
 				[
 					'shop_id' => $shop_id,
@@ -157,7 +169,7 @@ class ShopifyController extends Controller {
 					'fulfillment_status' => $result['order']['fulfillment_status'],
 					'data' => json_encode($result['order']),
 				]
-			);
+			);*/
 
 			if(isset($result['order']['line_items'])){
 				foreach($result['order']['line_items'] as $product){
@@ -167,7 +179,20 @@ class ShopifyController extends Controller {
 		}
 
 		#dd(json_encode($products));
-		return $products;
+		return ['order' => $result, 'products' => $products];
+	}
+
+	private function _addOrder($shop_id, $order){
+		Order::updateOrCreate(
+			['shop_id' => $shop_id, 'order_id' => $order['order']['id']],
+			[
+				'shop_id' => $shop_id,
+				'order_id' => $order['order']['id'],
+				'payment_status' => $order['order']['financial_status'],
+				'fulfillment_status' => $order['order']['fulfillment_status'],
+				'data' => json_encode($order['order']),
+			]
+		);
 	}
 
 	private function _pareseProductTags($tags){
@@ -189,7 +214,10 @@ class ShopifyController extends Controller {
 		return $t;
 	}
 
-	public function makeOffShopifyProducts(){
+	/**-------------CRON METHODS----------------**/
+
+	public function turnOffShopifyProducts(): int|array{
+		$res = [];
 
 		$uploads = Uploads::where(['parsed' => 1, 'processed' => 0])->get()->toArray();
 		#Log::stack(['cron'])->debug($uploads);
@@ -211,27 +239,105 @@ class ShopifyController extends Controller {
 				default:
 					break;
 			}
+
+			/** Uncomment on production */
+			#Uploads::find($upload['id'])->update(['processed' => 1]);
 		}
 
-		if(!empty($group_csv)) $group_csv = array_unique($group_csv);
-		if(!empty($group_html)) $group_html = array_unique($group_html);
+		if(!empty($group_csv)){
+			$group_csv = array_unique($group_csv);
+			$res[] = $this->_findProductsAndTurnOff('depop', $group_csv);
+		}
+
+		if(!empty($group_html)){
+			$group_html = array_unique($group_html);
+			$res[] = $this->_findProductsAndTurnOff('asos', $group_html);
+		}
 
 		#Log::stack(['cron'])->debug($group_csv);
 		#Log::stack(['cron'])->debug($group_html);
 
-		return 1;
+		return $res;
 	}
 
-	private function findByDescAndMakeOffProducts($data){
-		foreach($this->getShopsIDs() as $shop_id){
-			#$shopify_client = new MyShopify($shop_id);
-			#$result = $shopify_client->get('/orders/'.$order_id.'.json');
-			foreach($data as $item){
+	private function _findProductsAndTurnOff($type, $data): int{
+		Log::stack(['cron'])->debug(__METHOD__);
 
+		$products = [];
+		foreach($data as $item){
+			if($type == 'depop'){
+				$product = Product::where('body', 'like', '%'.$item.'%')->get()->toArray();
+			}elseif($type = 'asos'){
+				$product = Product::where(['link_asos' => $item])->get()->toArray();
+			}
+
+			if(!empty($product)){
+				$products[] = $product;
 			}
 		}
+
+		if(!empty($products)){
+			#Log::stack(['cron'])->debug($products);
+
+			/*foreach($products as $product){
+				$variant = Product::where(['product_id' => $product['product_id']])->where('variant_id', '!=', 0)->get()->toArray();
+				if(intval($variant['qty']) > 0){
+					if(!empty($product['link_depop'])){
+						Sales::updateOrCreate(
+							[
+								'shop_id' => $variant['shop_id'],
+								'order_id' => 0,
+								'product_id' => $variant['product_id'],
+								'variant_id' => $variant['variant_id'],
+								'link' => $product['link_depop'],
+								'shop_source' => 'depop',
+								'link_type' => 'depop',
+							],
+							[
+								'shop_id' => $variant['shop_id'],
+								'order_id' => 0,
+								'product_id' => $variant['product_id'],
+								'variant_id' => $variant['variant_id'],
+								'link' => $product['link_depop'],
+								'shop_source' => 'depop',
+								'link_type' => 'depop',
+							]
+						);
+					}
+					if(!empty($product['link_asos'])){
+						Sales::updateOrCreate(
+							[
+								'shop_id' => $variant['shop_id'],
+								'order_id' => 0,
+								'product_id' => $variant['product_id'],
+								'variant_id' => $variant['variant_id'],
+								'link' => $product['link_asos'],
+								'shop_source' => 'asos',
+								'link_type' => 'asos',
+							],
+							[
+								'shop_id' => $variant['shop_id'],
+								'order_id' => 0,
+								'product_id' => $variant['product_id'],
+								'variant_id' => $variant['variant_id'],
+								'link' => $product['link_asos'],
+								'shop_source' => 'asos',
+								'link_type' => 'asos',
+							]
+						);
+					}
+				}
+			}*/
+		}
+
+		/*foreach($this->getShopsIDs() as $shop_id){
+			#$shopify_client = new MyShopify($shop_id);
+			#$result = $shopify_client->get('/orders/'.$order_id.'.json');
+		}*/
+
+		return count($products);
 	}
 
-	/*-----------------------------*/
+
 
 }

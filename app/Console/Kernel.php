@@ -24,8 +24,8 @@ class Kernel extends ConsoleKernel{
     protected function schedule(Schedule $schedule){
         #$schedule->command('depop:run')->everyMinute();
         #$schedule->command('asos:run')->everyMinute();
-        #$schedule->command('shopifyproducts:run')->everyMinute();
-        $schedule->command('shopifysync:run')->everyMinute();//->twiceDaily(1, 13);
+        $schedule->command('shopifyproducts:run')->everyMinute();
+        $schedule->command('shopifysync:run')->everyTwoMinutes();
     }
 
     /**
