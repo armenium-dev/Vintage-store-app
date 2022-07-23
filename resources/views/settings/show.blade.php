@@ -21,14 +21,7 @@
 		<div class="col-md-12 text-center"><h4>Option #{{ $model->id }}</h4></div>
 	</div>
 	<hr>
-	@if (session('status'))
-	<div class="alert alert-success alert-dismissible fade show" role="alert">
-		{{ session('status') }}
-		<button type="button" class="close" data-dismiss="alert" aria-label="Close">
-		<span aria-hidden="true">&times;</span>
-		</button>
-	</div>
-	@endif
+	<x-alert type="error" :message="session('status')"/>
 	<div class="row">
 		<div class="col-md-6 offset-md-3 mb-20">
 			<h4 class="font-weight-bold font-red font-18">Option data:</h4>

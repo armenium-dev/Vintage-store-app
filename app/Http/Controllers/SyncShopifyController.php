@@ -62,7 +62,7 @@ class SyncShopifyController extends Controller {
 			$tags = $this->_pareseProductTags($s_product['tags']);
 			$variants = $s_product['variants'];
 
-			if(empty($tags['link_depop']) && empty($tags['link_asos'])) continue;
+			#if(empty($tags['link_depop']) && empty($tags['link_asos'])) continue;
 
 
 			$product = Product::where(['shop_id' => $this->shop_id, 'product_id' => $product_id, 'variant_id' => 0])->get()->toArray();
@@ -113,7 +113,6 @@ class SyncShopifyController extends Controller {
 					);
 				}
 			}
-
 		}
 		#Log::stack(['cron'])->debug($res);
 		

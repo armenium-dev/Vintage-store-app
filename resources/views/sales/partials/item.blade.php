@@ -1,9 +1,9 @@
 <div id="js_saleitem_{{$sale->id}}" class="">
     <h4 class="uppercase font-bold flex justify-between mb-4">
     @if($sale->link_type == 'depop')
-        <span>{{__('Depop')}}</span>
+        <span>{{__('Depop link')}}</span>
     @elseif($sale->link_type == 'asos')
-        <span>{{__('Asos')}}</span>
+        <span>{{__('Asos link')}}</span>
     @endif
         <small>Order ID: {{ $sale->order_id }}</small>
     </h4>

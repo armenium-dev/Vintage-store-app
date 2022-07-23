@@ -19,8 +19,7 @@ class ShopifyController extends Controller {
 
 	use AuthorizesRequests, DispatchesJobs, ValidatesRequests;
 
-	public $shopify;
-	private $update_interval = 86400;
+	private MyShopify $shopify_client;
 
 	public function __construct(){
 		#$this->shopify = new MyShopify(1);
@@ -40,7 +39,9 @@ class ShopifyController extends Controller {
 		return $this->parseAndStoreOrderData($shop_id, $order_id);
 	}
 
-	public function parseAndStoreOrderData($shop_id, $order_id){
+	/**-------------- WEBHOOK ORDERS ----------------**/
+
+	public function storeOrder($shop_id, $order_id): bool{
 		$data = $this->_getOrderProducts($shop_id, $order_id);
 
 		$add_order = false;
@@ -54,7 +55,7 @@ class ShopifyController extends Controller {
 				$body = $product['product']['body_html'];
 				$status = $product['product']['status'];
 				$p_updated_at = $product['product']['updated_at'];
-				$tags = $this->_pareseProductTags($product['product']['tags']);
+				$tags = $this->_parseProductTags($product['product']['tags']);
 				$variants = $product['product']['variants'];
 
 				if(empty($tags['link_depop']) && empty($tags['link_asos'])) continue;
@@ -151,35 +152,23 @@ class ShopifyController extends Controller {
 		return true;
 	}
 
-	private function _getOrderProducts($shop_id, $order_id){
+	private function _getOrderProducts($shop_id, $order_id): array{
 		$products = [];
 
-		$shopify_client = new MyShopify($shop_id);
+		$this->shopify_client = new MyShopify($shop_id);
 
-		$result = $shopify_client->get('/orders/'.$order_id.'.json');
-		#dd($result);
+		$order = $this->shopify_client->get('/orders/'.$order_id.'.json');
+		#Log::stack(['webhook'])->debug($order);
 
-		if(!isset($result['ERROR'])){
-			/*Order::updateOrCreate(
-				['shop_id' => $shop_id, 'order_id' => $result['order']['id']],
-				[
-					'shop_id' => $shop_id,
-					'order_id' => $result['order']['id'],
-					'payment_status' => $result['order']['financial_status'],
-					'fulfillment_status' => $result['order']['fulfillment_status'],
-					'data' => json_encode($result['order']),
-				]
-			);*/
-
-			if(isset($result['order']['line_items'])){
-				foreach($result['order']['line_items'] as $product){
-					$products[] = $shopify_client->get('/products/'.$product['product_id'].'.json');
+		if(!isset($order['ERROR'])){
+			if(isset($order['order']['line_items'])){
+				foreach($order['order']['line_items'] as $product){
+					$products[] = $this->_getProduct($product['product_id']);
 				}
 			}
 		}
 
-		#dd(json_encode($products));
-		return ['order' => $result, 'products' => $products];
+		return ['order' => $order, 'products' => $products];
 	}
 
 	private function _addOrder($shop_id, $order){
@@ -195,7 +184,7 @@ class ShopifyController extends Controller {
 		);
 	}
 
-	private function _pareseProductTags($tags){
+	private function _parseProductTags($tags): array{
 		$t = ['link_asos' => '', 'link_depop' => ''];
 
 		if(empty($tags)) return $t;
@@ -214,9 +203,70 @@ class ShopifyController extends Controller {
 		return $t;
 	}
 
-	/**-------------CRON METHODS----------------**/
+	private function _getProduct($product_id){
+		$product = $this->shopify_client->get('/products/'.$product_id.'.json?fields=id,title,body_html,status,updated_at,tags,variants');
+		#Log::stack(['webhook'])->debug($product);
 
-	public function turnOffShopifyProducts(): int|array{
+		return $product;
+	}
+
+	/**-------------- WEBHOOK PRODUCTS ----------------**/
+
+	public function createOrUpdateProduct($shop_id, $product_id): bool{
+		$this->shopify_client = new MyShopify($shop_id);
+		$product = $this->_getProduct($product_id);
+		#Log::stack(['webhook'])->debug($product);
+
+		$title = $product['product']['title'];
+		$body = $product['product']['body_html'];
+		$status = $product['product']['status'];
+		$p_updated_at = $product['product']['updated_at'];
+		$tags = $this->_parseProductTags($product['product']['tags']);
+		$variants = $product['product']['variants'];
+
+		#if(empty($tags['link_depop']) && empty($tags['link_asos'])) return false;
+
+		Product::updateOrCreate(
+			['shop_id' => $shop_id, 'product_id' => $product_id, 'variant_id' => 0],
+			[
+				'shop_id' => $shop_id,
+				'product_id' => $product_id,
+				'variant_id' => 0,
+				'title' => $title,
+				'body' => $body,
+				'qty' => 0,
+				'status' => $status,
+				'p_updated_at' => $p_updated_at,
+				'link_depop' => $tags['link_depop'],
+				'link_asos' => $tags['link_asos'],
+			]
+		);
+
+		if(count($variants)){
+			foreach($variants as $variant){
+				Product::updateOrCreate(
+					['shop_id' => $shop_id, 'product_id' => $product_id, 'variant_id' => $variant['id']],
+					[
+						'shop_id' => $shop_id,
+						'product_id' => $variant['product_id'],
+						'variant_id' => $variant['id'],
+						'title' => $variant['title'],
+						'qty' => $variant['inventory_quantity'],
+					]
+				);
+			}
+		}
+
+		return true;
+	}
+
+	public function deleteProduct($shop_id, $product_id): bool{
+		return Product::where(['shop_id' => $shop_id, 'product_id' => $product_id])->delete();
+	}
+
+	/**------------- CRON METHODS ----------------**/
+
+	public function getDepopAsosSalesProducts(): int|array{
 		$res = [];
 
 		$uploads = Uploads::where(['parsed' => 1, 'processed' => 0])->get()->toArray();
@@ -241,17 +291,17 @@ class ShopifyController extends Controller {
 			}
 
 			/** Uncomment on production */
-			#Uploads::find($upload['id'])->update(['processed' => 1]);
+			Uploads::find($upload['id'])->update(['processed' => 1]);
 		}
 
 		if(!empty($group_csv)){
 			$group_csv = array_unique($group_csv);
-			$res[] = $this->_findProductsAndTurnOff('depop', $group_csv);
+			$res['depop'] = $this->_findDepopAsosProductsAndAddToSale('depop', $group_csv);
 		}
 
 		if(!empty($group_html)){
 			$group_html = array_unique($group_html);
-			$res[] = $this->_findProductsAndTurnOff('asos', $group_html);
+			$res['asos'] = $this->_findDepopAsosProductsAndAddToSale('asos', $group_html);
 		}
 
 		#Log::stack(['cron'])->debug($group_csv);
@@ -260,84 +310,175 @@ class ShopifyController extends Controller {
 		return $res;
 	}
 
-	private function _findProductsAndTurnOff($type, $data): int{
+	private function _findDepopAsosProductsAndAddToSale($type, $data): int{
 		Log::stack(['cron'])->debug(__METHOD__);
+		Log::stack(['cron'])->debug($type);
+		#Log::stack(['cron'])->debug($data);
 
+		$select_fields = ['id', 'shop_id', 'product_id', 'variant_id', 'title', 'link_depop', 'link_asos'];
 		$products = [];
 		foreach($data as $item){
 			if($type == 'depop'){
-				$product = Product::where('body', 'like', '%'.$item.'%')->get()->toArray();
+				$product = Product::where('body', 'like', '%'.$item.'%')
+					->select($select_fields)->get()->toArray();
 			}elseif($type = 'asos'){
-				$product = Product::where(['link_asos' => $item])->get()->toArray();
+				$product = Product::where(['link_asos' => $item])
+					->select($select_fields)->get()->toArray();
 			}
 
 			if(!empty($product)){
-				$products[] = $product;
+				$products[] = [
+					'id' => $product[0]['id'],
+					'shop_id' => $product[0]['shop_id'],
+					'product_id' => $product[0]['product_id'],
+					'variant_id' => $product[0]['variant_id'],
+					'title' => $product[0]['title'],
+					'link_depop' => $product[0]['link_depop'],
+					'link_asos' => $product[0]['link_asos'],
+				];
 			}
 		}
 
 		if(!empty($products)){
 			#Log::stack(['cron'])->debug($products);
 
-			/*foreach($products as $product){
+			foreach($products as $product){
 				$variant = Product::where(['product_id' => $product['product_id']])->where('variant_id', '!=', 0)->get()->toArray();
+				$variant = $variant[0];
+				#Log::stack(['cron'])->debug($variant['qty']);
 				if(intval($variant['qty']) > 0){
-					if(!empty($product['link_depop'])){
-						Sales::updateOrCreate(
-							[
-								'shop_id' => $variant['shop_id'],
-								'order_id' => 0,
-								'product_id' => $variant['product_id'],
-								'variant_id' => $variant['variant_id'],
-								'link' => $product['link_depop'],
-								'shop_source' => 'depop',
-								'link_type' => 'depop',
-							],
-							[
-								'shop_id' => $variant['shop_id'],
-								'order_id' => 0,
-								'product_id' => $variant['product_id'],
-								'variant_id' => $variant['variant_id'],
-								'link' => $product['link_depop'],
-								'shop_source' => 'depop',
-								'link_type' => 'depop',
-							]
-						);
+
+					if(!empty($product['link_'.$type])){
+						$link = $product['link_'.$type];
+						$shop_source = $type;
+						$link_type = $type;
 					}
-					if(!empty($product['link_asos'])){
-						Sales::updateOrCreate(
-							[
-								'shop_id' => $variant['shop_id'],
-								'order_id' => 0,
-								'product_id' => $variant['product_id'],
-								'variant_id' => $variant['variant_id'],
-								'link' => $product['link_asos'],
-								'shop_source' => 'asos',
-								'link_type' => 'asos',
-							],
-							[
-								'shop_id' => $variant['shop_id'],
-								'order_id' => 0,
-								'product_id' => $variant['product_id'],
-								'variant_id' => $variant['variant_id'],
-								'link' => $product['link_asos'],
-								'shop_source' => 'asos',
-								'link_type' => 'asos',
-							]
-						);
-					}
+
+					Sales::firstOrCreate(
+						[
+							'shop_id' => $variant['shop_id'],
+							'order_id' => 0,
+							'product_id' => $variant['product_id'],
+							'variant_id' => $variant['variant_id'],
+							'link' => $link,
+							'shop_source' => $shop_source,
+							'link_type' => $link_type,
+							'removed' => 0,
+						],
+						[
+							'shop_id' => $variant['shop_id'],
+							'order_id' => 0,
+							'product_id' => $variant['product_id'],
+							'variant_id' => $variant['variant_id'],
+							'link' => $link,
+							'shop_source' => $shop_source,
+							'link_type' => $link_type,
+							'removed' => 0,
+						]
+					);
 				}
-			}*/
+			}
 		}
 
-		/*foreach($this->getShopsIDs() as $shop_id){
-			#$shopify_client = new MyShopify($shop_id);
-			#$result = $shopify_client->get('/orders/'.$order_id.'.json');
-		}*/
 
 		return count($products);
 	}
 
+	public function turnOffShopifyProducts(): int|array{
+		$res = [];
 
+		$sale = Sales::where(['removed' => 0])->orderBy('shop_id')->first();
+
+		if(!empty($sale)){
+			$sale = $sale->toArray();
+			Log::stack(['cron'])->debug($sale);
+
+			$shopify_client = new MyShopify($sale['shop_id']);
+			$variant = $shopify_client->get('/variants/'.$sale['variant_id'].'.json');
+			#Log::stack(['cron'])->debug($variant);
+
+			if(!empty($variant)){
+				$inventory_item_id = $variant['variant']['inventory_item_id'];
+				$inventory_quantity = intval($variant['variant']['inventory_quantity']);
+
+				if($inventory_quantity > 0){
+					$inventory_levels = $shopify_client->get('/inventory_levels.json?inventory_item_ids='.$inventory_item_id);
+					#Log::stack(['cron'])->debug($inventory_levels);
+
+					if(!empty($inventory_levels)){
+						foreach($inventory_levels as $levels){
+							foreach($levels as $level){
+								$data = [
+									"location_id" => $level['location_id'],
+									"inventory_item_id" => $level['inventory_item_id'],
+									"available" => intval($level['available'])-1
+								];
+								$result = $shopify_client->post('/inventory_levels/set.json', $data);
+								#Log::stack(['cron'])->debug($result);
+								if(!empty($result['inventory_level'])){
+									$res[] = $result['inventory_level']['available'];
+									$this->_removeSale($sale, $data["available"]);
+								}
+								unset($result);
+							}
+						}
+					}
+				}else{
+					$this->_removeSale($sale);
+				}
+			}
+			unset($shopify_client);
+		}
+
+		return count($res);
+	}
+
+	private function _removeSale($sale_data, $available = 0){
+		Sales::where(['id' => $sale_data['id']])->update(['removed' => 1]);
+		Sales::where(['id' => $sale_data['id']])->delete();
+
+		$select_fields = ['id', 'link_depop', 'link_asos'];
+		$product = Product::where(['shop_id' => $sale_data['shop_id'], 'product_id' => $sale_data['product_id']])->select($select_fields)->get()->toArray();
+
+		if(!empty($product)){
+			Product::where(['shop_id' => $sale_data['shop_id'], 'product_id' => $sale_data['product_id']])
+				->where('variant_id', '!=', 0)
+				->update(['qty' => $available]);
+
+			if($sale_data['shop_source'] == 'depop'){
+				$link = $product[0]['link_asos'];
+				$shop_source = 'depop';
+				$link_type = 'asos';
+			}elseif($sale_data['shop_source'] == 'asos'){
+				$link = $product[0]['link_depop'];
+				$shop_source = 'asos';
+				$link_type = 'depop';
+			}
+
+			Sales::firstOrCreate(
+				[
+					'shop_id' => $sale_data['shop_id'],
+					'order_id' => $sale_data['order_id'],
+					'product_id' => $sale_data['product_id'],
+					'variant_id' => $sale_data['variant_id'],
+					'link' => $link,
+					'shop_source' => $shop_source,
+					'link_type' => $link_type,
+					'removed' => 1,
+				],
+				[
+					'shop_id' => $sale_data['shop_id'],
+					'order_id' => 0,
+					'product_id' => $sale_data['product_id'],
+					'variant_id' => $sale_data['variant_id'],
+					'link' => $link,
+					'shop_source' => $shop_source,
+					'link_type' => $link_type,
+					'removed' => 1,
+				]
+			);
+
+		}
+	}
 
 }

@@ -24,14 +24,18 @@ use App\Http\Controllers\UploadsController;
 
 Route::get('/', [WelcomeController::class, 'index']);
 Route::get('dashboard', [DashboardController::class, 'index'])->middleware(['auth'])->name('dashboard');
+
 Route::get('shopify-sync', [SyncShopifyController::class, 'shopifySync'])->middleware(['auth'])->name('shopifySync');
+
 Route::get('webhooks-create', [WebhooksController::class, 'create'])->middleware(['auth'])->name('createWebhooks');
 Route::get('webhooks-update', [WebhooksController::class, 'update'])->middleware(['auth'])->name('updateWebhooks');
 Route::get('webhooks-list', [WebhooksController::class, 'list'])->middleware(['auth'])->name('listWebhooks');
+
 Route::resource('settings', SettingsController::class);
 
-Route::get('sales-shopify', [SalesController::class, 'salesShopify'])->middleware(['auth'])->name('salesShopify');
-Route::get('sales-depop-asos', [SalesController::class, 'salesDepopAsos'])->middleware(['auth'])->name('salesDepopAsos');
+Route::get('sales-shopify', [SalesController::class, 'salesOnShopify'])->middleware(['auth'])->name('salesOnShopify');
+Route::get('sales-depop', [SalesController::class, 'salesOnDepop'])->middleware(['auth'])->name('salesOnDepop');
+Route::get('sales-asos', [SalesController::class, 'salesOnAsos'])->middleware(['auth'])->name('salesOnAsos');
 Route::post('sales-remove', [SalesController::class, 'remove'])->middleware(['auth'])->name('salesRemove');
 
 Route::get('upload', [UploadsController::class, 'index'])->middleware(['auth'])->name('uploadForm');

@@ -15,9 +15,8 @@ class DashboardController extends Controller{
 		$shopify_count = Sales::where(['shop_source' => 'shopify'])->count();
 		$depop_count = Sales::where(['shop_source' => 'depop'])->count();
 		$asos_count = Sales::where(['shop_source' => 'asos'])->count();
-		$others_count = $depop_count+$asos_count;
 
-        return view('dashboard', compact('shopify_count', 'others_count'));
+        return view('dashboard', compact('shopify_count', 'depop_count', 'asos_count'));
     }
 
 }

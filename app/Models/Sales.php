@@ -24,6 +24,7 @@ class Sales extends Model{
 		'variant_id',
 		'link',
 		'link_type',
+		'removed',
 	];
 
 	private $order = null;
@@ -52,8 +53,10 @@ class Sales extends Model{
 
 	private function _getOrderData(){
 		if(is_null($this->order)){
-			$this->order = Order::where(['order_id' => $this->order_id])->first();
-			$this->order->data = json_decode($this->order->data, true);
+			if($this->order_id > 0){
+				$this->order = Order::where(['order_id' => $this->order_id])->first();
+				$this->order->data = json_decode($this->order->data, true);
+			}
 		}
 	}
 
@@ -61,19 +64,21 @@ class Sales extends Model{
 		$this->_getOrderData();
 		$ret = '';
 
-		switch($attr){
-			case "date":
-				$ret = $this->order->data['updated_at'];
-				break;
-			case "confirmed":
-				$ret = intval($this->order->data['confirmed']) ? 'Yes' : 'No';
-				break;
-			case "payment_status":
-				$ret = is_null($this->order->payment_status) ? '---' : $this->order->payment_status;
-				break;
-			case "fulfillment_status":
-				$ret = is_null($this->order->fulfillment_status) ? '---' : $this->order->fulfillment_status;
-				break;
+		if($this->order_id > 0){
+			switch($attr){
+				case "date":
+					$ret = $this->order->data['updated_at'];
+					break;
+				case "confirmed":
+					$ret = intval($this->order->data['confirmed']) ? 'Yes' : 'No';
+					break;
+				case "payment_status":
+					$ret = is_null($this->order->payment_status) ? '---' : $this->order->payment_status;
+					break;
+				case "fulfillment_status":
+					$ret = is_null($this->order->fulfillment_status) ? '---' : $this->order->fulfillment_status;
+					break;
+			}
 		}
 
 		return $ret;

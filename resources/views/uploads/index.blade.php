@@ -1,16 +1,9 @@
 <x-app-layout>
     <x-slot name="header">
         <div class="">
-            <h2 class="font-semibold text-xl text-gray-800 leading-tight">{{ __('Upload CSV files') }}</h2>
+            <h2 class="font-semibold text-xl text-gray-800 leading-tight">{{ __('Upload files') }}</h2>
         </div>
-        @if (session('status'))
-            <div class="alert alert-success alert-dismissible fade show" role="alert">
-                {{ session('status') }}
-                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-        @endif
+        <x-alert type="error" :message="session('status')"/>
     </x-slot>
 
     <div class="py-12">
@@ -19,7 +12,7 @@
                 <div class="p-6 bg-white border-b border-gray-200">
                     <form action="{{ route('uploadFiles') }}" method="post" enctype="multipart/form-data">
                         @csrf
-                        <div class="columns-2 gap-5">
+                        <div class="columns-2 gap-5 columns-sm">
                             <div class="">
                                 <label class="mb-4 block">{{ __('DEPOP CSV') }}</label>
                                 <input type="file" name="depopFile" class="block mb-5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 cursor-pointer dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400">

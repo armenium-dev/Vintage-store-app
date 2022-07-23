@@ -82,14 +82,14 @@ class SalesController extends Controller{
 	 *
 	 * @return \Illuminate\Contracts\View\View
 	 */
-	public function salesShopify(){
+	public function salesOnShopify(){
 		$title = __('Sales on Shopify');
 
 		$shop_1_sales = Sales::where(['shop_id' => 1, 'shop_source' => 'shopify'])->orderBy('order_id')->get();
 		$shop_2_sales = Sales::where(['shop_id' => 2, 'shop_source' => 'shopify'])->orderBy('order_id')->get();
 		$shop_3_sales = Sales::where(['shop_id' => 3, 'shop_source' => 'shopify'])->orderBy('order_id')->get();
 
-		return view('sales.index', compact('shop_1_sales', 'shop_2_sales', 'shop_3_sales'));
+		return view('sales.index', compact('title','shop_1_sales', 'shop_2_sales', 'shop_3_sales'));
 	}
 
 	/**
@@ -97,12 +97,29 @@ class SalesController extends Controller{
 	 *
 	 * @return \Illuminate\Contracts\View\View
 	 */
-	public function salesDepopAsos(){
-		$shop_1_sales = Sales::where(['shop_id' => 1, 'shop_source' => 'shopify'])->orderBy('order_id')->get();
-		$shop_2_sales = Sales::where(['shop_id' => 2, 'shop_source' => 'shopify'])->orderBy('order_id')->get();
-		$shop_3_sales = Sales::where(['shop_id' => 3, 'shop_source' => 'shopify'])->orderBy('order_id')->get();
+	public function salesOnDepop(){
+		$title = __('Sales on Depop');
 
-		return view('sales.index', compact('shop_1_sales', 'shop_2_sales', 'shop_3_sales'));
+		$shop_1_sales = Sales::where(['shop_id' => 1, 'shop_source' => 'depop'])->orderBy('order_id')->get();
+		$shop_2_sales = Sales::where(['shop_id' => 2, 'shop_source' => 'depop'])->orderBy('order_id')->get();
+		$shop_3_sales = Sales::where(['shop_id' => 3, 'shop_source' => 'depop'])->orderBy('order_id')->get();
+
+		return view('sales.index', compact('title','shop_1_sales', 'shop_2_sales', 'shop_3_sales'));
+	}
+
+	/**
+	 * Display a listing of the resource.
+	 *
+	 * @return \Illuminate\Contracts\View\View
+	 */
+	public function salesOnAsos(){
+		$title = __('Sales on Asos');
+
+		$shop_1_sales = Sales::where(['shop_id' => 1, 'shop_source' => 'asos'])->orderBy('order_id')->get();
+		$shop_2_sales = Sales::where(['shop_id' => 2, 'shop_source' => 'asos'])->orderBy('order_id')->get();
+		$shop_3_sales = Sales::where(['shop_id' => 3, 'shop_source' => 'asos'])->orderBy('order_id')->get();
+
+		return view('sales.index', compact('title','shop_1_sales', 'shop_2_sales', 'shop_3_sales'));
 	}
 
 
