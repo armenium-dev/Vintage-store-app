@@ -58,7 +58,7 @@ class ShopifyController extends Controller {
 				$tags = $this->_parseProductTags($product['product']['tags']);
 				$variants = $product['product']['variants'];
 
-				if(empty($tags['link_depop']) && empty($tags['link_asos'])) continue;
+				#if(empty($tags['link_depop']) && empty($tags['link_asos'])) continue;
 
 				Product::updateOrCreate(
 					['shop_id' => $shop_id, 'product_id' => $product_id, 'variant_id' => 0],
