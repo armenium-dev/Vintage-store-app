@@ -8,7 +8,6 @@ use App\Models\Sales;
 class SalesCount extends Component{
 
 	public string $type;
-	public int $count;
 
 	/**
 	 * Create the component instance.
@@ -28,20 +27,23 @@ class SalesCount extends Component{
 	 * @return \Illuminate\Contracts\View\View|\Closure|string
 	 */
 	public function render(){
+		$count = 0;
+		$css_class = 'js_sales_on_'.$this->type;
+		
 		switch($this->type){
 			case "shopify":
-				$this->count = Sales::where(['shop_source' => 'shopify'])->count();
+				$count = Sales::where(['shop_source' => 'shopify'])->count();
 				break;
 			case "depop":
-				$this->count = Sales::where(['shop_source' => 'depop'])->count();
+				$count = Sales::where(['shop_source' => 'depop'])->count();
 				break;
 			case "asos":
-				$this->count = Sales::where(['shop_source' => 'asos'])->count();
+				$count = Sales::where(['shop_source' => 'asos'])->count();
 				break;
 			default:
 				break;
 		}
 
-		return view('components.sales-count', ['count' => $this->count]);
+		return view('components.sales-count', compact('count', 'css_class'));
 	}
 }

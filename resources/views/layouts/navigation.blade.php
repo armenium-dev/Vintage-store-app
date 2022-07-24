@@ -25,13 +25,13 @@
                 <div class="hidden space-x-8 sm:-my-px sm:ml-10 lg:flex">
                     <x-nav-link :href="route('salesOnDepop')" :active="request()->routeIs('salesOnDepop')">
                         {{ __('Sales on Depop') }}
-                        <span class="js_sales_on_depop text-xs bg-gray-100 text-red-300 rounded-full px-1 ml-2">0</span>
+                        <x-sales-count type="depop"/>
                     </x-nav-link>
                 </div>
                 <div class="hidden space-x-8 sm:-my-px sm:ml-10 lg:flex">
                     <x-nav-link :href="route('salesOnAsos')" :active="request()->routeIs('salesOnAsos')">
                         {{ __('Sales on Asos') }}
-                        <span class="js_sales_on_asos text-xs bg-gray-100 text-red-300 rounded-full px-1 ml-2">0</span>
+                        <x-sales-count type="asos"/>
                     </x-nav-link>
                 </div>
                 <div class="hidden space-x-8 sm:-my-px sm:ml-10 lg:flex">
@@ -90,15 +90,15 @@
             </x-responsive-nav-link>
             <x-responsive-nav-link :href="route('salesOnShopify')" :active="request()->routeIs('salesOnShopify')">
                 {{ __('Sales on Shopify') }}
-                <span class="js_sales_on_shopify text-xs bg-gray-100 text-red-300 rounded-full px-1 ml-2">0</span>
+                <x-sales-count type="shopify"/>
             </x-responsive-nav-link>
             <x-responsive-nav-link :href="route('salesOnDepop')" :active="request()->routeIs('salesOnDepop')">
                 {{ __('Sales on Depop') }}
-                <span class="js_sales_on_depop text-xs bg-gray-100 text-red-300 rounded-full px-1 ml-2">0</span>
+                <x-sales-count type="depop"/>
             </x-responsive-nav-link>
             <x-responsive-nav-link :href="route('salesOnAsos')" :active="request()->routeIs('salesOnAsos')">
                 {{ __('Sales on Asos') }}
-                <span class="js_sales_on_asos text-xs bg-gray-100 text-red-300 rounded-full px-1 ml-2">0</span>
+                <x-sales-count type="asos"/>
             </x-responsive-nav-link>
             <x-responsive-nav-link :href="route('uploadForm')" :active="request()->routeIs('uploadForm')">
                 {{ __('Upload Files') }}
