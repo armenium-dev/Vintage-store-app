@@ -36,7 +36,7 @@ Route::resource('settings', SettingsController::class);
 Route::get('sales-shopify', [SalesController::class, 'salesOnShopify'])->middleware(['auth'])->name('salesOnShopify');
 Route::get('sales-depop', [SalesController::class, 'salesOnDepop'])->middleware(['auth'])->name('salesOnDepop');
 Route::get('sales-asos', [SalesController::class, 'salesOnAsos'])->middleware(['auth'])->name('salesOnAsos');
-Route::post('sales-remove', [SalesController::class, 'remove'])->middleware(['auth'])->name('salesRemove');
+Route::post('sales-remove', [SalesController::class, 'remove'])->middleware(['cors'])->name('salesRemove');
 
 Route::get('upload', [UploadsController::class, 'index'])->middleware(['auth'])->name('uploadForm');
 Route::get('upload-result', [UploadsController::class, 'result'])->middleware(['auth'])->name('uploadResult');
