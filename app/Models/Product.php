@@ -19,10 +19,8 @@ class Product extends Model {
     protected $fillable = [
         'shop_id',
         'product_id',
-        'variant_id',
         'title',
         'body',
-        'qty',
         'status',
         'link_depop',
         'link_asos',

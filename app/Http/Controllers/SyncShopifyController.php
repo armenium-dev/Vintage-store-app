@@ -66,7 +66,7 @@ class SyncShopifyController extends Controller {
 			#if(empty($tags['link_depop']) && empty($tags['link_asos'])) continue;
 
 
-			$product = Product::where(['shop_id' => $this->shop_id, 'product_id' => $product_id, 'variant_id' => 0])->get()->toArray();
+			$product = Product::where(['shop_id' => $this->shop_id, 'product_id' => $product_id])->get()->toArray();
 			#Log::stack(['cron'])->debug($product);
 
 			if(count($product) == 0){
@@ -74,10 +74,8 @@ class SyncShopifyController extends Controller {
 				Product::create([
 					'shop_id' => $this->shop_id,
 					'product_id' => $product_id,
-					'variant_id' => 0,
 					'title' => $s_product['title'],
 					'body' => $s_product['body_html'],
-					'qty' => 0,
 					'status' => $s_product['status'],
 					'p_updated_at' => $s_product['updated_at'],
 					'link_depop' => $tags['link_depop'],
@@ -89,7 +87,7 @@ class SyncShopifyController extends Controller {
 				$product = $product[0];
 				if($s_product['updated_at'] !== $product['p_updated_at']){
 					#Log::stack(['cron'])->debug('Update product ID '.$product['id']);
-					Product::where(['shop_id' => $this->shop_id, 'product_id' => $product_id, 'variant_id' => 0])
+					Product::where(['shop_id' => $this->shop_id, 'product_id' => $product_id])
 						->update([
 							'title' => $s_product['title'],
 							'body' => $s_product['body_html'],

@@ -62,14 +62,12 @@ class ShopifyController extends Controller {
 				#if(empty($tags['link_depop']) && empty($tags['link_asos'])) continue;
 
 				Product::updateOrCreate(
-					['shop_id' => $shop_id, 'product_id' => $product_id, 'variant_id' => 0],
+					['shop_id' => $shop_id, 'product_id' => $product_id],
 					[
 						'shop_id' => $shop_id,
 						'product_id' => $product_id,
-						'variant_id' => 0,
 						'title' => $title,
 						'body' => $body,
-						'qty' => 0,
 						'status' => $status,
 						'p_updated_at' => $p_updated_at,
 						'link_depop' => $tags['link_depop'],
@@ -229,14 +227,12 @@ class ShopifyController extends Controller {
 		#if(empty($tags['link_depop']) && empty($tags['link_asos'])) return false;
 
 		Product::updateOrCreate(
-			['shop_id' => $shop_id, 'product_id' => $product_id, 'variant_id' => 0],
+			['shop_id' => $shop_id, 'product_id' => $product_id],
 			[
 				'shop_id' => $shop_id,
 				'product_id' => $product_id,
-				'variant_id' => 0,
 				'title' => $title,
 				'body' => $body,
-				'qty' => 0,
 				'status' => $status,
 				'p_updated_at' => $p_updated_at,
 				'link_depop' => $tags['link_depop'],
@@ -318,7 +314,7 @@ class ShopifyController extends Controller {
 		Log::stack(['cron'])->debug($type);
 		#Log::stack(['cron'])->debug($data);
 
-		$select_fields = ['id', 'shop_id', 'product_id', 'variant_id', 'title', 'link_depop', 'link_asos'];
+		$select_fields = ['id', 'shop_id', 'product_id', 'title', 'link_depop', 'link_asos'];
 		$products = [];
 		foreach($data as $item){
 			if($type == 'depop'){
@@ -334,7 +330,7 @@ class ShopifyController extends Controller {
 					'id' => $product[0]['id'],
 					'shop_id' => $product[0]['shop_id'],
 					'product_id' => $product[0]['product_id'],
-					'variant_id' => $product[0]['variant_id'],
+					#'variant_id' => $product[0]['variant_id'],
 					'title' => $product[0]['title'],
 					'link_depop' => $product[0]['link_depop'],
 					'link_asos' => $product[0]['link_asos'],

@@ -18,6 +18,7 @@ class DatabaseSeeder extends Seeder{
 	 * @return void
 	 */
 	public function run(){
+		/*
 		$logs = [];
 
 		if($this->truncate){
@@ -48,6 +49,6 @@ class DatabaseSeeder extends Seeder{
 		}
 
 		dump($logs);
-
+		*/
 	}
 }

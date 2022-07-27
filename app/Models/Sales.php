@@ -40,13 +40,13 @@ class Sales extends Model{
 	}
 
 	public function getProductName(){
-		$p = Product::where(['product_id' => $this->product_id, 'variant_id' => 0])->pluck('title');
+		$p = Product::where(['product_id' => $this->product_id])->pluck('title');
 
 		return $p->count() ? $p[0] : $this->product_id;
 	}
 
 	public function getVariantName(){
-		$p = Product::where(['product_id' => $this->product_id, 'variant_id' => $this->variant_id])->pluck('title');
+		$p = Variant::where(['product_id' => $this->product_id, 'variant_id' => $this->variant_id])->pluck('title');
 
 		return $p->count() ? $p[0] : $this->variant_id;
 	}
