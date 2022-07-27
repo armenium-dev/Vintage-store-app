@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Shopify\MyShopify;
 use App\Models\Product;
+use App\Models\Variant;
 use App\Models\Settings;
 use App\Models\Uploads;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
@@ -78,14 +79,15 @@ class ShopifyController extends Controller {
 
 				if(count($variants)){
 					foreach($variants as $variant){
-						Product::updateOrCreate(
+						Variant::updateOrCreate(
 							['shop_id' => $shop_id, 'product_id' => $product_id, 'variant_id' => $variant['id']],
 							[
 								'shop_id' => $shop_id,
 								'product_id' => $variant['product_id'],
 								'variant_id' => $variant['id'],
 								'title' => $variant['title'],
-								'qty' => $variant['inventory_quantity'],
+								'inventory_quantity' => $variant['inventory_quantity'],
+								'price' => $variant['price'],
 							]
 						);
 
@@ -244,14 +246,15 @@ class ShopifyController extends Controller {
 
 		if(count($variants)){
 			foreach($variants as $variant){
-				Product::updateOrCreate(
+				Variant::updateOrCreate(
 					['shop_id' => $shop_id, 'product_id' => $product_id, 'variant_id' => $variant['id']],
 					[
 						'shop_id' => $shop_id,
 						'product_id' => $variant['product_id'],
 						'variant_id' => $variant['id'],
 						'title' => $variant['title'],
-						'qty' => $variant['inventory_quantity'],
+						'inventory_quantity' => $variant['inventory_quantity'],
+						'price' => $variant['price'],
 					]
 				);
 			}
@@ -343,10 +346,10 @@ class ShopifyController extends Controller {
 			#Log::stack(['cron'])->debug($products);
 
 			foreach($products as $product){
-				$variant = Product::where(['product_id' => $product['product_id']])->where('variant_id', '!=', 0)->get()->toArray();
+				$variant = Variant::where(['product_id' => $product['product_id']])->get()->toArray();
 				$variant = $variant[0];
-				#Log::stack(['cron'])->debug($variant['qty']);
-				if(intval($variant['qty']) > 0){
+				#Log::stack(['cron'])->debug($variant['inventory_quantity']);
+				if(intval($variant['inventory_quantity']) > 0){
 
 					if(!empty($product['link_'.$type])){
 						$link = $product['link_'.$type];
@@ -438,12 +441,12 @@ class ShopifyController extends Controller {
 		Sales::where(['id' => $sale_data['id']])->delete();
 
 		$select_fields = ['id', 'link_depop', 'link_asos'];
-		$product = Product::where(['shop_id' => $sale_data['shop_id'], 'product_id' => $sale_data['product_id']])->select($select_fields)->get()->toArray();
+		$product = Product::where(['shop_id' => $sale_data['shop_id'], 'product_id' => $sale_data['product_id']])
+			->select($select_fields)->get()->toArray();
 
 		if(!empty($product)){
-			Product::where(['shop_id' => $sale_data['shop_id'], 'product_id' => $sale_data['product_id']])
-				->where('variant_id', '!=', 0)
-				->update(['qty' => $available]);
+			Variant::where(['shop_id' => $sale_data['shop_id'], 'product_id' => $sale_data['product_id'], 'variant_id' => $sale_data['variant_id']])
+				->update(['inventory_quantity' => $available]);
 
 			if($sale_data['shop_source'] == 'depop'){
 				$link = $product[0]['link_asos'];

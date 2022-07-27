@@ -8,6 +8,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Product;
 use App\Models\Settings;
+use App\Models\Variant;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Foundation\Validation\ValidatesRequests;
@@ -88,12 +89,13 @@ class SyncShopifyController extends Controller {
 				$product = $product[0];
 				if($s_product['updated_at'] !== $product['p_updated_at']){
 					#Log::stack(['cron'])->debug('Update product ID '.$product['id']);
-					Product::where(['shop_id' => $this->shop_id, 'product_id' => $product_id, 'variant_id' => 0])->update([
-						'title' => $s_product['title'],
-						'body' => $s_product['body_html'],
-						'status' => $s_product['status'],
-						'p_updated_at' => $s_product['updated_at'],
-					]);
+					Product::where(['shop_id' => $this->shop_id, 'product_id' => $product_id, 'variant_id' => 0])
+						->update([
+							'title' => $s_product['title'],
+							'body' => $s_product['body_html'],
+							'status' => $s_product['status'],
+							'p_updated_at' => $s_product['updated_at'],
+						]);
 					$create_or_updaate_variants = true;
 					$res[] = $product_id;
 				}
@@ -101,14 +103,15 @@ class SyncShopifyController extends Controller {
 			
 			if($create_or_updaate_variants && count($variants)){
 				foreach($variants as $variant){
-					Product::updateOrCreate(
+					Variant::updateOrCreate(
 						['shop_id' => $this->shop_id, 'product_id' => $product_id, 'variant_id' => $variant['id']],
 						[
 							'shop_id' => $this->shop_id,
 							'product_id' => $variant['product_id'],
 							'variant_id' => $variant['id'],
 							'title' => $variant['title'],
-							'qty' => $variant['inventory_quantity'],
+							'inventory_quantity' => $variant['inventory_quantity'],
+							'price' => $variant['price'],
 						]
 					);
 				}
