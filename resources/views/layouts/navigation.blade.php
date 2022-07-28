@@ -16,29 +16,39 @@
                         {{ __('Dashboard') }}
                     </x-nav-link>
                 </div>
-                <div class="hidden space-x-8 sm:-my-px sm:ml-10 lg:flex">
-                    <x-nav-link :href="route('salesOnShopify')" :active="request()->routeIs('salesOnShopify')">
-                        {{ __('Sales on Shopify') }}
-                        <x-sales-count type="shopify"/>
-                    </x-nav-link>
+
+                <div class="hidden space-x-8 sm:-my-px sm:ml-10 lg:flex dropdown-item">
+                    <x-dropdown align="left">
+                        <x-slot name="trigger">
+                            <x-nav-link>
+                                {{ __('Sales') }}
+                                <span class="ml-1">
+                                    <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                                    </svg>
+                                </span>
+                            </x-nav-link>
+                        </x-slot>
+                        <x-slot name="content">
+                            <x-dropdown-link :href="route('salesOnShopify')" :active="request()->routeIs('salesOnShopify')" class="flex justify-between items-center">
+                                {{ __('on Shopify') }}
+                                <x-sales-count type="shopify"/>
+                            </x-dropdown-link>
+                            <x-dropdown-link :href="route('salesOnDepop')" :active="request()->routeIs('salesOnDepop')" class="flex justify-between items-center">
+                                {{ __('on Depop') }}
+                                <x-sales-count type="depop"/>
+                            </x-dropdown-link>
+                            <x-dropdown-link :href="route('salesOnAsos')" :active="request()->routeIs('salesOnAsos')" class="flex justify-between items-center">
+                                {{ __('on Asos') }}
+                                <x-sales-count type="asos"/>
+                            </x-dropdown-link>
+                            <x-dropdown-link :href="route('uploadForm')" :active="request()->routeIs('uploadForm')" class="flex justify-between items-center">
+                                {{ __('Upload files') }}
+                            </x-dropdown-link>
+                        </x-slot>
+                    </x-dropdown>
                 </div>
-                <div class="hidden space-x-8 sm:-my-px sm:ml-10 lg:flex">
-                    <x-nav-link :href="route('salesOnDepop')" :active="request()->routeIs('salesOnDepop')">
-                        {{ __('Sales on Depop') }}
-                        <x-sales-count type="depop"/>
-                    </x-nav-link>
-                </div>
-                <div class="hidden space-x-8 sm:-my-px sm:ml-10 lg:flex">
-                    <x-nav-link :href="route('salesOnAsos')" :active="request()->routeIs('salesOnAsos')">
-                        {{ __('Sales on Asos') }}
-                        <x-sales-count type="asos"/>
-                    </x-nav-link>
-                </div>
-                <div class="hidden space-x-8 sm:-my-px sm:ml-10 lg:flex">
-                    <x-nav-link :href="route('uploadForm')" :active="request()->routeIs('uploadForm')">
-                        {{ __('Upload Files') }}
-                    </x-nav-link>
-                </div>
+
             </div>
 
             <!-- Settings Dropdown -->
@@ -60,9 +70,7 @@
                         <!-- Authentication -->
                         <form method="POST" action="{{ route('logout') }}">
                             @csrf
-                            <x-dropdown-link :href="route('logout')"
-                                    onclick="event.preventDefault();
-                                                this.closest('form').submit();">
+                            <x-dropdown-link :href="route('logout')" onclick="event.preventDefault(); this.closest('form').submit();">
                                 {{ __('Log Out') }}
                             </x-dropdown-link>
                         </form>

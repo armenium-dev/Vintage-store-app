@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Shopify\MyShopify;
 use App\Models\Product;
 use App\Models\Variant;
+use App\Models\Tag;
 use App\Models\Settings;
 use App\Models\Uploads;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
@@ -21,10 +22,12 @@ class ShopifyController extends Controller {
 	use AuthorizesRequests, DispatchesJobs, ValidatesRequests;
 
 	private MyShopify $shopify_client;
+	private TagsController $TagsController;
+	private ProductsController $ProductsController;
 
-	public function __construct(){
-		#$this->shopify = new MyShopify(1);
-		#$this->updateShopifyProductsTable();
+	public function __construct(ProductsController $PC, TagsController $TC){
+		$this->ProductsController = $PC;
+		$this->TagsController = $TC;
 	}
 
 	/**
@@ -37,7 +40,7 @@ class ShopifyController extends Controller {
 		$shop_id = $request->get('shop_id');
 		$order_id = $request->get('order_id');
 
-		return $this->parseAndStoreOrderData($shop_id, $order_id);
+		return $this->storeOrder($shop_id, $order_id);
 	}
 
 	/**-------------- WEBHOOK ORDERS ----------------**/
@@ -54,26 +57,26 @@ class ShopifyController extends Controller {
 				$product_id = $product['product']['id'];
 				$title = $product['product']['title'];
 				$body = $product['product']['body_html'];
+				$image = $product['product']['image']['src'] ?? '';
 				$status = $product['product']['status'];
 				$p_updated_at = $product['product']['updated_at'];
-				$tags = $this->_parseProductTags($product['product']['tags']);
 				$variants = $product['product']['variants'];
+				$tags = $this->TagsController->parseProductTags($product['product']['tags']);
 
-				#if(empty($tags['link_depop']) && empty($tags['link_asos'])) continue;
+				$this->ProductsController->updateOrCreate([
+					'shop_id' => $shop_id,
+					'product_id' => $product_id,
+					'title' => $title,
+					'body' => $body,
+					'status' => $status,
+					'p_updated_at' => $p_updated_at,
+					'link_depop' => $tags['link_depop'],
+					'link_asos' => $tags['link_asos'],
+					'image' => $image,
+					'tags' => $tags['tags'],
+				]);
 
-				Product::updateOrCreate(
-					['shop_id' => $shop_id, 'product_id' => $product_id],
-					[
-						'shop_id' => $shop_id,
-						'product_id' => $product_id,
-						'title' => $title,
-						'body' => $body,
-						'status' => $status,
-						'p_updated_at' => $p_updated_at,
-						'link_depop' => $tags['link_depop'],
-						'link_asos' => $tags['link_asos'],
-					]
-				);
+				#$this->TagsController->renewTags($shop_id, $product_id, $tags['tags']);
 
 				if(count($variants)){
 					foreach($variants as $variant){
@@ -184,27 +187,8 @@ class ShopifyController extends Controller {
 		);
 	}
 
-	private function _parseProductTags($tags): array{
-		$t = ['link_asos' => '', 'link_depop' => ''];
-
-		if(empty($tags)) return $t;
-
-		$a = array_map('trim', explode(',', $tags));
-
-		foreach($a as $v){
-			if($v != 'NOTASOS' && strstr($v, 'asos') !== false){
-				$t['link_asos'] = $v;
-			}
-			if($v != 'NOTDEPOP' && strstr($v, 'depop') !== false){
-				$t['link_depop'] = $v;
-			}
-		}
-
-		return $t;
-	}
-
 	private function _getProduct($product_id){
-		$product = $this->shopify_client->get('/products/'.$product_id.'.json?fields=id,title,body_html,status,updated_at,tags,variants');
+		$product = $this->shopify_client->get('/products/'.$product_id.'.json?fields=id,title,body_html,status,updated_at,tags,variants,image');
 		#Log::stack(['webhook'])->debug($product);
 
 		return $product;
@@ -220,25 +204,26 @@ class ShopifyController extends Controller {
 		$title = $product['product']['title'];
 		$body = $product['product']['body_html'];
 		$status = $product['product']['status'];
+		$image = $product['product']['image']['src'] ?? '';
 		$p_updated_at = $product['product']['updated_at'];
-		$tags = $this->_parseProductTags($product['product']['tags']);
 		$variants = $product['product']['variants'];
+		#$tags = $this->_parseProductTags($product['product']['tags']);
+		$tags = $this->TagsController->parseProductTags($product['product']['tags']);
 
 		#if(empty($tags['link_depop']) && empty($tags['link_asos'])) return false;
 
-		Product::updateOrCreate(
-			['shop_id' => $shop_id, 'product_id' => $product_id],
-			[
-				'shop_id' => $shop_id,
-				'product_id' => $product_id,
-				'title' => $title,
-				'body' => $body,
-				'status' => $status,
-				'p_updated_at' => $p_updated_at,
-				'link_depop' => $tags['link_depop'],
-				'link_asos' => $tags['link_asos'],
-			]
-		);
+		$this->ProductsController->updateOrCreate([
+			'shop_id' => $shop_id,
+			'product_id' => $product_id,
+			'title' => $title,
+			'body' => $body,
+			'status' => $status,
+			'image' => $image,
+			'p_updated_at' => $p_updated_at,
+			'link_depop' => $tags['link_depop'],
+			'link_asos' => $tags['link_asos'],
+			'tags' => $tags['tags'],
+		]);
 
 		if(count($variants)){
 			foreach($variants as $variant){

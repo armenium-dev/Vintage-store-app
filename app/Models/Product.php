@@ -24,6 +24,7 @@ class Product extends Model {
         'status',
         'link_depop',
         'link_asos',
+        'image',
         'p_updated_at',
     ];
 

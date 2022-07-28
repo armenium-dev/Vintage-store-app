@@ -7,10 +7,17 @@ use Illuminate\Http\Request;
 use Shopify\Utils;
 use Shopify\Rest\Admin2022_07\Collect;
 use App\Http\Shopify\MyShopify;
+use \App\Http\Controllers\TagsController;
 
 class ProductsController extends Controller {
 
-    /**
+	private TagsController $TagsController;
+
+	public function __construct(TagsController $TC){
+		$this->TagsController = $TC;
+	}
+
+	/**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
@@ -80,5 +87,17 @@ class ProductsController extends Controller {
         //
     }
 
+	public function updateOrCreate($data){
 
+		if(isset($data['tags'])){
+			$this->TagsController->renewTags($data['shop_id'], $data['product_id'], $data['tags']);
+			unset($data['tags']);
+		}
+
+		Product::updateOrCreate(
+			['shop_id' => $data['shop_id'], 'product_id' => $data['product_id']],
+			$data
+		);
+
+	}
 }

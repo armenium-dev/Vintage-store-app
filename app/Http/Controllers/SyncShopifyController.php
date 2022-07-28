@@ -9,6 +9,7 @@ namespace App\Http\Controllers;
 use App\Models\Product;
 use App\Models\Settings;
 use App\Models\Variant;
+use App\Models\Tag;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Foundation\Validation\ValidatesRequests;
@@ -26,17 +27,27 @@ class SyncShopifyController extends Controller {
 	private $shop_id;
 	private $since_id;
 	private $option_name;
-	private $fields = ['id', 'title', 'body_html', 'tags', 'updated_at', 'status', 'variants'];
+	private $fields = ['id', 'title', 'body_html', 'tags', 'updated_at', 'status', 'variants', 'image'];
+
+	private TagsController $TagsController;
+	private ProductsController $ProductsController;
+
+	public function __construct(ProductsController $PC, TagsController $TC){
+		$this->ProductsController = $PC;
+		$this->TagsController = $TC;
+	}
 
 	public function syncShopsProducts(): array{
 		$res = [];
 
 		$shops = Settings::getLike('_sync_since_id');
-		
-		foreach($shops as $name => $value){
-			$this->option_name = $name;
+
+		if(count($shops) == 0) return $res;
+
+		foreach($shops as $name => $since_id){
 			$this->shop_id = intval(explode('_', $name)[1]);
-			$this->since_id = $value;
+			$this->option_name = $name;
+			$this->since_id = $since_id;
 
 			#Log::stack(['cron'])->debug(['shop_id' => $this->shop_id, 'since_id' => $this->since_id]);
 			
@@ -58,10 +69,11 @@ class SyncShopifyController extends Controller {
 		if(empty($shopify_products)) return 0;
 		
 		foreach($shopify_products as $s_product){
-			$create_or_updaate_variants = false;
+			$create_or_update_variants = false;
 			$product_id = $s_product['id'];
-			$tags = $this->_pareseProductTags($s_product['tags']);
 			$variants = $s_product['variants'];
+			$tags = $this->TagsController->parseProductTags($s_product['tags']);
+			#$tags = $this->_parseProductTags($s_product['tags']);
 
 			#if(empty($tags['link_depop']) && empty($tags['link_asos'])) continue;
 
@@ -80,26 +92,35 @@ class SyncShopifyController extends Controller {
 					'p_updated_at' => $s_product['updated_at'],
 					'link_depop' => $tags['link_depop'],
 					'link_asos' => $tags['link_asos'],
+					'image' => $s_product['image']['src'] ?: '',
 				]);
-				$create_or_updaate_variants = true;
+
+				$this->TagsController->addTags($this->shop_id, $product_id, $tags['tags']);
+
+				$create_or_update_variants = true;
 				$res[] = $product_id;
 			}else{
 				$product = $product[0];
 				if($s_product['updated_at'] !== $product['p_updated_at']){
 					#Log::stack(['cron'])->debug('Update product ID '.$product['id']);
+
 					Product::where(['shop_id' => $this->shop_id, 'product_id' => $product_id])
 						->update([
 							'title' => $s_product['title'],
 							'body' => $s_product['body_html'],
 							'status' => $s_product['status'],
+							'image' => $s_product['image']['src'] ?? '',
 							'p_updated_at' => $s_product['updated_at'],
 						]);
-					$create_or_updaate_variants = true;
+
+					$this->TagsController->renewTags($this->shop_id, $product_id, $tags['tags']);
+
+					$create_or_update_variants = true;
 					$res[] = $product_id;
 				}
 			}
 			
-			if($create_or_updaate_variants && count($variants)){
+			if($create_or_update_variants && count($variants)){
 				foreach($variants as $variant){
 					Variant::updateOrCreate(
 						['shop_id' => $this->shop_id, 'product_id' => $product_id, 'variant_id' => $variant['id']],
@@ -127,9 +148,16 @@ class SyncShopifyController extends Controller {
 		$result = $this->shopifyApi->get($url);
 		
 		$since_id = empty($result['products']) ? 0 : end($result['products'])['id'];
-		
-		Settings::set($this->option_name, $since_id);
-		
+
+		if($since_id == 0){
+			Settings::where(['name' => $this->option_name])->update([
+				'value' => $since_id,
+				'active' => 0
+			]);
+		}else{
+			Settings::set($this->option_name, $since_id);
+		}
+
 		return $result['products'];
 	}
 	
@@ -164,26 +192,8 @@ class SyncShopifyController extends Controller {
 		
 		return $result['count'];
 	}
-	
-	private function _pareseProductTags($tags){
-		$t = ['link_asos' => '', 'link_depop' => ''];
-		
-		if(empty($tags)) return $t;
-		
-		$a = array_map('trim', explode(',', $tags));
-		
-		foreach($a as $v){
-			if($v != 'NOTASOS' && strstr($v, 'asos') !== false){
-				$t['link_asos'] = $v;
-			}
-			if($v != 'NOTDEPOP' && strstr($v, 'depop') !== false){
-				$t['link_depop'] = $v;
-			}
-		}
-		
-		return $t;
-	}
-	
+
+
 	/**
 	 * ACTION for manual testing
 	 *

@@ -2,3 +2,6 @@
 .line-through {-webkit-text-decoration-line:line-through; text-decoration-line:line-through;}
 .color-gray {color:#999;}
 .color-red {color: rgb(224, 36, 102);}
+.dropdown-item > div > div {height: 100%;}
+.dropdown-item > div > div > a {height: 100%; cursor: pointer;}
+
