@@ -24,5 +24,25 @@ class Order extends Model{
 		'fulfillment_status',
 		'data',
 	];
-
+	
+	/**
+	 * The attributes that should be cast.
+	 *
+	 * @var array
+	 */
+	protected $casts = [
+		'data' => 'array',
+	];
+	
+	public function getShopName(){
+		$shops = [
+			1 => env('SHOPIFY_SHOP_1_NAME'),
+			2 => env('SHOPIFY_SHOP_2_NAME'),
+			3 => env('SHOPIFY_SHOP_3_NAME'),
+		];
+		
+		return $shops[$this->shop_id];
+	}
+	
+	
 }
