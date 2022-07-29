@@ -135,6 +135,12 @@ return [
             'path' => storage_path('logs/api.log'),
             'level' => 'debug',
         ],
+
+        'custom' => [
+            'driver' => 'single',
+            'path' => storage_path('logs/custom.log'),
+            'level' => 'debug',
+        ],
     ],
 
 ];

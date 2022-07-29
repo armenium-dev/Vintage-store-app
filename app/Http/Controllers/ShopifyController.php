@@ -30,18 +30,6 @@ class ShopifyController extends Controller {
 		$this->TagsController = $TC;
 	}
 
-	/**
-	 * ACTION for manual testing
-	 *
-	 * @param Request $request
-	 * @return bool
-	 */
-	public function setOrderProducts(Request $request){
-		$shop_id = $request->get('shop_id');
-		$order_id = $request->get('order_id');
-
-		return $this->storeOrder($shop_id, $order_id);
-	}
 
 	/**-------------- WEBHOOK ORDERS ----------------**/
 
@@ -51,6 +39,7 @@ class ShopifyController extends Controller {
 		$add_order = false;
 		$products = $data['products'];
 		$order = $data['order'];
+		$is_mystery_box_order = 0;
 
 		if(!empty($products)){
 			foreach($products as $product){
@@ -62,6 +51,10 @@ class ShopifyController extends Controller {
 				$p_updated_at = $product['product']['updated_at'];
 				$variants = $product['product']['variants'];
 				$tags = $this->TagsController->parseProductTags($product['product']['tags']);
+
+				if(str_contains(strtolower($title), 'mystery')){
+					$is_mystery_box_order = 1;
+				}
 
 				$this->ProductsController->updateOrCreate([
 					'shop_id' => $shop_id,
@@ -148,7 +141,7 @@ class ShopifyController extends Controller {
 			}
 
 			if($add_order){
-				$this->_addOrder($shop_id, $order);
+				$this->_addOrder($shop_id, $order, $is_mystery_box_order);
 			}
 		}
 
@@ -174,12 +167,13 @@ class ShopifyController extends Controller {
 		return ['order' => $order, 'products' => $products];
 	}
 
-	private function _addOrder($shop_id, $order){
+	private function _addOrder($shop_id, $order, $is_mystery_box){
 		Order::updateOrCreate(
 			['shop_id' => $shop_id, 'order_id' => $order['order']['id']],
 			[
 				'shop_id' => $shop_id,
 				'order_id' => $order['order']['id'],
+				'is_mystery_box' => $is_mystery_box,
 				'payment_status' => $order['order']['financial_status'],
 				'fulfillment_status' => $order['order']['fulfillment_status'],
 				'data' => json_encode($order['order']),

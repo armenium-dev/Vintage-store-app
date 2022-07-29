@@ -19,6 +19,7 @@ class Order extends Model{
 	protected $fillable = [
 		'shop_id',
 		'order_id',
+		'is_mystery_box',
 		'payment_status',
 		'fulfillment_status',
 		'data',
