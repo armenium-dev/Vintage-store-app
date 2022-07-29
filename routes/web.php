@@ -34,6 +34,8 @@ Route::get('webhooks-list', [WebhooksController::class, 'list'])->middleware(['a
 
 Route::resource('settings', SettingsController::class);
 Route::resource('orders', OrdersController::class);
+Route::get('import-order-by-id', [OrdersController::class, 'importOrderByID'])->middleware(['auth'])->name('importOrderByID');
+Route::post('store-order-by-id', [OrdersController::class, 'storeOrderByID'])->middleware(['auth'])->name('storeOrderByID');
 
 Route::get('sales-shopify', [SalesController::class, 'salesOnShopify'])->middleware(['auth'])->name('salesOnShopify');
 Route::get('sales-depop', [SalesController::class, 'salesOnDepop'])->middleware(['auth'])->name('salesOnDepop');
@@ -44,8 +46,6 @@ Route::get('upload', [UploadsController::class, 'index'])->middleware(['auth'])-
 Route::get('upload-result', [UploadsController::class, 'result'])->middleware(['auth'])->name('uploadResult');
 Route::post('upload-files', [UploadsController::class, 'uploadFiles'])->middleware(['auth'])->name('uploadFiles');
 
-# Test routes
-Route::get('store-custom-order-by-id', [OrdersController::class, 'storeCustomOrderByID'])->middleware(['auth']);
 
 
 /**

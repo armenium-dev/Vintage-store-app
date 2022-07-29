@@ -49,6 +49,30 @@
                     </x-dropdown>
                 </div>
 
+                <div class="hidden space-x-8 sm:-my-px sm:ml-10 lg:flex dropdown-item">
+                    <x-dropdown align="left">
+                        <x-slot name="trigger">
+                            <x-nav-link>
+                                {{ __('Orders') }}
+                                <span class="ml-1">
+                                    <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                                    </svg>
+                                </span>
+                            </x-nav-link>
+                        </x-slot>
+                        <x-slot name="content">
+                            <x-dropdown-link :href="route('orders.index')" :active="request()->routeIs('orders.index')" class="flex justify-between items-center">
+                                {{ __('Mystary Box') }}
+                                <x-orders-count type="shop_1"/>
+                            </x-dropdown-link>
+                            <x-dropdown-link :href="route('importOrderByID')" :active="request()->routeIs('importOrderByID')" class="flex justify-between items-center">
+                                {{ __('Import By ID') }}
+                            </x-dropdown-link>
+                        </x-slot>
+                    </x-dropdown>
+                </div>
+
             </div>
 
             <!-- Settings Dropdown -->

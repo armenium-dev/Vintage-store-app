@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Order;
 use Illuminate\Http\Request;
+use Ramsey\Collection\Collection;
 
 class OrdersController extends Controller {
 
@@ -18,7 +20,9 @@ class OrdersController extends Controller {
 	 * @return \Illuminate\Http\Response
 	 */
 	public function index(){
-		//
+		$orders = Order::whereIsMysteryBox(1)->get();
+
+		return view('orders.index', compact('orders'));
 	}
 
 	/**
@@ -82,22 +86,54 @@ class OrdersController extends Controller {
 	}
 
 	/**
-	 * ACTION for manual testing
-	 *
 	 * @param Request $request
-	 * @return \Illuminate\Contracts\View\View
+	 * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
 	 */
-	public function storeCustomOrderByID(Request $request){
-		$result = 0;
+	public function importOrderByID(Request $request){
+		$order_id = $request->get('order_id');
+
+		$shops = [
+			1 => env('SHOPIFY_SHOP_1_NAME'),
+			2 => env('SHOPIFY_SHOP_2_NAME'),
+			3 => env('SHOPIFY_SHOP_3_NAME'),
+		];
+
+		return view('orders.import-by-id', compact('shops'));
+	}
+
+	/**
+	 * @param Request $request
+	 * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+	 */
+	public function storeOrderByID(Request $request){
+		$message = '';
+		$order_id = 0;
 
 		if($request->isMethod('post')){
-			$shop_id = $request->get('shop_id');
-			$order_id = $request->get('order_id');
+			$shop_id = $request->post('shop_id');
+			$order_id = $request->post('order_id');
+
+			$order = Order::where(['shop_id' => $shop_id, 'order_id' => $order_id])->first();
 
 			$result = $this->ShopifyController->storeOrder($shop_id, $order_id);
+
+			if(!is_null($order)){
+				if($result){
+					$message = sprintf(__('Order %s status updated successfully!'), $order_id);
+				}else{
+					$message = sprintf(__('This order %s already exists. No need to import it.'), $order_id);
+				}
+			}else{
+				if($result){
+					$message = sprintf(__('Order %s imported successfully!'), $order_id);
+				}else{
+					$message = sprintf(__('Order %s not fount on this shop! Try with another shop.'), $order_id);
+				}
+			}
+
 		}
 
-		return view('orders.store-by-id', compact('result'));
+		return redirect(route('importOrderByID', ['order_id' => $order_id]))->with('status', $message);
 	}
 
 }
