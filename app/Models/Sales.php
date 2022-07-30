@@ -55,7 +55,7 @@ class Sales extends Model{
 		if(is_null($this->order)){
 			if($this->order_id > 0){
 				$this->order = Order::where(['order_id' => $this->order_id])->first();
-				$this->order->data = json_decode($this->order->data, true);
+				#$this->order->data = json_decode($this->order->data, true);
 			}
 		}
 	}

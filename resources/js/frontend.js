@@ -17,7 +17,7 @@
 				remove_sale: "sales-remove",
 			},
 			els: {},
-			Core: {
+			Main: {
 				Init: function(){
 					FJS.Uploader.init();
 					this.initEvents();
@@ -25,14 +25,14 @@
 				},
 				initEvents: function(){
 					$(window)
-						.on('scroll', FJS.Core.eventScrollWindow)
-						.on('resize orientationchange deviceorientation', FJS.Core.eventResizeWindow);
+						.on('scroll', FJS.Main.eventScrollWindow)
+						.on('resize orientationchange deviceorientation', FJS.Main.eventResizeWindow);
 
 					$(document)
-						.on('blur', '[data-trigger="js_action_blur"]', FJS.Core.doAction)
-						.on('change', '[data-trigger="js_action_change"]', FJS.Core.doAction)
-						.on('click', '[data-trigger="js_action_click"]', FJS.Core.doAction)
-						.on('submit', '[data-trigger="js_action_submit"]', FJS.Core.doAction);
+						.on('blur', '[data-trigger="js_action_blur"]', FJS.Main.doAction)
+						.on('change', '[data-trigger="js_action_change"]', FJS.Main.doAction)
+						.on('click', '[data-trigger="js_action_click"]', FJS.Main.doAction)
+						.on('submit', '[data-trigger="js_action_submit"]', FJS.Main.doAction);
 				},
 				eventResizeWindow: function(){
 					FJS.vars.ww = $(window).width();
@@ -54,6 +54,9 @@
 							break;
 						case "copy_to_clipboard":
 							FJS.Common.copyToClipboard($this);
+							break;
+						case "load_order_more_info":
+							FJS.Orders.loadMoreInfo($this);
 							break;
 						default:
 							break;
@@ -143,9 +146,38 @@
 
 				},
 			},
+			Orders: {
+				init: function(){
+					// set the dropdown menu element
+					const targetEl = document.getElementById('dropdownMenu');
+
+					// set the element that trigger the dropdown menu on click
+					const triggerEl = document.getElementById('dropdownButton');
+
+					// options with default values
+					const options = {
+						placement: 'bottom',
+						onHide: () => {
+							console.log('dropdown has been hidden');
+						},
+						onShow: () => {
+							console.log('dropdown has been shown');
+						}
+					};
+
+					const dropdown = new Dropdown(targetEl, triggerEl, options);
+				},
+				loadMoreInfo: function($obj){
+					let $dropdown_toggle = $($obj.data('dropdown-toggle'));
+
+					if($dropdown_toggle.is('empty')){
+						console.log($obj);
+					}
+				},
+			},
 		};
 
-		FJS.Core.Init();
+		FJS.Main.Init();
 	});
 
 })(jQuery);

@@ -17,10 +17,10 @@ class OrdersController extends Controller {
 	/**
 	 * Display a listing of the resource.
 	 *
-	 * @return \Illuminate\Http\Response
+	 * @return \Illuminate\Contracts\View\View
 	 */
 	public function index(){
-		$orders = Order::whereIsMysteryBox(1)->get();
+		$orders = Order::whereIsMysteryBox(1)->orderByDesc('updated_at')->get();
 
 		return view('orders.index', compact('orders'));
 	}
