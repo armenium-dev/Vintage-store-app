@@ -26,6 +26,8 @@ class Product extends Model {
         'link_asos',
         'image',
         'p_updated_at',
+        'is_mystery',
+        'options',
     ];
 
 

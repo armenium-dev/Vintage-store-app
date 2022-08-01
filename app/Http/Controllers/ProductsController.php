@@ -94,6 +94,10 @@ class ProductsController extends Controller {
 			unset($data['tags']);
 		}
 
+		if(str_contains(strtolower($data['title']), 'mystery')){
+			$data['is_mystery'] = 1;
+		}
+		
 		Product::updateOrCreate(
 			['shop_id' => $data['shop_id'], 'product_id' => $data['product_id']],
 			$data
