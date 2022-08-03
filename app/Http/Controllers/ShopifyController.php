@@ -80,6 +80,8 @@ class ShopifyController extends Controller {
 								'product_id' => $variant['product_id'],
 								'variant_id' => $variant['id'],
 								'title' => $variant['title'],
+								'size' => $variant['option1'],
+								'color' => $variant['option2'],
 								'inventory_quantity' => $variant['inventory_quantity'],
 								'price' => $variant['price'],
 							]
@@ -228,6 +230,8 @@ class ShopifyController extends Controller {
 						'product_id' => $variant['product_id'],
 						'variant_id' => $variant['id'],
 						'title' => $variant['title'],
+						'size' => $variant['option1'],
+						'color' => $variant['option2'],
 						'inventory_quantity' => $variant['inventory_quantity'],
 						'price' => $variant['price'],
 					]
