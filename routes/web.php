@@ -33,9 +33,11 @@ Route::get('webhooks-update', [WebhooksController::class, 'update'])->middleware
 Route::get('webhooks-list', [WebhooksController::class, 'list'])->middleware(['auth'])->name('listWebhooks');
 
 Route::resource('settings', SettingsController::class);
-Route::resource('orders', OrdersController::class);
+Route::get('orders/mystery-box', [OrdersController::class, 'mysteryBox'])->middleware(['auth'])->name('mysteryBox');
+Route::get('orders/mystery-box-collect/{id}', [OrdersController::class, 'mysteryBoxCollect'])->middleware(['auth'])->name('mysteryBoxCollect');
 Route::get('import-order-by-id', [OrdersController::class, 'importOrderByID'])->middleware(['auth'])->name('importOrderByID');
 Route::post('store-order-by-id', [OrdersController::class, 'storeOrderByID'])->middleware(['auth'])->name('storeOrderByID');
+Route::resource('orders', OrdersController::class);
 
 Route::get('sales-shopify', [SalesController::class, 'salesOnShopify'])->middleware(['auth'])->name('salesOnShopify');
 Route::get('sales-depop', [SalesController::class, 'salesOnDepop'])->middleware(['auth'])->name('salesOnDepop');

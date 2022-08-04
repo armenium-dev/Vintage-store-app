@@ -161,7 +161,10 @@ class ShopifyController extends Controller {
 		if(!isset($order['ERROR'])){
 			if(isset($order['order']['line_items'])){
 				foreach($order['order']['line_items'] as $product){
-					$products[] = $this->_getProduct($product['product_id']);
+					#Log::stack(['webhook'])->debug($product);
+					if(!is_null($product['product_id'])){
+						$products[] = $this->_getProduct($product['product_id']);
+					}
 				}
 			}
 		}
@@ -185,6 +188,7 @@ class ShopifyController extends Controller {
 
 	private function _getProduct($product_id){
 		$product = $this->shopify_client->get('/products/'.$product_id.'.json?fields=id,title,body_html,status,updated_at,tags,variants,image');
+		#Log::stack(['webhook'])->debug($product_id);
 		#Log::stack(['webhook'])->debug($product);
 
 		return $product;

@@ -69,6 +69,7 @@ class SyncShopifyController extends Controller {
 		if(empty($shopify_products)) return 0;
 		
 		foreach($shopify_products as $s_product){
+			$is_mystery_box = 0;
 			$create_or_update_variants = false;
 			$product_id = $s_product['id'];
 			$variants = $s_product['variants'];
@@ -77,6 +78,9 @@ class SyncShopifyController extends Controller {
 
 			#if(empty($tags['link_depop']) && empty($tags['link_asos'])) continue;
 
+			if(str_contains(strtolower($s_product['title']), 'mystery')){
+				$is_mystery_box = 1;
+			}
 
 			$product = Product::where(['shop_id' => $this->shop_id, 'product_id' => $product_id])->get()->toArray();
 			#Log::stack(['cron'])->debug($product);
@@ -86,6 +90,7 @@ class SyncShopifyController extends Controller {
 				Product::create([
 					'shop_id' => $this->shop_id,
 					'product_id' => $product_id,
+					'is_mystery' => $is_mystery_box,
 					'title' => $s_product['title'],
 					'body' => $s_product['body_html'],
 					'status' => $s_product['status'],
@@ -106,6 +111,7 @@ class SyncShopifyController extends Controller {
 
 					Product::where(['shop_id' => $this->shop_id, 'product_id' => $product_id])
 						->update([
+							'is_mystery' => $is_mystery_box,
 							'title' => $s_product['title'],
 							'body' => $s_product['body_html'],
 							'status' => $s_product['status'],

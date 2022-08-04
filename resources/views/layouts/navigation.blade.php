@@ -62,7 +62,7 @@
                             </x-nav-link>
                         </x-slot>
                         <x-slot name="content">
-                            <x-dropdown-link :href="route('orders.index')" :active="request()->routeIs('orders.index')" class="flex justify-between items-center">
+                            <x-dropdown-link :href="route('mysteryBox')" :active="request()->routeIs('mysteryBox')" class="flex justify-between items-center">
                                 {{ __('Mystary Box') }}
                                 <x-orders-count type="shop_1"/>
                             </x-dropdown-link>

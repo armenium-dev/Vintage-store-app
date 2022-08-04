@@ -76,7 +76,7 @@ class Order extends Model{
 		if(!empty($this->data)){
 			$titles = [];
 			foreach($this->data['line_items'] as $item){
-				$titles[] = $item['title'];
+				$titles[] = '<b>'.$item['title'].'</b>';
 				$titles[] = $item['variant_title'];
 			}
 			$res = implode('<br/>', $titles);

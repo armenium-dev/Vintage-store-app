@@ -20,9 +20,40 @@ class OrdersController extends Controller {
 	 * @return \Illuminate\Contracts\View\View
 	 */
 	public function index(){
-		$orders = Order::whereIsMysteryBox(1)->orderByDesc('updated_at')->get();
+		$orders = Order::whereIsMysteryBox(0)->orderByDesc('updated_at')->get();
 
 		return view('orders.index', compact('orders'));
+	}
+
+
+	/**
+	 * Display a listing of the resource.
+	 *
+	 * @return \Illuminate\Contracts\View\View
+	 */
+	public function mysteryBox(){
+		$orders = Order::whereIsMysteryBox(1)->orderByDesc('updated_at')->get();
+
+		return view('orders.mystery', compact('orders'));
+	}
+
+	/**
+	 * Display a listing of the resource.
+	 *
+	 * @return \Illuminate\Contracts\View\View
+	 */
+	public function mysteryBoxCollect($id){
+		$order = Order::whereId($id)->first();
+		dd($order->data['line_items']);
+
+		foreach($order->data['line_items'] as $line_item){
+			$product_id = $line_item['product_id'];
+			$product_title = $line_item['title'];
+			$variant_id = $line_item['variant_id'];
+			$variant_title = $line_item['variant_title'];
+		}
+
+		return view('orders.collect', compact('order'));
 	}
 
 	/**
