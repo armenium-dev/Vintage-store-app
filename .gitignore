@@ -13,7 +13,7 @@ yarn-error.log
 /.idea
 /.vscode
 *.zip
-*.sql
+/database/dump
 *.log
 /public_html
 composer.lock
