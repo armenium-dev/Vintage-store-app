@@ -11,8 +11,9 @@ return new class extends Migration{
 	 */
 	public function up(){
 		Schema::table('variants', function(Blueprint $table){
-			$table->string('color', 15)->nullable()->after('title');
-			$table->string('size', 15)->nullable()->after('title');
+			$table->string('option3', 20)->nullable()->after('title');
+			$table->string('option2', 20)->nullable()->after('title');
+			$table->string('option1', 20)->nullable()->after('title');
 		});
 	}
 	
@@ -22,8 +23,9 @@ return new class extends Migration{
 	 */
 	public function down(){
 		Schema::table('variants', function(Blueprint $table){
-			$table->dropColumn('size');
-			$table->dropColumn('color');
+			$table->dropColumn('option1');
+			$table->dropColumn('option2');
+			$table->dropColumn('option3');
 		});
 	}
 };

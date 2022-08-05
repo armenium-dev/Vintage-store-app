@@ -8,8 +8,9 @@ CREATE VIEW rework_items AS SELECT
     v.title AS variant_title,
     v.inventory_quantity,
     v.price,
-    v.size,
-    v.color,
+    v.option1,
+    v.option2,
+    v.option3,
     p.image
 FROM products p
 LEFT JOIN variants v ON p.product_id = v.product_id
@@ -19,7 +20,14 @@ WHERE p.product_id NOT IN (SELECT product_id FROM tags WHERE tag = 'MARKET')
     AND p.title LIKE '%REWORK%'
     AND (p.link_asos != '' OR p.link_depop != '')
     AND v.inventory_quantity = 1
-    AND (p.body LIKE '%A* Vintage Quality%' OR body LIKE '%A Vintage Quality%')
+  AND (
+			p.body LIKE '%A* Vintage Quality%' OR
+			p.body LIKE '%A Vintage Quality%' OR
+			p.body LIKE '%A* Quality Vintage%' OR
+			p.body LIKE '%A Quality Vintage%' OR
+			p.body LIKE '%A* Quality%' OR
+			p.body LIKE '%A Quality%'
+	)
 ORDER BY v.price;
 
 

@@ -25,7 +25,6 @@ class OrdersController extends Controller {
 		return view('orders.index', compact('orders'));
 	}
 
-
 	/**
 	 * Display a listing of the resource.
 	 *

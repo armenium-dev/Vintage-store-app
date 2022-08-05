@@ -12,7 +12,7 @@ SELECT * FROM products WHERE link_asos != '' OR link_depop != '';
 
 SELECT * FROM orders WHERE data->> "$.name" = '#6889';
 
-#£12 sweatshirt items
+--£12 sweatshirt items
 SELECT
     p.id,
     p.shop_id,
@@ -37,7 +37,7 @@ WHERE p.product_id NOT IN (SELECT product_id FROM tags WHERE tag IN ('MARKET', '
   AND (p.body LIKE '%A* Vintage Quality%' OR body LIKE '%A Vintage Quality%')
 ORDER BY v.price;
 
-#Vintage Handpick Items
+--Vintage Handpick Items
 SELECT
     p.id,
     p.shop_id,
@@ -64,7 +64,7 @@ WHERE p.product_id NOT IN (SELECT product_id FROM tags WHERE tag IN ('MARKET', '
   AND v.price BETWEEN 30 AND 61
 ORDER BY v.price;
 
-#Vintage Items
+--Vintage Items
 SELECT
     p.id,
     p.shop_id,
@@ -89,7 +89,7 @@ WHERE p.product_id NOT IN (SELECT product_id FROM tags WHERE tag IN ('MARKET', '
   AND v.price BETWEEN 15 AND 39
 ORDER BY v.price;
 
-#Rework items
+--Rework items
 SELECT
     p.id,
     p.shop_id,
