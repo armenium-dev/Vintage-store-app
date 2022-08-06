@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Log;
 
 class Sales extends Model{
 	use HasFactory, SoftDeletes;
@@ -64,19 +65,27 @@ class Sales extends Model{
 		$this->_getOrderData();
 		$ret = '';
 
+		#Log::stack(['custom'])->debug($this->order_id);
+
+
+
 		if($this->order_id > 0){
 			switch($attr){
 				case "date":
-					$ret = $this->order->data['updated_at'];
+					if(!is_null($this->order))
+						$ret = $this->order->data['updated_at'];
 					break;
 				case "confirmed":
-					$ret = intval($this->order->data['confirmed']) ? 'Yes' : 'No';
+					if(!is_null($this->order))
+						$ret = intval($this->order->data['confirmed']) ? 'Yes' : 'No';
 					break;
 				case "payment_status":
-					$ret = is_null($this->order->payment_status) ? '---' : $this->order->payment_status;
+					if(!is_null($this->order))
+						$ret = is_null($this->order->payment_status) ? '---' : $this->order->payment_status;
 					break;
 				case "fulfillment_status":
-					$ret = is_null($this->order->fulfillment_status) ? '---' : $this->order->fulfillment_status;
+					if(!is_null($this->order))
+						$ret = is_null($this->order->fulfillment_status) ? '---' : $this->order->fulfillment_status;
 					break;
 			}
 		}
