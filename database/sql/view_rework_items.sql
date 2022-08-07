@@ -1,4 +1,4 @@
-#DROP VIEW IF EXISTS rework_items;
+DROP VIEW IF EXISTS rework_items;
 CREATE VIEW rework_items AS SELECT
     p.id,
     p.shop_id,

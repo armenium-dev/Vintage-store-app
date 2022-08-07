@@ -1,4 +1,4 @@
-#DROP VIEW IF EXISTS vintage_handpick_items;
+DROP VIEW IF EXISTS vintage_handpick_items;
 CREATE VIEW vintage_handpick_items AS SELECT
     p.id,
     p.shop_id,
@@ -19,7 +19,7 @@ WHERE p.product_id NOT IN (SELECT product_id FROM tags WHERE tag IN ('MARKET', '
     AND p.is_mystery = 0
     AND p.status = 'active'
     AND p.title NOT LIKE '%REWORK%'
-    AND (p.link_asos != '' OR p.link_depop != '')
+    -- AND (p.link_asos != '' OR p.link_depop != '')
     AND t.tag = 'GG'
     AND v.inventory_quantity = 1
     AND (
