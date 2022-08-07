@@ -1,4 +1,4 @@
-DROP VIEW IF EXISTS sweatshirt_items;
+#DROP VIEW IF EXISTS sweatshirt_items;
 CREATE VIEW sweatshirt_items AS SELECT
     p.id,
     p.shop_id,

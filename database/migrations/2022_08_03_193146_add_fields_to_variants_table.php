@@ -11,9 +11,9 @@ return new class extends Migration{
 	 */
 	public function up(){
 		Schema::table('variants', function(Blueprint $table){
-			$table->string('option3', 20)->nullable()->after('title');
-			$table->string('option2', 20)->nullable()->after('title');
-			$table->string('option1', 20)->nullable()->after('title');
+			$table->string('option3', 255)->nullable()->after('title');
+			$table->string('option2', 255)->nullable()->after('title');
+			$table->string('option1', 255)->nullable()->after('title');
 		});
 	}
 	
