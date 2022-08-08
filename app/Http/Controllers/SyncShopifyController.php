@@ -60,7 +60,11 @@ class SyncShopifyController extends Controller {
 
 		return $res;
 	}
-	
+
+	public function checkAvailableProducts(){
+
+	}
+
 	private function _updateOrCreateShopifyProducts(): int{
 		$res = [];
 		

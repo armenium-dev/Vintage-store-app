@@ -310,7 +310,7 @@ class ShopifyController extends Controller {
 				$product = Product::where('body', 'like', '%'.$item.'%')
 					->select($select_fields)->get()->toArray();
 			}elseif($type = 'asos'){
-				$product = Product::where(['link_asos' => $item])
+				$product = Product::where('link_asos', 'like', '%'.$item.'%')
 					->select($select_fields)->get()->toArray();
 			}
 

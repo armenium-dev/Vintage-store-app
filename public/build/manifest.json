@@ -9,14 +9,14 @@
     "src": "resources/js/frontend.js",
     "isEntry": true
   },
-  "resources/css/app.css": {
-    "file": "assets/app.e924e827.css",
-    "src": "resources/css/app.css",
-    "isEntry": true
-  },
   "resources/css/frontend.css": {
     "file": "assets/frontend.8ee8e5cf.css",
     "src": "resources/css/frontend.css",
+    "isEntry": true
+  },
+  "resources/css/app.css": {
+    "file": "assets/app.21c683b6.css",
+    "src": "resources/css/app.css",
     "isEntry": true
   }
 }

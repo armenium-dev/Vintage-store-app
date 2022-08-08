@@ -8,6 +8,8 @@ use App\Models\Variant;
 
 class MysteryBoxController extends Controller {
 
+	#public function getMyster
+
 	public function getVintageHandpickItem(){
 		$query = Variant::query();
 		$query->select('variants.*');

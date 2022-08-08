@@ -3,15 +3,19 @@
 namespace App\Http\Controllers;
 
 use App\Models\Order;
+use App\Models\Product;
+use App\Models\Variant;
 use Illuminate\Http\Request;
 use Ramsey\Collection\Collection;
 
 class OrdersController extends Controller {
 
 	public ShopifyController $ShopifyController;
+	public MysteryBoxController $MysteryBoxController;
 
-	public function __construct(ShopifyController $SC){
+	public function __construct(ShopifyController $SC, MysteryBoxController $MBC){
 		$this->ShopifyController = $SC;
+		$this->MysteryBoxController = $MBC;
 	}
 
 	/**
@@ -43,16 +47,41 @@ class OrdersController extends Controller {
 	 */
 	public function mysteryBoxCollect($id){
 		$order = Order::whereId($id)->first();
-		dd($order->data['line_items']);
+		#dd($order->data['line_items']);
+
+		$line_items = [];
 
 		foreach($order->data['line_items'] as $line_item){
-			$product_id = $line_item['product_id'];
-			$product_title = $line_item['title'];
-			$variant_id = $line_item['variant_id'];
-			$variant_title = $line_item['variant_title'];
+			$product = Product::where(['product_id' => $line_item['product_id'], 'is_mystery' => 1])->first();
+			#dd($product->title);
+			if($product){
+				$line_items[] = [
+					'product_image' => $product->image,
+					'product_id' => $line_item['product_id'],
+					'product_title' => $line_item['title'],
+					'variant_id' => $line_item['variant_id'],
+					'variant_title' => $line_item['variant_title']
+				];
+			}
 		}
 
-		return view('orders.collect', compact('order'));
+		#dd($line_items);
+
+		return view('orders.collect', compact('order', 'line_items'));
+	}
+
+	/**
+	 * Display a listing of the resource.
+	 *
+	 * @return \Illuminate\Contracts\View\View
+	 */
+	public function mysteryBoxCollectProducts($oid, $pid, $vid){
+		$order = Order::whereId($oid)->first();
+		$product = Product::where(['product_id' => $pid, 'is_mystery' => 1])->first();
+		$variant = Variant::where(['product_id' => $pid, 'variant_id' => $vid])->first();
+		#dd([$order, $product, $variant]);
+
+		return view('orders.collect-products', compact('order', 'product', 'variant'));
 	}
 
 	/**

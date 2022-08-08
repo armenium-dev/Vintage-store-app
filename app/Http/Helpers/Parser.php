@@ -72,9 +72,15 @@ class Parser {
 			preg_match_all('/((http|https):\/\/(marketplace.asos.com\/listing\/)([\w\-\.,@?^=%&amp;:\/~\+#]*[\w\-\@?^=%&amp;\/~\+#])?)/', $content, $output_array);
 			if(!empty($output_array[0])){
 				$res = array_values(array_unique($output_array[0]));
+			}else{
+				$output_array = [];
+				preg_match_all('/((\/listing\/)([\w\-\.,@?^=%&amp;:\/~\+#]*[\w\-\@?^=%&amp;\/~\+#])?)/', $content, $output_array);
+				#Log::stack(['cron'])->debug($output_array);
+				if(!empty($output_array[0])){
+					$res = array_values(array_unique($output_array[0]));
+				}
 			}
 		}
-		#Log::stack(['cron'])->debug($res);
 
 		return $res;
 	}
