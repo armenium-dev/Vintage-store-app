@@ -1,4 +1,4 @@
-DROP VIEW IF EXISTS vintage_handpick_items;
+#DROP VIEW IF EXISTS vintage_handpick_items;
 CREATE VIEW vintage_handpick_items AS SELECT
     p.id,
     p.shop_id,
