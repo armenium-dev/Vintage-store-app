@@ -7,6 +7,9 @@ use Illuminate\Http\Request;
 use App\Models\Product;
 use App\Models\Variant;
 use App\Models\VintageHandpickItems;
+use App\Models\VintageItems;
+use App\Models\SweatshirtItems;
+use App\Models\ReworkItems;
 
 class MysteryBoxController extends Controller {
 
@@ -14,12 +17,29 @@ class MysteryBoxController extends Controller {
 	private $product;
 	private $variant;
 	private $mb_rules = [
-		'StandardVintageMysteryBox' => [],
-		'VintageMysterySingleItemBox' => [],
-		'VintageMysteryDoubleItemBox' => [],
-		'PremiumVintageMysteryBox' => [],
-		'ReworkSingleMysteryBox' => [],
-		'ReworkTripleItemMysteryBox' => [],
+		'StandardVintageMysteryBox' => [
+			'VintageHandpickItems' => 1,
+			'VintageItems' => 1,
+			'SweatshirtItems' => 1,
+		],
+		'VintageMysterySingleItemBox' => [
+			'VintageHandpickItems' => 1
+		],
+		'VintageMysteryDoubleItemBox' => [
+			'VintageHandpickItems' => 1,
+			'SweatshirtItems' => 1,
+		],
+		'PremiumVintageMysteryBox' => [
+			'VintageHandpickItems' => 2,
+			'VintageItems' => 2,
+			'SweatshirtItems' => 2,
+		],
+		'ReworkSingleMysteryBox' => [
+			'ReworkItems' => 1
+		],
+		'ReworkTripleItemMysteryBox' => [
+			'ReworkItems' => 3
+		],
 	];
 
 	public function getMysteryBoxItems(Order $o, Product $p, Variant $v){
@@ -27,32 +47,40 @@ class MysteryBoxController extends Controller {
 		$this->product = $p;
 		$this->variant = $v;
 
-		$this->getBoxType();
+		#$this->getBoxType();
+		
+		$rule = $this->cleanProductTitle($p->title);
+		
+		return $this->getBoxItems($this->mb_rules[$rule]);
 	}
 
-	private function getBoxType(){
-		$title = $this->cleanProductTitle($this->product->title);
-
-		#dd($title);
-
-		switch($title){
-			case "StandardVintageMysteryBox":
-				break;
-			case "VintageMysterySingleItemBox":
-				break;
-			case "VintageMysteryDoubleItemBox":
-				break;
-			case "PremiumVintageMysteryBox":
-				break;
-			case "ReworkSingleMysteryBox":
-				break;
-			case "ReworkTripleItemMysteryBox":
-				break;
+	public function getBoxItems($rule_models){
+		dd([
+			'option1' => $this->variant->option1,
+			'option2' => $this->variant->option2,
+			'option3' => $this->variant->option3,
+		]);
+		/*$d = VintageHandpickItems::where([
+			'option1' => $this->variant->option1,
+			'option2' => $this->variant->option2,
+			'option3' => $this->variant->option3,
+		])->get()->toArray();
+		dd($d);*/
+		
+		$items = [];
+		foreach($rule_models as $model_name => $count){
+			$class = "\\App\\Models\\".$model_name;
+			
+			$items[$model_name] = $class::where([
+				'option1' => $this->variant->option1,
+				'option2' => $this->variant->option2,
+				'option3' => $this->variant->option3,
+			])->get()->toArray();
 		}
-	}
-
-	public function getVintageHandpickItem(){
-		$items = VintageHandpickItems::where();
+		
+		dd($items);
+		
+		return $items;
 	}
 
 	private function cleanProductTitle($string): string{
