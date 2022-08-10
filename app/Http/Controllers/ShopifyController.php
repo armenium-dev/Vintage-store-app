@@ -249,6 +249,7 @@ class ShopifyController extends Controller {
 	}
 
 	public function deleteProduct($shop_id, $product_id): bool{
+		Variant::where(['shop_id' => $shop_id, 'product_id' => $product_id])->delete();
 		return Product::where(['shop_id' => $shop_id, 'product_id' => $product_id])->delete();
 	}
 

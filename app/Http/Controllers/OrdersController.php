@@ -81,9 +81,9 @@ class OrdersController extends Controller {
 		$variant = Variant::where(['product_id' => $pid, 'variant_id' => $vid])->first();
 		#dd([$order->data['line_items'], $product, $variant]);
 
-		$this->MysteryBoxController->getMysteryBoxItems($order, $product, $variant);
+		$box_items = $this->MysteryBoxController->getMysteryBoxItems($order, $product, $variant);
 
-		return view('orders.collect-products', compact('order', 'product', 'variant'));
+		return view('orders.collect-products', compact('order', 'product', 'variant', 'box_items'));
 	}
 
 	/**

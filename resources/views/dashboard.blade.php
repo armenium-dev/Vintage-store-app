@@ -43,6 +43,75 @@
                         {{ __('Webhooks list') }}
                     </a>
                 </div>
+                <div class="p-6 bg-white border-b border-gray-200 flex flex-row flex-nowrap items-center">
+                    <table class="table-auto w-full">
+                        <thead>
+                            <tr class="text-left cursor-default bg-gray-100">
+                                <th class="border-b dark:border-slate-600 font-medium p-3">{{__('Data type')}}</th>
+                                <th class="border-b dark:border-slate-600 font-medium p-3 text-right">{{__('Remote DB')}}</th>
+                                <th class="border-b dark:border-slate-600 font-medium p-3 text-right">{{__('Local DB')}}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="text-slate-400 dark:text-slate-200 text-left cursor-default bg-indigo-50">
+                                <th colspan="3" class="border-b dark:border-slate-600 p-1 text-center font-bold">{{$statistic['titles'][1]}}</th>
+                            </tr>
+                            <tr class="text-slate-500 dark:text-slate-400 hover:bg-indigo-100 cursor-default">
+                                <td class="border-b border-slate-100 dark:border-slate-700 p-3">{{ __('Products count') }}</td>
+                                <td class="border-b border-slate-100 dark:border-slate-700 p-3 text-right">{{$statistic['remote'][1]['products_count']}}</td>
+                                <td class="border-b border-slate-100 dark:border-slate-700 p-3 text-right">{{$statistic['local'][1]['products_count']}}</td>
+                            </tr>
+                            <tr class="text-slate-500 dark:text-slate-400 hover:bg-indigo-100 cursor-default">
+                                <td class="border-b border-slate-100 dark:border-slate-700 p-3">{{ __('Variants count') }}</td>
+                                <td class="border-b border-slate-100 dark:border-slate-700 p-3 text-right">{{$statistic['remote'][1]['variants_count']}}</td>
+                                <td class="border-b border-slate-100 dark:border-slate-700 p-3 text-right">{{$statistic['local'][1]['variants_count']}}</td>
+                            </tr>
+
+                            <tr class="text-slate-400 dark:text-slate-200 text-left cursor-default bg-indigo-50">
+                                <th colspan="3" class="border-b dark:border-slate-600 p-1 text-center font-bold">{{$statistic['titles'][2]}}</th>
+                            </tr>
+                            <tr class="text-slate-500 dark:text-slate-400 hover:bg-indigo-100 cursor-default">
+                                <td class="border-b border-slate-100 dark:border-slate-700 p-3">{{ __('Products count') }}</td>
+                                <td class="border-b border-slate-100 dark:border-slate-700 p-3 text-right">{{$statistic['remote'][2]['products_count']}}</td>
+                                <td class="border-b border-slate-100 dark:border-slate-700 p-3 text-right">{{$statistic['local'][2]['products_count']}}</td>
+                            </tr>
+                            <tr class="text-slate-500 dark:text-slate-400 hover:bg-indigo-100 cursor-default">
+                                <td class="border-b border-slate-100 dark:border-slate-700 p-3">{{ __('Variants count') }}</td>
+                                <td class="border-b border-slate-100 dark:border-slate-700 p-3 text-right">{{$statistic['remote'][2]['variants_count']}}</td>
+                                <td class="border-b border-slate-100 dark:border-slate-700 p-3 text-right">{{$statistic['local'][2]['variants_count']}}</td>
+                            </tr>
+
+                            <tr class="text-slate-400 dark:text-slate-200 text-left cursor-default bg-indigo-50">
+                                <th colspan="3" class="border-b dark:border-slate-600 p-1 text-center font-bold">{{$statistic['titles'][3]}}</th>
+                            </tr>
+                            <tr class="text-slate-500 dark:text-slate-400 hover:bg-indigo-100 cursor-default">
+                                <td class="border-b border-slate-100 dark:border-slate-700 p-3">{{ __('Products count') }}</td>
+                                <td class="border-b border-slate-100 dark:border-slate-700 p-3 text-right">{{$statistic['remote'][3]['products_count']}}</td>
+                                <td class="border-b border-slate-100 dark:border-slate-700 p-3 text-right">{{$statistic['local'][3]['products_count']}}</td>
+                            </tr>
+                            <tr class="text-slate-500 dark:text-slate-400 hover:bg-indigo-100 cursor-default">
+                                <td class="border-b border-slate-100 dark:border-slate-700 p-3">{{ __('Variants count') }}</td>
+                                <td class="border-b border-slate-100 dark:border-slate-700 p-3 text-right">{{$statistic['remote'][3]['variants_count']}}</td>
+                                <td class="border-b border-slate-100 dark:border-slate-700 p-3 text-right">{{$statistic['local'][3]['variants_count']}}</td>
+                            </tr>
+                        </tbody>
+                        <tfoot>
+                            <tr class="text-slate-400 dark:text-slate-200 text-left cursor-default bg-indigo-50">
+                                <th colspan="3" class="border-b dark:border-slate-600 p-1 text-center font-bold">{{__('Totals')}}</th>
+                            </tr>
+                            <tr class="text-slate-500 dark:text-slate-400 hover:bg-indigo-100 cursor-default">
+                                <td class="border-b border-slate-100 dark:border-slate-700 p-3">{{ __('Total products') }}</td>
+                                <td class="border-b border-slate-100 dark:border-slate-700 p-3 text-right">{{$statistic['remote']['products_total']}}</td>
+                                <td class="border-b border-slate-100 dark:border-slate-700 p-3 text-right">{{$statistic['local']['products_total']}}</td>
+                            </tr>
+                            <tr class="text-slate-500 dark:text-slate-400 hover:bg-indigo-100 cursor-default">
+                                <td class="border-b border-slate-100 dark:border-slate-700 p-3">{{ __('Total variants') }}</td>
+                                <td class="border-b border-slate-100 dark:border-slate-700 p-3 text-right">{{$statistic['remote']['variants_total']}}</td>
+                                <td class="border-b border-slate-100 dark:border-slate-700 p-3 text-right">{{$statistic['local']['variants_total']}}</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
             </div>
         </div>
     </div>

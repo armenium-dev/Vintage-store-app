@@ -13,10 +13,10 @@ use App\Models\ReworkItems;
 
 class MysteryBoxController extends Controller {
 
-	private $order;
-	private $product;
-	private $variant;
-	private $mb_rules = [
+	private Order $order;
+	private Product $product;
+	private Variant $variant;
+	private array $mb_rules = [
 		'StandardVintageMysteryBox' => [
 			'VintageHandpickItems' => 1,
 			'VintageItems' => 1,
@@ -55,11 +55,11 @@ class MysteryBoxController extends Controller {
 	}
 
 	public function getBoxItems($rule_models){
-		dd([
+		/*dd([
 			'option1' => $this->variant->option1,
 			'option2' => $this->variant->option2,
 			'option3' => $this->variant->option3,
-		]);
+		]);*/
 		/*$d = VintageHandpickItems::where([
 			'option1' => $this->variant->option1,
 			'option2' => $this->variant->option2,
@@ -78,7 +78,7 @@ class MysteryBoxController extends Controller {
 			])->get()->toArray();
 		}
 		
-		dd($items);
+		#dd($items);
 		
 		return $items;
 	}
