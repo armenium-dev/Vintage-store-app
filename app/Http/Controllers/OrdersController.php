@@ -76,7 +76,7 @@ class OrdersController extends Controller {
 	 * @return \Illuminate\Contracts\View\View
 	 */
 	public function mysteryBoxCollectProducts($oid, $pid, $vid){
-		$order = Order::whereId($oid)->first();
+		$order = Order::whereOrderId($oid)->first();
 		$product = Product::where(['product_id' => $pid, 'is_mystery' => 1])->first();
 		$variant = Variant::where(['product_id' => $pid, 'variant_id' => $vid])->first();
 		#dd([$order->data['line_items'], $product, $variant]);
@@ -195,6 +195,41 @@ class OrdersController extends Controller {
 		}
 
 		return redirect(route('importOrderByID', ['order_id' => $order_id]))->with('status', $message);
+	}
+
+	/**
+	 * @param Request $request
+	 * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+	 */
+	public function storeOrderMysteryBox(Request $request){
+		$message = '';
+		$order_id = 0;
+
+		if($request->isMethod('post')){
+			$shop_id = $request->post('shop_id');
+			$order_id = $request->post('order_id');
+
+			$order = Order::where(['shop_id' => $shop_id, 'order_id' => $order_id])->first();
+
+			$result = $this->ShopifyController->storeOrder($shop_id, $order_id);
+
+			if(!is_null($order)){
+				if($result){
+					$message = sprintf(__('Order %s status updated successfully!'), $order_id);
+				}else{
+					$message = sprintf(__('This order %s already exists. No need to import it.'), $order_id);
+				}
+			}else{
+				if($result){
+					$message = sprintf(__('Order %s imported successfully!'), $order_id);
+				}else{
+					$message = sprintf(__('Order %s not fount on this shop! Try with another shop.'), $order_id);
+				}
+			}
+
+		}
+
+		return redirect(route('mysteryBoxCollect', ['order_id' => $order_id]))->with('status', $message);
 	}
 
 }

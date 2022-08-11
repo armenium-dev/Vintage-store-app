@@ -11,6 +11,9 @@ module.exports = {
 
     theme: {
         extend: {
+            screens: {
+                'xs': {'min': '475px', 'max': '639px'},
+            },
             fontFamily: {
                 sans: ['Nunito', ...defaultTheme.fontFamily.sans],
             },
@@ -18,6 +21,18 @@ module.exports = {
                 '1/2': '50%',
                 '4/5': '80%',
                 '95p': '95%',
+            },
+            maxWidth: {
+                '50': '50px',
+                '90': '90px',
+                '100': '100px',
+            },
+            width: {
+                'xs:w-1/2': '100%',
+                '20p': '20%',
+            },
+            dropShadow: {
+                'inset-1': '-1px -1px 0px rgba(0, 0, 0, 0.2)',
             }
         },
     },
