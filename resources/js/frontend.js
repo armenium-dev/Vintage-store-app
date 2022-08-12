@@ -191,8 +191,27 @@
 						$container.find('[type="checkbox"]').prop('disabled', false);
 					}
 
-					console.log(max_count, checked_count);
+					if($obj.is(':checked')){
+						$parent.addClass('dark');
+					}else{
+						$parent.removeClass('dark');
+					}
 
+					FJS.MysteryBox._chamgeSubmitStatus();
+					//console.log(max_count, checked_count);
+				},
+				_chamgeSubmitStatus: function(){
+					const $form = $('#js_mbox_form');
+					let $containers = $form.find('.js_container'),
+						max_choices = $form.find('[type="checkbox"]:checked').length,
+						max_items = 0;
+
+					$containers.each(function(){
+						max_items += ~~$(this).data('choice-max-count');
+					});
+
+					$form.find('[type="submit"]').prop('disabled', !(max_choices == max_items));
+					//console.log($form.find('[type="submit"]').prop('disabled'));
 				},
 			}
 		};

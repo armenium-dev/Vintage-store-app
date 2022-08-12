@@ -21,7 +21,7 @@
 					</div>
 				</div>
 
-				<form method="post" action="{{ route('storeOrderMysteryBox') }}">
+				<form id="js_mbox_form" method="post" action="{{ route('storeOrderMysteryBox') }}">
 					@csrf
 					<div id="accordion-flush" data-accordion="collapse" data-active-classes="bg-white text-gray-900" data-inactive-classes="text-gray-500">
 						@foreach($box_items as $k => $box)
@@ -37,7 +37,7 @@
 									@if(empty($box['items']))
 										<h2 class="text-gray-200 font-bold drop-shadow-inset-1 text-center text-3xl">{{__('Not found')}}</h2>
 									@else
-										<ul class="flex flex-wrap justify-center" data-choice-max-count="{!! $box['count'] !!}">
+										<ul class="js_container flex flex-wrap justify-center" data-choice-max-count="{!! $box['count'] !!}">
 											@foreach($box['items'] as $item)
 												<li id="item_{!! $item['id'] !!}" class="w-full xs:w-1/2 sm:w-1/3 md:w-1/4 lg:w-20p p-2">
 													<label class="flex flex-col justify-between bg-white hover:bg-{!! $box['color'] !!}-100 dark:bg-{!! $box['color'] !!}-500 dark:hover:bg-{!! $box['color'] !!}-700 rounded-lg border border-gray-100 dark:border-{!! $box['color'] !!}-500 dark:hover:border-{!! $box['color'] !!}-700 shadow-md overflow-hidden h-full cursor-pointer transition ease-out duration-200">
@@ -62,7 +62,8 @@
 					</div>
 
 					<div class="px-4 py-3 bg-gray-50 text-center sm:px-6">
-						<button type="submit" class="py-2 px-4 border border-transparent shadow-sm text-base font-medium rounded-md text-white bg-teal-500 hover:bg-emerald-500">{{ __('Save box items') }}</button>
+						<button type="submit" class="py-2 px-4 border border-transparent shadow-sm text-base font-medium rounded-md
+						text-white hover:text-black disabled:text-gray-400 disabled:hover:text-gray-400 bg-emerald-500 hover:bg-emerald-300 disabled:bg-gray-300" disabled>{{ __('Save box items') }}</button>
 					</div>
 					<div class="hover:bg-indigo-100 dark:bg-indigo-500 dark:hover:bg-indigo-700 dark:border-indigo-500 dark:hover:border-indigo-700 border-indigo-300"></div>
 					<div class="hover:bg-blue-100 dark:bg-blue-500 dark:hover:bg-blue-700 dark:border-blue-500 dark:hover:border-blue-700 border-blue-300"></div>
