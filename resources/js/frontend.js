@@ -58,6 +58,9 @@
 						case "load_order_more_info":
 							FJS.Orders.loadMoreInfo($this);
 							break;
+						case "choice_mb_product":
+							FJS.MysteryBox.choiceProduct($this);
+							break;
 						default:
 							break;
 					}
@@ -175,6 +178,23 @@
 					}
 				},
 			},
+			MysteryBox: {
+				choiceProduct: function($obj){
+					let $parent = $($obj.data('parent')),
+						$container = $parent.parent('ul'),
+						max_count = $container.data('choice-max-count'),
+						checked_count = $container.find('[type="checkbox"]:checked').length;
+
+					if(checked_count == max_count){
+						$container.find('[type="checkbox"]:not(:checked)').prop('disabled', true);
+					}else{
+						$container.find('[type="checkbox"]').prop('disabled', false);
+					}
+
+					console.log(max_count, checked_count);
+
+				},
+			}
 		};
 
 		FJS.Main.Init();

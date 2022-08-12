@@ -28,25 +28,30 @@
 							<h2 id="accordion-flush-heading-{{$k}}">
 								<button type="button" class="flex items-center justify-between w-full py-5 font-medium text-left border-b border-gray-200 bg-white text-gray-900" data-accordion-target="#accordion-flush-body-{{$k}}" aria-expanded="true" aria-controls="accordion-flush-body-{{$k}}">
 									<span class="text-{!! $box['color'] !!}-500 flex-1">{{$box['title']}}</span>
-									<span class="mr-2 text-sm">(Max select: {!! $box['count'] !!})</span>
+									<span class="mr-2 text-sm">(Max selection count: {!! $box['count'] !!})</span>
 									<svg data-accordion-icon="" class="w-6 h-6 rotate-180 shrink-0 text-{!! $box['color'] !!}-500" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
 								</button>
 							</h2>
 							<div id="accordion-flush-body-{{$k}}" class="" aria-labelledby="accordion-flush-heading-{{$k}}">
-								<div class="py-5 font-light border-b border-gray-200">
+								<div class="py-5 font-light border-b border-gray-200 sm:max-h-70s sm:overflow-y-auto">
 									@if(empty($box['items']))
 										<h2 class="text-gray-200 font-bold drop-shadow-inset-1 text-center text-3xl">{{__('Not found')}}</h2>
 									@else
 										<ul class="flex flex-wrap justify-center" data-choice-max-count="{!! $box['count'] !!}">
 											@foreach($box['items'] as $item)
-												<li class="w-full xs:w-1/2 sm:w-1/3 md:w-1/4 lg:w-20p p-2">
-													<div class="flex flex-col justify-between bg-white hover:bg-{!! $box['color'] !!}-100 dark:bg-{!! $box['color'] !!}-500 dark:hover:bg-{!! $box['color'] !!}-700 rounded-lg border border-gray-100 dark:border-{!! $box['color'] !!}-500 dark:hover:border-{!! $box['color'] !!}-700 shadow-md overflow-hidden h-full cursor-pointer transition ease-out duration-200">
+												<li id="item_{!! $item['id'] !!}" class="w-full xs:w-1/2 sm:w-1/3 md:w-1/4 lg:w-20p p-2">
+													<label class="flex flex-col justify-between bg-white hover:bg-{!! $box['color'] !!}-100 dark:bg-{!! $box['color'] !!}-500 dark:hover:bg-{!! $box['color'] !!}-700 rounded-lg border border-gray-100 dark:border-{!! $box['color'] !!}-500 dark:hover:border-{!! $box['color'] !!}-700 shadow-md overflow-hidden h-full cursor-pointer transition ease-out duration-200">
 														<img src="{!! $item['image'] !!}" class="">
 														<div class="p-3">
 															<h2 class="pb-3 text-sm dark:text-white">{{$item['product_title']}}</h2>
-															<h3 class="font-bold text-{!! $box['color'] !!}-500 dark:text-white">&pound;{{$item['price']}}</h3>
+															<div class="flex flex-row flex-nowrap justify-between">
+																<h3 class="font-bold text-{!! $box['color'] !!}-500 dark:text-white">&pound;{{$item['price']}}</h3>
+																<input type="checkbox" name="item" value="{!! $order->order_id !!}:{!! $item['product_id'] !!}:{!! $item['variant_id'] !!}"
+																	   class="text-{!! $box['color'] !!}-500 bg-white rounded border-0 border-{!! $box['color'] !!}-300 focus:ring-0 focus:ring-offset-0"
+																	   data-trigger="js_action_change" data-action="choice_mb_product" data-parent="#item_{!! $item['id'] !!}">
+															</div>
 														</div>
-													</div>
+													</label>
 												</li>
 											@endforeach
 										</ul>
@@ -59,10 +64,10 @@
 					<div class="px-4 py-3 bg-gray-50 text-center sm:px-6">
 						<button type="submit" class="py-2 px-4 border border-transparent shadow-sm text-base font-medium rounded-md text-white bg-teal-500 hover:bg-emerald-500">{{ __('Save box items') }}</button>
 					</div>
-					<div class="hover:bg-indigo-100 dark:bg-indigo-500 dark:hover:bg-indigo-700 dark:border-indigo-500 dark:hover:border-indigo-700"></div>
-					<div class="hover:bg-blue-100 dark:bg-blue-500 dark:hover:bg-blue-700 dark:border-blue-500 dark:hover:border-blue-700"></div>
-					<div class="hover:bg-cyan-100 dark:bg-cyan-500 dark:hover:bg-cyan-700 dark:border-cyan-500 dark:hover:border-cyan-700"></div>
-					<div class="hover:bg-teal-100 dark:bg-teal-500 dark:hover:bg-teal-700 dark:border-teal-500 dark:hover:border-teal-700"></div>
+					<div class="hover:bg-indigo-100 dark:bg-indigo-500 dark:hover:bg-indigo-700 dark:border-indigo-500 dark:hover:border-indigo-700 border-indigo-300"></div>
+					<div class="hover:bg-blue-100 dark:bg-blue-500 dark:hover:bg-blue-700 dark:border-blue-500 dark:hover:border-blue-700 border-blue-300"></div>
+					<div class="hover:bg-cyan-100 dark:bg-cyan-500 dark:hover:bg-cyan-700 dark:border-cyan-500 dark:hover:border-cyan-700 border-cyan-300"></div>
+					<div class="hover:bg-teal-100 dark:bg-teal-500 dark:hover:bg-teal-700 dark:border-teal-500 dark:hover:border-teal-700 border-teal-300"></div>
 				</form>
 
 			</div>
