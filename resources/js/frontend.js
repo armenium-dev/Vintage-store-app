@@ -5,21 +5,15 @@
 
 		const FJS = {
 			options: {},
-			vars: {
-				ww: 0,
-				wh: 0,
-			},
+			vars: {ww: 0, wh: 0},
 			labels: {},
-			messages: {
-				ajax_error: 'SYSTEM TECHNICAL ERROR'
-			},
-			routes: {
-				remove_sale: "sales-remove",
-			},
+			messages: {ajax_error: 'SYSTEM TECHNICAL ERROR'},
+			routes: {remove_sale: "sales-remove"},
 			els: {},
 			Main: {
 				Init: function(){
 					FJS.Uploader.init();
+					FJS.MysteryBox.init();
 					this.initEvents();
 					this.eventResizeWindow();
 				},
@@ -179,13 +173,17 @@
 				},
 			},
 			MysteryBox: {
+				init: function(){
+					FJS.MysteryBox._changeSubmitStatus();
+					FJS.MysteryBox._changeCheckboxesStatus();
+				},
 				choiceProduct: function($obj){
 					let $parent = $($obj.data('parent')),
 						$container = $parent.parent('ul'),
 						max_count = $container.data('choice-max-count'),
 						checked_count = $container.find('[type="checkbox"]:checked').length;
 
-					if(checked_count == max_count){
+					if(checked_count === max_count){
 						$container.find('[type="checkbox"]:not(:checked)').prop('disabled', true);
 					}else{
 						$container.find('[type="checkbox"]').prop('disabled', false);
@@ -197,10 +195,26 @@
 						$parent.removeClass('dark');
 					}
 
-					FJS.MysteryBox._chamgeSubmitStatus();
+					FJS.MysteryBox._changeSubmitStatus();
 					//console.log(max_count, checked_count);
 				},
-				_chamgeSubmitStatus: function(){
+				_changeCheckboxesStatus: function(){
+					const $form = $('#js_mbox_form');
+					let $containers = $form.find('.js_container'),
+						max_choices = $form.find('[type="checkbox"]:checked').length,
+						max_items = 0;
+
+					$containers.each(function(){
+						let $container = $(this);
+						let max_count = ~~$container.data('choice-max-count');
+						let checked_count = $container.find('[type="checkbox"]:checked').length;
+
+						if(checked_count === max_count){
+							$container.find('[type="checkbox"]:not(:checked)').prop('disabled', true);
+						}
+					});
+				},
+				_changeSubmitStatus: function(){
 					const $form = $('#js_mbox_form');
 					let $containers = $form.find('.js_container'),
 						max_choices = $form.find('[type="checkbox"]:checked').length,
@@ -210,7 +224,7 @@
 						max_items += ~~$(this).data('choice-max-count');
 					});
 
-					$form.find('[type="submit"]').prop('disabled', !(max_choices == max_items));
+					$form.find('[type="submit"]').prop('disabled', !(max_choices === max_items));
 					//console.log($form.find('[type="submit"]').prop('disabled'));
 				},
 			}

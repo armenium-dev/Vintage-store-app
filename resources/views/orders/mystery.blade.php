@@ -18,6 +18,7 @@
                                     <th class="border-b dark:border-slate-600 font-medium p-3">Order ID</th>
                                     <th class="border-b dark:border-slate-600 font-medium p-3">Payment Status</th>
                                     <th class="border-b dark:border-slate-600 font-medium p-3">Fulfillment Status</th>
+                                    <th class="border-b dark:border-slate-600 font-medium p-3">Total price</th>
                                     <th class="border-b dark:border-slate-600 font-medium p-3">Date</th>
                                     <th class="border-b dark:border-slate-600 font-medium p-3">Product</th>
                                     <th class="border-b dark:border-slate-600 font-medium p-3">Actions</th>
@@ -30,6 +31,7 @@
                                     <td class="border-b border-slate-100 dark:border-slate-700 p-3">{{ $order->order_id }}</td>
                                     <td class="border-b border-slate-100 dark:border-slate-700 p-3">{{ $order->payment_status }}</td>
                                     <td class="border-b border-slate-100 dark:border-slate-700 p-3">{{ $order->fulfillment_status }}</td>
+                                    <td class="border-b border-slate-100 dark:border-slate-700 p-3">&pound;{{ $order->data['total_price'] }}</td>
                                     <td class="border-b border-slate-100 dark:border-slate-700 p-3">{{ $order->updated_at->format('Y-m-d H:i') }}</td>
                                     <td class="border-b border-slate-100 dark:border-slate-700 p-3">{!! $order->productName() !!}</td>
                                     <td class="border-b border-slate-100 dark:border-slate-700 p-3">

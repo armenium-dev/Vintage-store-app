@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\MysteryBox;
 use App\Models\Order;
 use App\Models\Tag;
 use Illuminate\Http\Request;
@@ -17,6 +18,7 @@ class MysteryBoxController extends Controller {
 	private Order $order;
 	private Product $product;
 	private Variant $variant;
+	private int $line_id = 0;
 	private array $mb_rules = [
 		'StandardVintageMysteryBox' => [
 			'VintageHandpickItems' => ['title' => 'Vintage Handpick Items', 'color' => 'indigo', 'count' => 1, 'items' => []],
@@ -43,10 +45,11 @@ class MysteryBoxController extends Controller {
 		],
 	];
 
-	public function getMysteryBoxItems(Order $o, Product $p, Variant $v){
+	public function getMysteryBoxItems(Order $o, Product $p, Variant $v, int $line_id){
 		$this->order = $o;
 		$this->product = $p;
 		$this->variant = $v;
+		$this->line_id = $line_id;
 
 		#$this->getBoxType();
 		
@@ -102,9 +105,12 @@ class MysteryBoxController extends Controller {
 		]);
 		$query->whereIn('tags.tag', $tags);
 
-		return $query->get()->toArray();
+		$result = $query->get()->toArray();
+
+		return $this->setSelectedItems($result, 'VintageHandpickItems');
 	}
 
+	/** TODO **/
 	private function getVintageItems(){
 		$items = VintageItems::where([
 			'option1' => $this->variant->option1,
@@ -115,6 +121,7 @@ class MysteryBoxController extends Controller {
 		return $items;
 	}
 
+	/** TODO **/
 	private function getSweatshirtItems(){
 		$items = SweatshirtItems::where([
 			'option1' => $this->variant->option1,
@@ -125,12 +132,33 @@ class MysteryBoxController extends Controller {
 		return $items;
 	}
 
+	/** TODO **/
 	private function getReworkItems(){
 		$items = ReworkItems::where([
 			'option1' => $this->variant->option1,
 			'option2' => $this->variant->option2,
 			'option3' => $this->variant->option3,
 		])->get()->toArray();
+
+		return $items;
+	}
+
+	private function setSelectedItems($items, $formula){
+		if(!empty($items)){
+			foreach($items as $k => $item){
+				$count = MysteryBox::where([
+					'order_id' => $this->order->order_id,
+					'line_id' => $this->line_id,
+					'product_id' => $item['product_id'],
+					'variant_id' => $item['variant_id'],
+					'formula' => $formula,
+					'packed' => 0
+				])->count();
+				$items[$k]['exist'] = $count;
+			}
+		}
+
+		#dd($items);
 
 		return $items;
 	}
@@ -177,4 +205,22 @@ class MysteryBoxController extends Controller {
 		return str_replace($search, $replace, $string);
 	}
 
+	public function getBoxLineCollectedData($order_id, $line_item): array{
+		$count = 0;
+		$total = 0;
+		$rule = $this->cleanProductTitle($line_item['title']);
+
+		foreach($this->mb_rules[$rule] as $formula => $v){
+			$total += $v['count'];
+
+			$count += MysteryBox::where([
+				'order_id' => $order_id,
+				'line_id' => $line_item['id'],
+				'formula' => $formula,
+				'packed' => 0
+			])->count();
+		}
+
+		return ['count' => $count, 'total' => $total];
+	}
 }

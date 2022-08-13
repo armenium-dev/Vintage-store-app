@@ -34,7 +34,7 @@ Route::get('webhooks-list', [WebhooksController::class, 'list'])->middleware(['a
 
 Route::resource('settings', SettingsController::class);
 Route::get('orders/mystery-box', [OrdersController::class, 'mysteryBox'])->middleware(['auth'])->name('mysteryBox');
-Route::get('orders/mystery-box-collect/{oid}/product/{pid}/variant/{vid}', [OrdersController::class, 'mysteryBoxCollectProducts'])->middleware(['auth'])->name('mysteryBoxCollectProducts');
+Route::get('orders/mystery-box-collect/{oid}/line/{lid}/product/{pid}/variant/{vid}', [OrdersController::class, 'mysteryBoxCollectProducts'])->middleware(['auth'])->name('mysteryBoxCollectProducts');
 Route::get('orders/mystery-box-collect/{id}', [OrdersController::class, 'mysteryBoxCollect'])->middleware(['auth'])->name('mysteryBoxCollect');
 Route::get('import-order-by-id', [OrdersController::class, 'importOrderByID'])->middleware(['auth'])->name('importOrderByID');
 Route::post('store-order-by-id', [OrdersController::class, 'storeOrderByID'])->middleware(['auth'])->name('storeOrderByID');

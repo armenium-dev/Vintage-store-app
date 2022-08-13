@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\MysteryBox;
 use App\Models\Order;
 use App\Models\Product;
 use App\Models\Variant;
@@ -35,7 +36,11 @@ class OrdersController extends Controller {
 	 * @return \Illuminate\Contracts\View\View
 	 */
 	public function mysteryBox(){
-		$orders = Order::whereIsMysteryBox(1)->orderByDesc('updated_at')->get();
+		$orders = Order::whereIsMysteryBox(1)
+			->whereNull('fulfillment_status')
+			->orWhere('fulfillment_status', '!=', 'fulfilled')
+			->orderByDesc('updated_at')
+			->get();
 
 		return view('orders.mystery', compact('orders'));
 	}
@@ -47,20 +52,24 @@ class OrdersController extends Controller {
 	 */
 	public function mysteryBoxCollect($id){
 		$order = Order::whereId($id)->first();
-		#dd($order->data['line_items']);
+
 
 		$line_items = [];
 
 		foreach($order->data['line_items'] as $line_item){
 			$product = Product::where(['product_id' => $line_item['product_id'], 'is_mystery' => 1])->first();
-			#dd($product->title);
+
 			if($product){
+				$collected_data = $this->MysteryBoxController->getBoxLineCollectedData($order->order_id, $line_item);
 				$line_items[] = [
+					'line_id' => $line_item['id'],
 					'product_image' => $product->image,
 					'product_id' => $line_item['product_id'],
 					'product_title' => $line_item['title'],
 					'variant_id' => $line_item['variant_id'],
-					'variant_title' => $line_item['variant_title']
+					'variant_title' => $line_item['variant_title'],
+					'collected_count' => $collected_data['count'],
+					'collected_total' => $collected_data['total'],
 				];
 			}
 		}
@@ -75,75 +84,17 @@ class OrdersController extends Controller {
 	 *
 	 * @return \Illuminate\Contracts\View\View
 	 */
-	public function mysteryBoxCollectProducts($oid, $pid, $vid){
+	public function mysteryBoxCollectProducts($oid, $lid, $pid, $vid){
 		$order = Order::whereOrderId($oid)->first();
 		$product = Product::where(['product_id' => $pid, 'is_mystery' => 1])->first();
 		$variant = Variant::where(['product_id' => $pid, 'variant_id' => $vid])->first();
+
 		#dd([$order->data['line_items'], $product, $variant]);
 
-		$box_items = $this->MysteryBoxController->getMysteryBoxItems($order, $product, $variant);
+		$box_items = $this->MysteryBoxController->getMysteryBoxItems($order, $product, $variant, $lid);
+		#dd($box_items);
 
-		return view('orders.collect-products', compact('order', 'product', 'variant', 'box_items'));
-	}
-
-	/**
-	 * Show the form for creating a new resource.
-	 *
-	 * @return \Illuminate\Http\Response
-	 */
-	public function create(){
-		//
-	}
-
-	/**
-	 * Store a newly created resource in storage.
-	 *
-	 * @param \Illuminate\Http\Request $request
-	 * @return \Illuminate\Http\Response
-	 */
-	public function store(Request $request){
-		//
-	}
-
-	/**
-	 * Display the specified resource.
-	 *
-	 * @param int $id
-	 * @return \Illuminate\Http\Response
-	 */
-	public function show($id){
-		//
-	}
-
-	/**
-	 * Show the form for editing the specified resource.
-	 *
-	 * @param int $id
-	 * @return \Illuminate\Http\Response
-	 */
-	public function edit($id){
-		//
-	}
-
-	/**
-	 * Update the specified resource in storage.
-	 *
-	 * @param \Illuminate\Http\Request $request
-	 * @param int $id
-	 * @return \Illuminate\Http\Response
-	 */
-	public function update(Request $request, $id){
-		//
-	}
-
-	/**
-	 * Remove the specified resource from storage.
-	 *
-	 * @param int $id
-	 * @return \Illuminate\Http\Response
-	 */
-	public function destroy($id){
-		//
+		return view('orders.collect-products', compact('order', 'product', 'variant', 'box_items', 'lid'));
 	}
 
 	/**
@@ -202,34 +153,99 @@ class OrdersController extends Controller {
 	 * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
 	 */
 	public function storeOrderMysteryBox(Request $request){
-		$message = '';
+		$messages = [];
 		$order_id = 0;
 
 		if($request->isMethod('post')){
-			$shop_id = $request->post('shop_id');
 			$order_id = $request->post('order_id');
+			$items = $request->post('items');
+			$delete_data = $insert_data = [];
+			#dd($order_id);
 
-			$order = Order::where(['shop_id' => $shop_id, 'order_id' => $order_id])->first();
+			foreach($items as $item){
+				$a = explode(':', $item);
+				$delete_data[] = [
+					'formula' => $a[0],
+					'order_id' => $a[1],
+					'line_id' => $a[2],
+					'packed' => 0
+				];
+				$insert_data[] = [
+					'formula' => $a[0],
+					'order_id' => $a[1],
+					'line_id' => $a[2],
+					'product_id' => $a[3],
+					'variant_id' => $a[4],
+					#'packed' => 0
+				];
+			}
 
-			$result = $this->ShopifyController->storeOrder($shop_id, $order_id);
-
-			if(!is_null($order)){
-				if($result){
-					$message = sprintf(__('Order %s status updated successfully!'), $order_id);
-				}else{
-					$message = sprintf(__('This order %s already exists. No need to import it.'), $order_id);
-				}
-			}else{
-				if($result){
-					$message = sprintf(__('Order %s imported successfully!'), $order_id);
-				}else{
-					$message = sprintf(__('Order %s not fount on this shop! Try with another shop.'), $order_id);
+			if(!empty($delete_data)){
+				foreach($delete_data as $data){
+					MysteryBox::where($data)->delete();
 				}
 			}
 
+			if(!empty($insert_data)){
+				foreach($insert_data as $data){
+					if($mystery_box = MysteryBox::create($data)){
+						$messages[] = sprintf(__('Mystery Box %s created successfully!'), $mystery_box->id);
+					}else{
+						$messages[] = __('Error! Mystery Box not created');
+					}
+				}
+			}
 		}
 
-		return redirect(route('mysteryBoxCollect', ['order_id' => $order_id]))->with('status', $message);
+		return redirect(route('mysteryBoxCollect', ['id' => $order_id]))->with('status', implode("\n", $messages));
 	}
+
+	/**
+	 * Show the form for creating a new resource.
+	 *
+	 * @return \Illuminate\Http\Response
+	 */
+	public function create(){}
+
+	/**
+	 * Store a newly created resource in storage.
+	 *
+	 * @param \Illuminate\Http\Request $request
+	 * @return \Illuminate\Http\Response
+	 */
+	public function store(Request $request){}
+
+	/**
+	 * Display the specified resource.
+	 *
+	 * @param int $id
+	 * @return \Illuminate\Http\Response
+	 */
+	public function show($id){}
+
+	/**
+	 * Show the form for editing the specified resource.
+	 *
+	 * @param int $id
+	 * @return \Illuminate\Http\Response
+	 */
+	public function edit($id){}
+
+	/**
+	 * Update the specified resource in storage.
+	 *
+	 * @param \Illuminate\Http\Request $request
+	 * @param int $id
+	 * @return \Illuminate\Http\Response
+	 */
+	public function update(Request $request, $id){}
+
+	/**
+	 * Remove the specified resource from storage.
+	 *
+	 * @param int $id
+	 * @return \Illuminate\Http\Response
+	 */
+	public function destroy($id){}
 
 }
