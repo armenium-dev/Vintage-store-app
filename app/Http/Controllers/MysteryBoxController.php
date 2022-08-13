@@ -101,6 +101,9 @@ class MysteryBoxController extends Controller {
 			'option2' => $this->variant->option2,
 			'option3' => $this->variant->option3,
 		])->orWhere([
+			'option1' => $this->variant->option1,
+			'option2' => $this->variant->option2,
+		])->orWhere([
 			'option1' => $this->variant->option2,
 		]);
 		$query->whereIn('tags.tag', $tags);
