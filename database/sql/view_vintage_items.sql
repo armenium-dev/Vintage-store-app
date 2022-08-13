@@ -29,7 +29,6 @@ WHERE p.product_id NOT IN (SELECT product_id FROM tags WHERE tag IN ('MARKET', '
 			p.body LIKE '%A* Quality%' OR
 			p.body LIKE '%A Quality%'
 	)
-    AND v.price BETWEEN 15 AND 39
-ORDER BY v.price;
+    AND v.price BETWEEN 15 AND 39;
 
 
