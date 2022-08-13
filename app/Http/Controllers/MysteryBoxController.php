@@ -110,7 +110,7 @@ class MysteryBoxController extends Controller {
 			'option1' => $this->variant->option2,
 		]);
 		$query->whereIn('tags.tag', $this->tags);
-		$query->orderBy('price');
+		#$query->orderBy('price');
 		#$query->dd();
 		#dd($query->toSql());
 		$result = $query->get()->toArray();
@@ -118,7 +118,6 @@ class MysteryBoxController extends Controller {
 		return $this->setSelectedItems($result, 'VintageHandpickItems');
 	}
 
-	/** TODO **/
 	private function getVintageItems(): array{
 		$query = VintageItems::query();
 		#$query->leftJoin('tags', 'tags.product_id', '=', 'vintage_items.product_id');
@@ -141,8 +140,7 @@ class MysteryBoxController extends Controller {
 		return $this->setSelectedItems($result, 'VintageItems');
 	}
 
-	/** TODO **/
-	private function getSweatshirtItems(){
+	private function getSweatshirtItems(): array{
 		$query = SweatshirtItems::query();
 		$query->where([
 			'option1' => $this->variant->option1,
@@ -155,7 +153,7 @@ class MysteryBoxController extends Controller {
 			'option1' => $this->variant->option2,
 		]);
 		#$query->whereIn('tags.tag', $this->tags);
-		$query->orderBy('price');
+		#$query->orderBy('price');
 		#$query->dd();
 		#dd($query->toSql());
 		$result = $query->get()->toArray();
@@ -163,8 +161,7 @@ class MysteryBoxController extends Controller {
 		return $this->setSelectedItems($result, 'SweatshirtItems');
 	}
 
-	/** TODO **/
-	private function getReworkItems(){
+	private function getReworkItems(): array{
 		$query = ReworkItems::query();
 		$query->where([
 			'option1' => $this->variant->option1,
@@ -177,7 +174,7 @@ class MysteryBoxController extends Controller {
 			'option1' => $this->variant->option2,
 		]);
 		#$query->whereIn('tags.tag', $this->tags);
-		$query->orderBy('price');
+		#$query->orderBy('price');
 		#$query->dd();
 		#dd($query->toSql());
 		$result = $query->get()->toArray();
@@ -186,8 +183,9 @@ class MysteryBoxController extends Controller {
 	}
 
 	private function setSelectedItems($items, $formula): array{
+		$new_items = [];
+		
 		if(!empty($items)){
-			$new_items = [];
 			foreach($items as $k => $item){
 				$count = MysteryBox::where([
 					'order_id' => $this->order->order_id,
@@ -198,12 +196,18 @@ class MysteryBoxController extends Controller {
 					'packed' => 0
 				])->count();
 				$items[$k]['exist'] = $count;
+				
+				if($count){
+					$new_items[] = $items[$k];
+					unset($items[$k]);
+				}
 			}
-		}
+			$new_items += $items;
+		}else $new_items = $items;
 
 		#dd($items);
 
-		return $items;
+		return $new_items;
 	}
 
 	private function createTagsList(){
@@ -277,4 +281,5 @@ class MysteryBoxController extends Controller {
 
 		return ['count' => $count, 'total' => $total];
 	}
+	
 }

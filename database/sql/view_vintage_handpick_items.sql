@@ -1,4 +1,4 @@
-#DROP VIEW IF EXISTS vintage_handpick_items;
+DROP VIEW IF EXISTS vintage_handpick_items;
 CREATE VIEW vintage_handpick_items AS SELECT
     p.id,
     p.shop_id,
@@ -11,7 +11,8 @@ CREATE VIEW vintage_handpick_items AS SELECT
 	v.option1,
 	v.option2,
 	v.option3,
-    p.image
+    p.image,
+    p.created_at
 FROM products p
 LEFT JOIN variants v ON p.product_id = v.product_id
 LEFT JOIN tags t ON t.product_id = p.product_id
