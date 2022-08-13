@@ -32,13 +32,22 @@ class OrdersCount extends Component{
 		
 		switch($this->type){
 			case "shop_1":
-				$count = Order::where(['shop_id' => 1, 'is_mystery_box' => 1])->count();
+				$count = Order::where(['shop_id' => 1, 'is_mystery_box' => 1])
+					->whereNull('fulfillment_status')
+					->orWhere('fulfillment_status', '!=', 'fulfilled')
+					->count();
 				break;
 			case "shop_2":
-				$count = Order::where(['shop_id' => 2, 'is_mystery_box' => 1])->count();
+				$count = Order::where(['shop_id' => 2, 'is_mystery_box' => 1])
+					->whereNull('fulfillment_status')
+					->orWhere('fulfillment_status', '!=', 'fulfilled')
+					->count();
 				break;
 			case "shop_3":
-				$count = Order::where(['shop_id' => 3, 'is_mystery_box' => 1])->count();
+				$count = Order::where(['shop_id' => 3, 'is_mystery_box' => 1])
+					->whereNull('fulfillment_status')
+					->orWhere('fulfillment_status', '!=', 'fulfilled')
+					->count();
 				break;
 			default:
 				break;

@@ -96,6 +96,8 @@ class MysteryBoxController extends Controller {
 
 		$query = VintageHandpickItems::query();
 		$query->leftJoin('tags', 'tags.product_id', '=', 'vintage_handpick_items.product_id');
+		$query->where(['inventory_quantity' => 1]);
+		$query->whereBetween('price', [30, 61]);
 		$query->where([
 			'option1' => $this->variant->option1,
 			'option2' => $this->variant->option2,
@@ -107,7 +109,8 @@ class MysteryBoxController extends Controller {
 			'option1' => $this->variant->option2,
 		]);
 		$query->whereIn('tags.tag', $tags);
-
+		$query->dd();
+		dd($query->toSql());
 		$result = $query->get()->toArray();
 
 		return $this->setSelectedItems($result, 'VintageHandpickItems');
@@ -174,20 +177,31 @@ class MysteryBoxController extends Controller {
 		];
 
 		$list = [];
-
+		
 		foreach($options as $option){
+			if(str_contains(strtolower($option), 'ring') || str_contains(strtolower($option), 'necklace')){
+				continue;
+			}
+			
 			if(!empty($option)){
 				$output_array = [];
 				preg_match('/\((.*)\)/', $option, $output_array);
-
+				
 				if(!empty($output_array) && !empty($output_array[1])){
-					$list[] = str_replace(' ', '-', $output_array[1]);
+					if(str_contains($output_array[1], ' ')){
+						foreach(explode(' ', $output_array[1]) as $b)
+							$list[] = $b;
+						
+						$list[] = str_replace(' ', '-', $output_array[1]);
+					}
+					
 					$option = preg_replace('/\((.*)\)/', '', $option);
 					$option = trim($option);
 				}
 
 				if(str_contains($option, ' ')){
-					$list += explode(' ', $option);
+					foreach(explode(' ', $option) as $b)
+						$list[] = $b;
 				}else $list[] = $option;
 			}
 		}

@@ -22,7 +22,7 @@ WHERE p.product_id NOT IN (SELECT product_id FROM tags WHERE tag IN ('MARKET', '
     AND p.title NOT LIKE '%REWORK%'
     -- AND (p.link_asos != '' OR p.link_depop != '')
     AND t.tag = 'GG'
-    AND v.inventory_quantity = 1
+    -- AND v.inventory_quantity = 1
     AND (
         p.body LIKE '%A* Vintage Quality%' OR
         p.body LIKE '%A Vintage Quality%' OR
@@ -31,6 +31,6 @@ WHERE p.product_id NOT IN (SELECT product_id FROM tags WHERE tag IN ('MARKET', '
         p.body LIKE '%A* Quality%' OR
         p.body LIKE '%A Quality%'
         )
-    AND v.price BETWEEN 30 AND 61
+    -- AND v.price BETWEEN 30 AND 61
 ORDER BY v.price;
 
