@@ -1,4 +1,4 @@
-DROP VIEW IF EXISTS rework_items;
+#DROP VIEW IF EXISTS rework_items;
 CREATE VIEW rework_items AS SELECT
     p.id,
     p.shop_id,
@@ -11,11 +11,11 @@ CREATE VIEW rework_items AS SELECT
     v.option1,
     v.option2,
     v.option3,
-    p.image,
-	p.created_at
+    p.image
 FROM products p
 LEFT JOIN variants v ON p.product_id = v.product_id
 WHERE p.product_id NOT IN (SELECT product_id FROM tags WHERE tag = 'MARKET')
+  -- AND p.product_id NOT IN (SELECT product_id FROM mystery_boxes)
     AND p.is_mystery = 0
     AND p.status = 'active'
   AND p.deleted_at IS NULL
@@ -29,6 +29,7 @@ WHERE p.product_id NOT IN (SELECT product_id FROM tags WHERE tag = 'MARKET')
 			p.body LIKE '%A Quality Vintage%' OR
 			p.body LIKE '%A* Quality%' OR
 			p.body LIKE '%A Quality%'
-	);
+	)
+ORDER BY p.created_at;
 
 

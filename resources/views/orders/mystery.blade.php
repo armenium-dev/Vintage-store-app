@@ -16,13 +16,14 @@
                                 <tr class="text-slate-400 dark:text-slate-200 text-left cursor-default">
                                     <th class="border-b dark:border-slate-600 font-medium p-3">#</th>
                                     <th class="border-b dark:border-slate-600 font-medium p-3 hidden">Shop</th>
+                                    <th class="border-b dark:border-slate-600 font-medium p-3 whitespace-nowrap">Order #</th>
                                     <th class="border-b dark:border-slate-600 font-medium p-3">Order ID</th>
-                                    <th class="border-b dark:border-slate-600 font-medium p-3">Payment Status</th>
-                                    <th class="border-b dark:border-slate-600 font-medium p-3">Fulfillment Status</th>
-                                    <th class="border-b dark:border-slate-600 font-medium p-3">Total price</th>
+                                    <th class="border-b dark:border-slate-600 font-medium p-3">Payment</th>
+                                    <th class="border-b dark:border-slate-600 font-medium p-3 hidden">Fulfillment Status</th>
+                                    <th class="border-b dark:border-slate-600 font-medium p-3 text-right">Price</th>
                                     <th class="border-b dark:border-slate-600 font-medium p-3">Date</th>
                                     <th class="border-b dark:border-slate-600 font-medium p-3">Product</th>
-                                    <th class="border-b dark:border-slate-600 font-medium p-3">Actions</th>
+                                    <th class="border-b dark:border-slate-600 font-medium p-3 text-center">Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -30,10 +31,11 @@
                                 <tr id="js_orderitem_{{$order->id}}" class="text-slate-500 dark:text-slate-400 hover:bg-indigo-100 cursor-default">
                                     <td class="border-b border-slate-100 dark:border-slate-700 p-3">{{ ($k+1) }}</td>
                                     <td class="border-b border-slate-100 dark:border-slate-700 p-3 hidden">{{ $order->getShopName() }}</td>
+                                    <td class="border-b border-slate-100 dark:border-slate-700 p-3">{{ $order->data['name'] }}</td>
                                     <td class="border-b border-slate-100 dark:border-slate-700 p-3">{{ $order->order_id }}</td>
                                     <td class="border-b border-slate-100 dark:border-slate-700 p-3">{{ $order->payment_status }}</td>
-                                    <td class="border-b border-slate-100 dark:border-slate-700 p-3">{{ $order->fulfillment_status }}</td>
-                                    <td class="border-b border-slate-100 dark:border-slate-700 p-3">&pound;{{ $order->data['total_price'] }}</td>
+                                    <td class="border-b border-slate-100 dark:border-slate-700 p-3 hidden">{{ $order->fulfillment_status }}</td>
+                                    <td class="border-b border-slate-100 dark:border-slate-700 p-3 text-right">&pound;{{ $order->data['total_price'] }}</td>
                                     <td class="border-b border-slate-100 dark:border-slate-700 p-3">{{ $order->updated_at->format('Y-m-d H:i') }}</td>
                                     <td class="border-b border-slate-100 dark:border-slate-700 p-3">{!! $order->productName() !!}</td>
                                     <td class="border-b border-slate-100 dark:border-slate-700 p-3">

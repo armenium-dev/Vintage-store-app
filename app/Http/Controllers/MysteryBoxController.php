@@ -20,6 +20,7 @@ class MysteryBoxController extends Controller {
 	private Variant $variant;
 	private int $line_id = 0;
 	private array $tags;
+	private array $exclude_product_ids;
 	private array $mb_rules = [
 		'StandardVintageMysteryBox' => [
 			'VintageHandpickItems' => ['title' => 'Vintage Handpick Items', 'color' => 'indigo', 'count' => 1, 'items' => []],
@@ -60,46 +61,42 @@ class MysteryBoxController extends Controller {
 	}
 
 	public function getBoxItems($rule){
-		/*dump([
-			'option1' => $this->variant->option1,
-			'option2' => $this->variant->option2,
-			'option3' => $this->variant->option3,
-		]);*/
-		/*$d = VintageHandpickItems::where([
-			'option1' => $this->variant->option1,
-			'option2' => $this->variant->option2,
-			'option3' => $this->variant->option3,
-		])->get()->toArray();
-		dd($d);*/
-
+		$this->setExcludeProductIDs();
 		$this->createTagsList();
 
 		$items = $this->mb_rules[$rule];
 
 		foreach($items as $model_name => $data){
-			#dump($model_name);
 			$items[$model_name]['items'] = $this->{"get$model_name"}();
-
-			/*$class = "\\App\\Models\\".$model_name;
-			
-			$items[$model_name] = $class::where([
-				'option1' => $this->variant->option1,
-				'option2' => $this->variant->option2,
-				'option3' => $this->variant->option3,
-			])->get()->toArray();*/
 		}
-		
+
 		#dd($items);
-		
-		return $items;
+
+		return $this->setRepetitiveItems($items);
 	}
 
 	private function getVintageHandpickItems(): array{
 		$query = VintageHandpickItems::query();
 		$query->leftJoin('tags', 'tags.product_id', '=', 'vintage_handpick_items.product_id');
-		#$query->where(['inventory_quantity' => 1]);
-		#$query->whereBetween('price', [30, 61]);
-		$query->where([
+
+		if(!empty($this->exclude_product_ids)){
+			$query->whereNotIn('vintage_handpick_items.product_id', $this->exclude_product_ids);
+		}
+
+		$query->where(function($query){
+			return $query->where([
+				'option1' => $this->variant->option1,
+				'option2' => $this->variant->option2,
+				'option3' => $this->variant->option3,
+			])->orWhere([
+				'option1' => $this->variant->option1,
+				'option2' => $this->variant->option2,
+			])->orWhere([
+				'option1' => $this->variant->option2,
+			]);
+		});
+
+		/*$query->where([
 			'option1' => $this->variant->option1,
 			'option2' => $this->variant->option2,
 			'option3' => $this->variant->option3,
@@ -108,11 +105,10 @@ class MysteryBoxController extends Controller {
 			'option2' => $this->variant->option2,
 		])->orWhere([
 			'option1' => $this->variant->option2,
-		]);
+		]);*/
+
 		$query->whereIn('tags.tag', $this->tags);
-		#$query->orderBy('price');
 		#$query->dd();
-		#dd($query->toSql());
 		$result = $query->get()->toArray();
 
 		return $this->setSelectedItems($result, 'VintageHandpickItems');
@@ -121,20 +117,26 @@ class MysteryBoxController extends Controller {
 	private function getVintageItems(): array{
 		$query = VintageItems::query();
 		#$query->leftJoin('tags', 'tags.product_id', '=', 'vintage_items.product_id');
-		$query->where([
-			'option1' => $this->variant->option1,
-			'option2' => $this->variant->option2,
-			'option3' => $this->variant->option3,
-		])->orWhere([
-			'option1' => $this->variant->option1,
-			'option2' => $this->variant->option2,
-		])->orWhere([
-			'option1' => $this->variant->option2,
-		]);
+
+		if(!empty($this->exclude_product_ids)){
+			$query->whereNotIn('vintage_items.product_id', $this->exclude_product_ids);
+		}
+
+		$query->where(function($query){
+			return $query->where([
+				'option1' => $this->variant->option1,
+				'option2' => $this->variant->option2,
+				'option3' => $this->variant->option3,
+			])->orWhere([
+				'option1' => $this->variant->option1,
+				'option2' => $this->variant->option2,
+			])->orWhere([
+				'option1' => $this->variant->option2,
+			]);
+		});
+
 		#$query->whereIn('tags.tag', $this->tags);
-		$query->orderBy('price');
-		#$query->dd();
-		#dd($query->toSql());
+
 		$result = $query->get()->toArray();
 
 		return $this->setSelectedItems($result, 'VintageItems');
@@ -142,20 +144,24 @@ class MysteryBoxController extends Controller {
 
 	private function getSweatshirtItems(): array{
 		$query = SweatshirtItems::query();
-		$query->where([
-			'option1' => $this->variant->option1,
-			'option2' => $this->variant->option2,
-			'option3' => $this->variant->option3,
-		])->orWhere([
-			'option1' => $this->variant->option1,
-			'option2' => $this->variant->option2,
-		])->orWhere([
-			'option1' => $this->variant->option2,
-		]);
-		#$query->whereIn('tags.tag', $this->tags);
-		#$query->orderBy('price');
-		#$query->dd();
-		#dd($query->toSql());
+
+		if(!empty($this->exclude_product_ids)){
+			$query->whereNotIn('sweatshirt_items.product_id', $this->exclude_product_ids);
+		}
+
+		$query->where(function($query){
+			return $query->where([
+				'option1' => $this->variant->option1,
+				'option2' => $this->variant->option2,
+				'option3' => $this->variant->option3,
+			])->orWhere([
+				'option1' => $this->variant->option1,
+				'option2' => $this->variant->option2,
+			])->orWhere([
+				'option1' => $this->variant->option2,
+			]);
+		});
+
 		$result = $query->get()->toArray();
 
 		return $this->setSelectedItems($result, 'SweatshirtItems');
@@ -163,23 +169,41 @@ class MysteryBoxController extends Controller {
 
 	private function getReworkItems(): array{
 		$query = ReworkItems::query();
-		$query->where([
-			'option1' => $this->variant->option1,
-			'option2' => $this->variant->option2,
-			'option3' => $this->variant->option3,
-		])->orWhere([
-			'option1' => $this->variant->option1,
-			'option2' => $this->variant->option2,
-		])->orWhere([
-			'option1' => $this->variant->option2,
-		]);
+		#$query->leftJoin('tags', 'tags.product_id', '=', 'rework_items.product_id');
+
+		if(!empty($this->exclude_product_ids)){
+			$query->whereNotIn('rework_items.product_id', $this->exclude_product_ids);
+		}
+
+		$query->where(function($query){
+			return $query->where([
+				'option1' => $this->variant->option1,
+				'option2' => $this->variant->option2,
+				'option3' => $this->variant->option3,
+			])->orWhere([
+				'option1' => $this->variant->option1,
+				'option2' => $this->variant->option2,
+			])->orWhere([
+				'option1' => $this->variant->option2,
+			]);
+		});
+
 		#$query->whereIn('tags.tag', $this->tags);
-		#$query->orderBy('price');
-		#$query->dd();
-		#dd($query->toSql());
+
 		$result = $query->get()->toArray();
 
 		return $this->setSelectedItems($result, 'ReworkItems');
+	}
+
+	private function setRepetitiveItems($items): array{
+		/*dd($items);
+		foreach($items as $k => $item){
+			foreach($item['items'] as $k2 => $data){
+
+			}
+		}*/
+
+		return $items;
 	}
 
 	private function setSelectedItems($items, $formula): array{
@@ -281,5 +305,15 @@ class MysteryBoxController extends Controller {
 
 		return ['count' => $count, 'total' => $total];
 	}
-	
+
+	private function setExcludeProductIDs(){
+		$this->exclude_product_ids = MysteryBox::where(['selected' => 0, 'packed' => 0])
+			->where('order_id', '!=', $this->order->order_id)
+			->get()
+			->pluck('product_id')
+			->toArray();
+
+		#dd($this->exclude_product_ids);
+	}
+
 }

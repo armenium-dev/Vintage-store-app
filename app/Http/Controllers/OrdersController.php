@@ -1,6 +1,7 @@
 <?php
 namespace App\Http\Controllers;
 
+use App\Http\Helpers\Parser;
 use App\Models\MysteryBox;
 use App\Models\Order;
 use App\Models\Product;
@@ -12,10 +13,12 @@ class OrdersController extends Controller {
 
 	public ShopifyController $ShopifyController;
 	public MysteryBoxController $MysteryBoxController;
+	public Parser $Parser;
 
-	public function __construct(ShopifyController $SC, MysteryBoxController $MBC){
+	public function __construct(ShopifyController $SC, MysteryBoxController $MBC, Parser $P){
 		$this->ShopifyController = $SC;
 		$this->MysteryBoxController = $MBC;
+		$this->Parser = $P;
 	}
 
 	/**
@@ -175,6 +178,7 @@ class OrdersController extends Controller {
 					'line_id' => $a[2],
 					'product_id' => $a[3],
 					'variant_id' => $a[4],
+					'sorting_tag' => $this->getProductSortingTag($a[3]),
 					#'packed' => 0
 				];
 			}
@@ -197,6 +201,16 @@ class OrdersController extends Controller {
 		}
 
 		return redirect(route('mysteryBoxCollect', ['id' => $order_id]))->with('status', implode("\n", $messages));
+	}
+
+	private function getProductSortingTag($product_id){
+		$product = Product::whereProductId($product_id)->first();
+		#dd($product);
+
+		$vcuk_tag = $this->Parser->getVCUKtag($product->body);
+		#dd($vcuk_tag);
+
+		return $vcuk_tag;
 	}
 
 	/**

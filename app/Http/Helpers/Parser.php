@@ -41,8 +41,14 @@ class Parser {
 		$content = file_get_contents($file_path);
 
 		if(!empty($content)){
+			$content .= "\n\r";
+
 			$output_array = [];
 			preg_match_all('/Ref[\s]?\-([\s\S]*?(?=([\n\r|\}])))/', $content, $output_array);
+			if(empty($output_array[0])){
+				$output_array = [];
+				preg_match_all('/Ref[\s]?\-([\s\S]*?(?=([\s|\}])))/', $content, $output_array);
+			}
 			if(!empty($output_array[0])){
 				foreach($output_array[0] as $k => $v){
 					$pos = strpos($v, '"');
@@ -85,5 +91,28 @@ class Parser {
 		return $res;
 	}
 
+	public function getVCUKtag($content): string{
+		$res = '';
+
+		if(!empty($content)){
+			$content = strip_tags($content);
+
+			$content .= "\n\r";
+
+			$output_array = [];
+			preg_match('/VCUK[\s]?([\s\S]*?(?=([\n\r|\}])))/', $content, $output_array);
+			if(!empty($output_array[0])){
+				$res = $output_array[0];
+			}else{
+				$output_array = [];
+				preg_match('/TV[\s]?([\s\S]*?(?=([\n\r|\}])))/', $content, $output_array);
+				if(!empty($output_array[0])){
+					$res = $output_array[0];
+				}
+			}
+		}
+
+		return $res;
+	}
 }
 

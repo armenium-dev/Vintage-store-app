@@ -18,6 +18,8 @@ return new class extends Migration{
 			$table->unsignedBigInteger('product_id')->default(0);
 			$table->unsignedBigInteger('variant_id')->default(0);
 			$table->string('formula', 50)->nullable();
+			$table->string('sorting_tag', 12)->nullable();
+			$table->smallInteger('selected')->default(0);
 			$table->smallInteger('packed')->default(0);
 			$table->timestamps();
 		});

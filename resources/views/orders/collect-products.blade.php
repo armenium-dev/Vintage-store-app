@@ -43,7 +43,7 @@
 											@foreach($box['items'] as $item)
 												<li id="item_{!! $item['id'] !!}" class="w-full xs:w-1/2 sm:w-1/3 md:w-1/4 lg:w-20p p-2 {!! ($item['exist'] == 0) ?: 'dark'!!}">
 													<label class="flex flex-col justify-between bg-white hover:bg-{!! $box['color'] !!}-100 dark:bg-{!! $box['color'] !!}-500 dark:hover:bg-{!! $box['color'] !!}-700 rounded-lg border border-gray-100 dark:border-{!! $box['color'] !!}-500 dark:hover:border-{!! $box['color'] !!}-700 shadow-md overflow-hidden h-full cursor-pointer transition ease-out duration-200">
-														<img src="{!! $item['image'] !!}" class="">
+														<img src="{!! \App\Http\Helpers\Image::letProductThumb($item['image']) !!}" class="">
 														<div class="p-3">
 															<h2 class="pb-3 text-sm dark:text-white">{{$item['product_title']}}</h2>
 															<div class="flex flex-row flex-nowrap justify-between">

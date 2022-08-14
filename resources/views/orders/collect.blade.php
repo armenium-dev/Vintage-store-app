@@ -13,7 +13,7 @@
 
                     @foreach($line_items as $item)
 						<div class="max-w-sm bg-white rounded-lg border border-gray-200 shadow-md m-6 flex-1">
-							<img class="rounded-t-lg" src="{{ $item['product_image'] }}" alt="">
+							<img class="rounded-t-lg" src="{{ \App\Http\Helpers\Image::letProductThumb($item['product_image'], 400) }}" alt="">
 							<div class="p-5">
 								<h5 class="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">{{ $item['product_title'] }}</h5>
 								<p class="mb-5 font-normal text-gray-700 dark:text-gray-400">{{ $item['variant_title'] }}</p>

@@ -76,12 +76,16 @@ class Order extends Model{
 		if(!empty($this->data)){
 			$titles = [];
 			foreach($this->data['line_items'] as $item){
-				$titles[] = '<b>'.$item['title'].'</b>';
-				$titles[] = $item['variant_title'];
+				if(str_contains(strtolower($item['title']), 'mystery')){
+					$titles[] = '<b>'.$item['title'].'</b>';
+					$titles[] = '<small>'.$item['variant_title'].'</small>';
+				}
 			}
 			$res = implode('<br/>', $titles);
 		}
 
 		return $res;
 	}
+
+
 }
