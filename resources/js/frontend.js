@@ -8,7 +8,10 @@
 			vars: {ww: 0, wh: 0},
 			labels: {},
 			messages: {ajax_error: 'SYSTEM TECHNICAL ERROR'},
-			routes: {remove_sale: "sales-remove"},
+			routes: {
+				remove_sale: "sales-remove",
+				pick_product: "warehouse-pick-product"
+			},
 			els: {},
 			Main: {
 				Init: function(){
@@ -54,6 +57,9 @@
 							break;
 						case "choice_mb_product":
 							FJS.MysteryBox.choiceProduct($this);
+							break;
+						case "pick_product":
+							FJS.MysteryBox.pickProduct($this);
 							break;
 						default:
 							break;
@@ -226,6 +232,39 @@
 
 					$form.find('[type="submit"]').prop('disabled', !(max_choices === max_items));
 					//console.log($form.find('[type="submit"]').prop('disabled'));
+				},
+				pickProduct: function($btn){
+					let entry_id = $btn.data('id'),
+						$parent = $('#item_'+entry_id);
+
+					$.ajax({
+						type: "POST",
+						url: FJS.Common.createAjaxUrl(FJS.routes.pick_product),
+						headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
+						data: {id: entry_id},
+						dataType: "json",
+						beforeSend: function(xhr){
+							$btn.attr('disabled', true).find('span').text('............');
+						}
+					}).done(function(response){
+						if(response.error === 0){
+							let btn_text = '';
+
+							if(response.selected === 1){
+								btn_text = 'Cancel';
+								$parent.addClass('dark');
+							}else{
+								btn_text = 'Found';
+								$parent.removeClass('dark');
+							}
+
+							$btn.attr('disabled', false).find('span').text(btn_text);
+						}
+					}).fail(function(){
+						$btn.attr('disabled', false).find('span').text('Remove');
+						console.log(FJS.messages.ajax_error);
+					});
+
 				},
 			}
 		};

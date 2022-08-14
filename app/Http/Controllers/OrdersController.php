@@ -172,13 +172,16 @@ class OrdersController extends Controller {
 					'line_id' => $a[2],
 					'packed' => 0
 				];
+				$product_sorting_tag_data = $this->getProductSortingTag($a[3]);
 				$insert_data[] = [
 					'formula' => $a[0],
 					'order_id' => $a[1],
 					'line_id' => $a[2],
 					'product_id' => $a[3],
 					'variant_id' => $a[4],
-					'sorting_tag' => $this->getProductSortingTag($a[3]),
+					'tag' => $product_sorting_tag_data['tag'],
+					'sort_num_1' => $product_sorting_tag_data['num_1'],
+					'sort_num_2' => $product_sorting_tag_data['num_2'],
 					#'packed' => 0
 				];
 			}
@@ -203,14 +206,39 @@ class OrdersController extends Controller {
 		return redirect(route('mysteryBoxCollect', ['id' => $order_id]))->with('status', implode("\n", $messages));
 	}
 
-	private function getProductSortingTag($product_id){
+	private function getProductSortingTag($product_id): array{
+		$res = ['tag' => '', 'num_1' => 0, 'num_2' => 0];
+
 		$product = Product::whereProductId($product_id)->first();
 		#dd($product);
 
-		$vcuk_tag = $this->Parser->getVCUKtag($product->body);
-		#dd($vcuk_tag);
+		$tag = $this->Parser->getVCUKtag($product->body);
+		#dd($tag);
 
-		return $vcuk_tag;
+		$res['tag'] = $tag;
+
+		if(str_contains($tag, 'VCUK')){
+			$str = str_replace('VCUK', '', $tag);
+		}elseif(str_contains($tag, 'TV')){
+			$str = str_replace('TV', '', $tag);
+		}
+
+		$str = trim($str, ':');
+		$str = trim($str, '-');
+
+		if(str_contains($str, ':')){
+			$a = explode(':', $str);
+			$res['num_1'] = $a[0];
+			$res['num_2'] = $a[1];
+		}elseif(str_contains($str, '-')){
+			$a = explode('-', $str);
+			$res['num_1'] = $a[0];
+			$res['num_2'] = $a[1];
+		}else{
+			$res['num_1'] = $str;
+		}
+
+		return $res;
 	}
 
 	/**

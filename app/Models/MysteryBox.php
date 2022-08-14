@@ -23,7 +23,9 @@ class MysteryBox extends Model{
 		'product_id',
 		'variant_id',
 		'formula',
-		'sorting_tag',
+		'tag',
+		'sort_num_1',
+		'sort_num_2',
 		'selected',
 		'packed',
 	];
