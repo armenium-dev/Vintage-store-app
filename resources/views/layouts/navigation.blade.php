@@ -67,8 +67,12 @@
                                 <x-orders-count type="shop_1"/>
                             </x-dropdown-link>
                             <x-dropdown-link :href="route('warehousePick')" :active="request()->routeIs('warehousePick')" class="flex justify-between items-center">
-                                {{ __('Warehouse') }}
-                                <x-warehouse-count />
+                                {{ __('Pick') }}
+                                <x-warehouse-count type="pick"/>
+                            </x-dropdown-link>
+                            <x-dropdown-link :href="route('warehousePack')" :active="request()->routeIs('warehousePack')" class="flex justify-between items-center">
+                                {{ __('Pack') }}
+                                <x-warehouse-count type="pack"/>
                             </x-dropdown-link>
                             <x-dropdown-link :href="route('importOrderByID')" :active="request()->routeIs('importOrderByID')" class="flex justify-between items-center">
                                 {{ __('Import By ID') }}

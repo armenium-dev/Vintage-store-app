@@ -42,7 +42,8 @@ Route::post('store-order-by-id', [OrdersController::class, 'storeOrderByID'])->m
 Route::post('store-order-mystery-box', [OrdersController::class, 'storeOrderMysteryBox'])->middleware(['auth'])->name('storeOrderMysteryBox');
 Route::resource('orders', OrdersController::class);
 
-Route::get('warehouse', [WarehouseController::class, 'pick'])->middleware(['auth'])->name('warehousePick');
+Route::get('warehouse-pick', [WarehouseController::class, 'pick'])->middleware(['auth'])->name('warehousePick');
+Route::get('warehouse-pack', [WarehouseController::class, 'pack'])->middleware(['auth'])->name('warehousePack');
 
 Route::get('sales-shopify', [SalesController::class, 'salesOnShopify'])->middleware(['auth'])->name('salesOnShopify');
 Route::get('sales-depop', [SalesController::class, 'salesOnDepop'])->middleware(['auth'])->name('salesOnDepop');
