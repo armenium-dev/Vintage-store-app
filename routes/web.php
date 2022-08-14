@@ -11,6 +11,7 @@ use App\Http\Controllers\WebhooksController;
 use App\Http\Controllers\SalesController;
 use App\Http\Controllers\UploadsController;
 use App\Http\Controllers\OrdersController;
+use App\Http\Controllers\WarehouseController;
 
 /*
 |--------------------------------------------------------------------------
@@ -40,6 +41,8 @@ Route::get('import-order-by-id', [OrdersController::class, 'importOrderByID'])->
 Route::post('store-order-by-id', [OrdersController::class, 'storeOrderByID'])->middleware(['auth'])->name('storeOrderByID');
 Route::post('store-order-mystery-box', [OrdersController::class, 'storeOrderMysteryBox'])->middleware(['auth'])->name('storeOrderMysteryBox');
 Route::resource('orders', OrdersController::class);
+
+Route::get('warehouse', [WarehouseController::class, 'pick'])->middleware(['auth'])->name('warehousePick');
 
 Route::get('sales-shopify', [SalesController::class, 'salesOnShopify'])->middleware(['auth'])->name('salesOnShopify');
 Route::get('sales-depop', [SalesController::class, 'salesOnDepop'])->middleware(['auth'])->name('salesOnDepop');

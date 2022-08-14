@@ -66,6 +66,10 @@
                                 {{ __('Mystary Box') }}
                                 <x-orders-count type="shop_1"/>
                             </x-dropdown-link>
+                            <x-dropdown-link :href="route('warehousePick')" :active="request()->routeIs('warehousePick')" class="flex justify-between items-center">
+                                {{ __('Warehouse') }}
+                                <x-warehouse-count />
+                            </x-dropdown-link>
                             <x-dropdown-link :href="route('importOrderByID')" :active="request()->routeIs('importOrderByID')" class="flex justify-between items-center">
                                 {{ __('Import By ID') }}
                             </x-dropdown-link>
