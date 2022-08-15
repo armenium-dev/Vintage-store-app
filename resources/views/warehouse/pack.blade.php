@@ -17,22 +17,26 @@ use App\Http\Helpers\Image;
 					<h2 class="text-gray-200 font-bold drop-shadow-inset-1 text-center text-3xl">{{__('Not found')}}</h2>
 				@else
 					<ul class="js_container flex flex-wrap justify-center">
-						@foreach($mystery_boxes as $k => $order_lines)
-							<li id="item_{!! $k !!}" class="w-full sm:w-1/3 p-2">
-								@foreach($order_lines as $item)
-									<div class="flex flex-col justify-between bg-white hover:bg-fuchsia-100 dark:bg-fuchsia-500 dark:hover:bg-fuchsia-700 rounded-lg border border-gray-100 dark:border-fuchsia-500 dark:hover:border-fuchsia-700 shadow-md overflow-hidden h-full cursor-pointer transition ease-out duration-200">
-										<img src="{!! Image::letProductThumb($item['image']) !!}" class="">
-										<div class="p-3">
-											<h2 class="pb-3 text-sm dark:text-white">{{$item['product_title']}}</h2>
-											<div class="flex flex-row flex-wrap justify-between">
-												<h3 class="font-bold text-fuchsia-500 dark:text-white">&pound;{{$item['price']}}</h3>
-												<h3 class="font-bold text-fuchsia-500 dark:text-white">{{$item['tag']}}</h3>
+						@foreach($mystery_boxes as $k => $order)
+							<li id="item_{!! $k !!}" class="w-full sm:w-1/2 lg:w-1/3 p-3">
+								<div class="flex flex-col justify-between p-2 bg-white hover:bg-blue-100 dark:bg-blue-500 dark:hover:bg-blue-700 rounded-lg border border-gray-100 dark:border-blue-500 dark:hover:border-blue-700 shadow-md overflow-hidden h-full transition ease-out duration-200">
+									<h2 class="px-3 pb-3"><b>Order {!! $order['name'] !!}</b><br>{!! $order['title'] !!}</h2>
+									<div class="flex-1 flex flex-wrap content-start mb-3 h-full">
+										@foreach($order['products'] as $item)
+											<div class="w-1/2 p-2" title="{{$item['product_title']}}">
+												<img src="{!! Image::letProductThumb($item['image']) !!}" class="block mx-auto w-full h-auto rounded-md border border-blue-100">
+												<div class="pt-2 text-sm">
+													<h3 class="pb-3 dark:text-white hidden">{{$item['product_title']}}</h3>
+													<div class="flex flex-row flex-wrap justify-between">
+														<h3 class="font-bold text-blue-500 dark:text-white">&pound;{{$item['price']}}</h3>
+														<h3 class="font-bold text-blue-500 dark:text-white">{{$item['tag']}}</h3>
+													</div>
+												</div>
 											</div>
-										</div>
+										@endforeach
 									</div>
-								@endforeach
-									<button type="button" data-trigger="js_action_click" data-action="pick_product" data-id="{!! $k !!}"
-											class="group disabled:bg-gray-400 hover:bg-fuchsia-600 dark:bg-white dark:hover:bg-gray-200 bg-fuchsia-500 focus:outline-none focus:ring focus:ring-fuchsia-200 transition ease-in-out duration-150 flex items-center rounded-md dark:text-fuchsia-500 text-white text-sm font-medium pl-2 pr-3 py-1 shadow-sm">
+									<button type="button" data-trigger="js_action_click" data-action="pack_product" data-id="{!! $k !!}"
+											class="group disabled:bg-gray-400 hover:bg-blue-600 dark:bg-white dark:hover:bg-gray-200 bg-blue-500 focus:outline-none focus:ring focus:ring-blue-200 transition ease-in-out duration-150 flex items-center rounded-md dark:text-blue-500 text-white text-sm font-medium block mx-auto pl-2 pr-3 py-1 shadow-sm">
 										<svg xmlns="http://www.w3.org/2000/svg" class="group-disabled:hidden mr-2 h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
 											<path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
 										</svg>
@@ -42,6 +46,7 @@ use App\Http\Helpers\Image;
 										</svg>
 										<span>{!! __('Done') !!}</span>
 									</button>
+								</div>
 							</li>
 						@endforeach
 					</ul>

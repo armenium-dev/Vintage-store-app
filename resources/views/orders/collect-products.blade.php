@@ -16,7 +16,7 @@
 						<div class="flex-1 flex flex-col sm:flex-row -mr-2 -ml-2 justify-between font-bold">
 							<div class="mr-2 ml-2 pt-1 pb-1 text-indigo-500">{{$product->title}}</div>
 							<div class="mr-2 ml-2 pt-1 pb-1 text-blue-500">{{$variant->title}}</div>
-							<div class="mr-2 ml-2 pt-1 pb-1 text-cyan-500">{{__('Order ID')}} {{$order->order_id}}</div>
+							<div class="mr-2 ml-2 pt-1 pb-1 text-cyan-500">{{__('Order')}} {{$order->data['name']}}</div>
 							<div class="mr-2 ml-2 pt-1 pb-1 text-teal-500">{{__('Price')}} &pound;{{$variant->price}}</div>
 						</div>
 					</div>

@@ -107,9 +107,12 @@ class WarehouseController extends Controller {
 		$query->where(['mystery_boxes.packed' => 0, 'mystery_boxes.selected' => 1]);
 		$query->orderBy('mystery_boxes.order_id');
 
-		$mystery_boxes = $this->groupResults($query->get()->toArray());
+		$mystery_boxes = $query->get()->toArray();
+		#dump($mystery_boxes);
 
-		dd($mystery_boxes);
+		$mystery_boxes = $this->groupResults($mystery_boxes);
+
+		#dd($mystery_boxes);
 
 		return view('warehouse.pack', compact('mystery_boxes'));
 	}
@@ -118,8 +121,21 @@ class WarehouseController extends Controller {
 		$grouped_items = [];
 
 		foreach($items as $item){
-			#$item['data'] = json_decode($item, true);
-			$grouped_items[$item['order_id'].':'.$item['line_id']][] = $item;
+			$item['data'] = json_decode($item['data'], true);
+			#dump($item['data']['line_items']);
+			$order_id = $item['order_id'];
+			$line_id = $item['line_id'];
+			$id = sprintf('%s:%s', $order_id, $line_id);
+
+			$grouped_items[$id]['name'] = $item['data']['name'];
+
+			foreach($item['data']['line_items'] as $product){
+				if(str_contains(strtolower($product['title']), 'mystery') && $line_id == $product['id']){
+					$grouped_items[$id]['title'] = $product['name'];
+				}
+			}
+			unset($item['data']);
+			$grouped_items[$id]['products'][] = $item;
 		}
 
 		return $grouped_items;
