@@ -61,8 +61,28 @@ class SyncShopifyController extends Controller {
 		return $res;
 	}
 
-	public function checkAvailableProducts(){
+	public function syncSalesChannel(): array{
+		$res = [];
 
+		$shops = Settings::getLike('_sales_channel_since_id');
+
+		if(count($shops) == 0) return $res;
+
+		foreach($shops as $name => $since_id){
+			$this->shop_id = intval(explode('_', $name)[1]);
+			$this->option_name = $name;
+			$this->since_id = $since_id;
+
+			#Log::stack(['cron'])->debug(['shop_id' => $this->shop_id, 'since_id' => $this->since_id]);
+
+			$this->shopifyApi = new MyShopify($this->shop_id);
+
+			$res[$this->shop_id] = $this->_updateOrCreateShopifyProducts();
+
+			sleep(1);
+		}
+
+		return $res;
 	}
 
 	private function _updateOrCreateShopifyProducts(): int{
@@ -173,7 +193,35 @@ class SyncShopifyController extends Controller {
 
 		return $result['products'];
 	}
-	
+
+	private function _updateProductsChannel(): int{
+		$res = [];
+
+		$shopify_products = $this->_getShopifyOnlineStoreProductIDs();
+	}
+
+	private function _getShopifyOnlineStoreProductIDs(): array{
+		$since_id = $this->since_id;
+
+		$url = sprintf("/products.json?since_id=%d&limit=%d&fields=%s", $since_id, $this->limit_partials, implode(',', $this->fields));
+		$result = $this->shopifyApi->get($url);
+
+		$since_id = empty($result['products']) ? 0 : end($result['products'])['id'];
+
+		if($since_id == 0){
+			Settings::where(['name' => $this->option_name])->update([
+				'value' => $since_id,
+				'active' => 0
+			]);
+		}else{
+			Settings::set($this->option_name, $since_id);
+		}
+
+		return $result['products'];
+	}
+
+	/**------------------------------------------------------------**/
+
 	private function _getShopifyAllProducts(): array{
 		$shopify_products = [];
 		

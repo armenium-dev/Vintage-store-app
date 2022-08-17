@@ -34,7 +34,7 @@ class Parser {
 
 	private function parseCsv($file_path): array{
 		$res = [];
-		#Log::stack(['cron'])->debug($file_path);
+		Log::stack(['cron'])->debug($file_path);
 
 		if(!file_exists($file_path)) return $res;
 
@@ -45,10 +45,10 @@ class Parser {
 
 			$output_array = [];
 			preg_match_all('/Ref[\s]?\-([\s\S]*?(?=([\n\r|\}])))/', $content, $output_array);
-			if(empty($output_array[0])){
+			/*if(empty($output_array[0])){
 				$output_array = [];
 				preg_match_all('/Ref[\s]?\-([\s\S]*?(?=([\s|\}])))/', $content, $output_array);
-			}
+			}*/
 			if(!empty($output_array[0])){
 				foreach($output_array[0] as $k => $v){
 					$pos = strpos($v, '"');
@@ -59,8 +59,25 @@ class Parser {
 					$res[] = $v;
 				}
 			}
+
+			$output_array = [];
+			preg_match_all('/Ref[\s]?\-([\s\S]*?(?=([\s|\}])))/', $content, $output_array);
+			if(!empty($output_array[0])){
+				foreach($output_array[0] as $k => $v){
+					$pos = strpos($v, '"');
+					if($pos !== false){
+						$v = substr($v, 0, $pos);
+					}
+					$v = trim($v);
+					if(!in_array($v, $res)){
+						$res[] = $v;
+					}
+				}
+			}
+
+
 		}
-		#Log::stack(['cron'])->debug($res);
+		Log::stack(['cron'])->debug($res);
 
 		return $res;
 	}

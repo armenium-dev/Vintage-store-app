@@ -125,7 +125,8 @@ class SalesController extends Controller{
 
 	public function remove(Request $request){
 		$model = Sales::find($request->post('id'));
-		$model->delete();
+		if($model)
+			$model->delete();
 
 		$error = $model->trashed() ? 0 : 1;
 

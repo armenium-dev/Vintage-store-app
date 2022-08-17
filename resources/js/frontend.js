@@ -254,14 +254,14 @@
 								btn_text = 'Cancel';
 								$parent.addClass('dark');
 							}else{
-								btn_text = 'Found';
+								btn_text = 'Found id';
 								$parent.removeClass('dark');
 							}
 
 							$btn.attr('disabled', false).find('span').text(btn_text);
 						}
 					}).fail(function(){
-						$btn.attr('disabled', false).find('span').text('Remove');
+						$btn.attr('disabled', false).find('span').text('Found id');
 						console.log(FJS.messages.ajax_error);
 					});
 

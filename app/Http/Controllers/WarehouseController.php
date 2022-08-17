@@ -23,11 +23,13 @@ class WarehouseController extends Controller {
 			'mystery_boxes.formula',
 			'products.image',
 			'mystery_boxes.selected',
+			'orders.data as order_data',
 			#'mystery_boxes.product_id',
 			#'mystery_boxes.variant_id',
 			#'variants.title as variant_title',
 		]);
 		$query->leftJoin('products', 'products.product_id', '=', 'mystery_boxes.product_id');
+		$query->leftJoin('orders', 'orders.order_id', '=', 'mystery_boxes.order_id');
 		#$query->leftJoin('variants', 'variants.variant_id', '=', 'mystery_boxes.variant_id');
 		$query->where(['mystery_boxes.packed' => 0]);
 		#$query->orderBy('mystery_boxes.formula');
@@ -51,7 +53,7 @@ class WarehouseController extends Controller {
 
 		foreach($items as $item)
 			$this->ordering_keys[$item['formula']][] = $item;
-		dd($this->ordering_keys);
+		#dd($this->ordering_keys);
 		foreach($this->ordering_keys as $key => $items)
 			foreach($items as $item)
 				$new_items[] = $item;
@@ -63,11 +65,20 @@ class WarehouseController extends Controller {
 		$new_items = [];
 		$SweatshirtItems = [];
 
-		foreach($items as $item)
+		foreach($items as $item){
+			if(!empty($item['order_data'])){
+				$data = json_decode($item['order_data'], true);
+				$item['order_num'] = $data['name'];
+			}else{
+				$item['order_num'] = '';
+			}
+			unset($item['order_data']);
+
 			if($item['formula'] == 'SweatshirtItems')
 				$SweatshirtItems[] = $item;
 			else
 				$new_items[] = $item;
+		}
 
 		if(!empty($SweatshirtItems))
 			foreach($SweatshirtItems as $item)

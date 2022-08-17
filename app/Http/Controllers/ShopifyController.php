@@ -268,6 +268,8 @@ class ShopifyController extends Controller {
 		foreach($uploads as $upload){
 			if(empty($upload['content'])) continue;
 
+			Log::stack(['cron'])->debug(['upload_id' => $upload['id']]);
+
 			switch($upload['file_type']){
 				case "csv":
 					$group_csv = array_merge($group_csv, json_decode($upload['content'], true));
@@ -334,7 +336,13 @@ class ShopifyController extends Controller {
 			foreach($products as $product){
 				$variant = Variant::where(['product_id' => $product['product_id']])->get()->toArray();
 				$variant = $variant[0];
-				#Log::stack(['cron'])->debug($variant['inventory_quantity']);
+
+				Log::stack(['cron'])->debug([
+					'product_id' => $variant['product_id'],
+					'variant_id' => $variant['variant_id'],
+					'inventory_quantity' => $variant['inventory_quantity'],
+				]);
+
 				if(intval($variant['inventory_quantity']) > 0){
 
 					if(!empty($product['link_'.$type])){
@@ -375,6 +383,8 @@ class ShopifyController extends Controller {
 
 	public function turnOffShopifyProducts(): int|array{
 		$res = [];
+
+		if(env('APP_ENV') == 'local') return $res;
 
 		$sale = Sales::where(['removed' => 0])->orderBy('shop_id')->first();
 
