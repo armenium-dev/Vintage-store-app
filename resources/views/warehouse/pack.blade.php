@@ -19,7 +19,7 @@ use App\Http\Helpers\Image;
 					<ul class="js_container flex flex-wrap justify-center">
 						@foreach($mystery_boxes as $k => $order)
 							<li id="item_{!! $k !!}" class="w-full sm:w-1/2 lg:w-1/3 p-3">
-								<div class="flex flex-col justify-between p-2 bg-white hover:bg-blue-100 dark:bg-blue-500 dark:hover:bg-blue-700 rounded-lg border border-gray-100 dark:border-blue-500 dark:hover:border-blue-700 shadow-md overflow-hidden h-full transition ease-out duration-200">
+								<div class="flex flex-col justify-between px-2 py-4 bg-white hover:bg-blue-100 dark:bg-blue-500 dark:hover:bg-blue-700 rounded-lg border border-gray-100 dark:border-blue-500 dark:hover:border-blue-700 shadow-md overflow-hidden h-full transition ease-out duration-200">
 									<h2 class="px-3 pb-3"><b>Order {!! $order['name'] !!}</b><br>{!! $order['title'] !!}</h2>
 									<div class="flex-1 flex flex-wrap content-start mb-3 h-full">
 										@foreach($order['products'] as $item)
@@ -27,9 +27,12 @@ use App\Http\Helpers\Image;
 												<img src="{!! Image::letProductThumb($item['image']) !!}" class="block mx-auto w-full h-auto rounded-md border border-blue-100">
 												<div class="pt-2 text-sm">
 													<h3 class="pb-3 dark:text-white hidden">{{$item['product_title']}}</h3>
-													<div class="flex flex-row flex-wrap justify-between">
-														<h3 class="font-bold text-blue-500 dark:text-white">&pound;{{$item['price']}}</h3>
-														<h3 class="font-bold text-blue-500 dark:text-white">{{$item['tag']}}</h3>
+													<div class="flex flex-row flex-wrap justify-between items-center text-[12px]">
+														<div class="font-bold dark:text-white flex w-[40%] relative">
+															<span class="absolute left-[3px] top-[1px]">&pound;</span>
+															<input name="price[{!! $item['product_id'] !!}]" value="{!! $item['price'] !!}" class="js_price w-full pl-[10px] border border-blue-100">
+														</div>
+														<h3 class="font-bold text-blue-500 dark:text-white text-right w-[60%]">{{$item['tag']}}</h3>
 													</div>
 												</div>
 											</div>
@@ -44,7 +47,7 @@ use App\Http\Helpers\Image;
 											<circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
 											<path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
 										</svg>
-										<span>{!! __('Done') !!}</span>
+										<span>{!! __('Done & Create PDF') !!}</span>
 									</button>
 								</div>
 							</li>

@@ -10,7 +10,8 @@
 			messages: {ajax_error: 'SYSTEM TECHNICAL ERROR'},
 			routes: {
 				remove_sale: "sales-remove",
-				pick_product: "warehouse-pick-product"
+				pick_product: "warehouse-pick-product",
+				pack_product: "warehouse-pack-product",
 			},
 			els: {},
 			Main: {
@@ -60,6 +61,9 @@
 							break;
 						case "pick_product":
 							FJS.MysteryBox.pickProduct($this);
+							break;
+						case "pack_product":
+							FJS.MysteryBox.packProduct($this);
 							break;
 						default:
 							break;
@@ -264,6 +268,39 @@
 						$btn.attr('disabled', false).find('span').text('Found id');
 						console.log(FJS.messages.ajax_error);
 					});
+				},
+				packProduct: function($btn){
+					let entry_id = $btn.data('id'),
+						$parent = $('#item_'+entry_id),
+						prices = [];
+
+					/*$.ajax({
+						type: "POST",
+						url: FJS.Common.createAjaxUrl(FJS.routes.pack_product),
+						headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
+						data: {id: entry_id},
+						dataType: "json",
+						beforeSend: function(xhr){
+							$btn.attr('disabled', true).find('span').text('............');
+						}
+					}).done(function(response){
+						if(response.error === 0){
+							let btn_text = '';
+
+							if(response.selected === 1){
+								btn_text = 'Cancel';
+								$parent.addClass('dark');
+							}else{
+								btn_text = 'Found id';
+								$parent.removeClass('dark');
+							}
+
+							$btn.attr('disabled', false).find('span').text(btn_text);
+						}
+					}).fail(function(){
+						$btn.attr('disabled', false).find('span').text('Found id');
+						console.log(FJS.messages.ajax_error);
+					});*/
 
 				},
 			}

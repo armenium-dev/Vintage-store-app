@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\MysteryBox;
 use Illuminate\Http\JsonResponse;
+use Barryvdh\DomPDF\PDF;
 
 class WarehouseController extends Controller {
 
@@ -107,6 +108,7 @@ class WarehouseController extends Controller {
 			'mystery_boxes.product_id',
 			'mystery_boxes.line_id',
 			'mystery_boxes.tag',
+			'mystery_boxes.price as new_price',
 			'products.title as product_title',
 			'products.image',
 			'variants.price',
@@ -146,10 +148,42 @@ class WarehouseController extends Controller {
 				}
 			}
 			unset($item['data']);
+
+			if($item['new_price'] > $item['price'])
+				$item['price'] = $item['new_price'];
+
 			$grouped_items[$id]['products'][] = $item;
 		}
 
 		return $grouped_items;
 	}
 
+	public function packProduct(Request $request): JsonResponse{
+		$id = $request->post('id');
+		$a = explode(':', $id);
+		$order_id = $a[0];
+		$line_id = $a[1];
+
+		$model = MysteryBox::where([
+			'order_id' => $order_id,
+			'line_id' => $line_id,
+		])->get();
+
+
+
+		$error = 0;
+
+		return response()->json(compact('error'));
+
+	}
+
+	// Generate PDF
+	private function createPDF($data) {
+		// share data to view
+		#view()->share('employee', $data);
+
+		$pdf = PDF::loadView('warehouse.pdf', $data);
+
+		return $pdf->download('pdf_file.pdf');
+	}
 }

@@ -5,18 +5,18 @@
     "isEntry": true
   },
   "resources/js/frontend.js": {
-    "file": "assets/frontend.ec065d96.js",
+    "file": "assets/frontend.831971db.js",
     "src": "resources/js/frontend.js",
-    "isEntry": true
-  },
-  "resources/css/app.css": {
-    "file": "assets/app.70490048.css",
-    "src": "resources/css/app.css",
     "isEntry": true
   },
   "resources/css/frontend.css": {
     "file": "assets/frontend.8ee8e5cf.css",
     "src": "resources/css/frontend.css",
+    "isEntry": true
+  },
+  "resources/css/app.css": {
+    "file": "assets/app.c8ce0649.css",
+    "src": "resources/css/app.css",
     "isEntry": true
   }
 }
