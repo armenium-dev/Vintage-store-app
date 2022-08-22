@@ -12,6 +12,7 @@ use App\Http\Controllers\SalesController;
 use App\Http\Controllers\UploadsController;
 use App\Http\Controllers\OrdersController;
 use App\Http\Controllers\WarehouseController;
+use App\Http\Controllers\CustomProductsController;
 
 /*
 |--------------------------------------------------------------------------
@@ -41,6 +42,7 @@ Route::get('import-order-by-id', [OrdersController::class, 'importOrderByID'])->
 Route::post('store-order-by-id', [OrdersController::class, 'storeOrderByID'])->middleware(['auth'])->name('storeOrderByID');
 Route::post('store-order-mystery-box', [OrdersController::class, 'storeOrderMysteryBox'])->middleware(['auth'])->name('storeOrderMysteryBox');
 Route::resource('orders', OrdersController::class);
+Route::resource('custom-products', CustomProductsController::class);
 
 Route::get('warehouse-pick', [WarehouseController::class, 'pick'])->middleware(['auth'])->name('warehousePick');
 Route::get('warehouse-pack', [WarehouseController::class, 'pack'])->middleware(['auth'])->name('warehousePack');

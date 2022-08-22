@@ -17,6 +17,12 @@
                     </x-nav-link>
                 </div>
 
+                <div class="space-x-8 sm:-my-px sm:ml-10 lg:flex">
+                    <x-nav-link :href="route('custom-products.index')" :active="request()->routeIs('custom-products.index')">
+                        {{ __('Custom Products') }}
+                    </x-nav-link>
+                </div>
+
                 <div class="hidden space-x-8 sm:-my-px sm:ml-10 lg:flex dropdown-item">
                     <x-dropdown align="left">
                         <x-slot name="trigger">

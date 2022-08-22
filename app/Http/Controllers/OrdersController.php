@@ -39,9 +39,10 @@ class OrdersController extends Controller {
 	 */
 	public function mysteryBox(){
 		$orders = Order::whereIsMysteryBox(1)
-			->whereNull('fulfillment_status')
-			->orWhere('fulfillment_status', '!=', 'fulfilled')
-			->orderByDesc('updated_at')
+			#->whereNull('fulfillment_status')
+			#->orWhere('fulfillment_status', '!=', 'fulfilled')
+			#->orderByDesc('updated_at')
+			->orderBy('order_id')
 			->get();
 
 		return view('orders.mystery', compact('orders'));
@@ -162,7 +163,7 @@ class OrdersController extends Controller {
 			$order_id = $request->post('order_id');
 			$items = $request->post('items');
 			$delete_data = $insert_data = [];
-			#dd($order_id);
+			#dd($items);
 
 			foreach($items as $item){
 				$a = explode(':', $item);
@@ -210,17 +211,20 @@ class OrdersController extends Controller {
 		$res = ['tag' => '', 'num_1' => 0, 'num_2' => 0];
 
 		$product = Product::whereProductId($product_id)->first();
-		#dd($product);
+		#dump($product);
 
 		$tag = $this->Parser->getVCUKtag($product->body);
-		#dd($tag);
+
+		if(empty($tag)) return $res;
+		#dump($tag);
 
 		$res['tag'] = $tag;
+		$str = $tag;
 
-		if(str_contains($tag, 'VCUK')){
-			$str = str_replace('VCUK', '', $tag);
-		}elseif(str_contains($tag, 'TV')){
-			$str = str_replace('TV', '', $tag);
+		if(str_contains($str, 'VCUK')){
+			$str = str_replace('VCUK', '', $str);
+		}elseif(str_contains($str, 'TV')){
+			$str = str_replace('TV', '', $str);
 		}
 
 		$str = trim($str, ':');

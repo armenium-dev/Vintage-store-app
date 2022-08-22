@@ -30,7 +30,7 @@ use App\Http\Helpers\Image;
 													<div class="flex flex-row flex-wrap justify-between items-center text-[12px]">
 														<div class="font-bold dark:text-white flex w-[40%] relative">
 															<span class="absolute left-[3px] top-[1px]">&pound;</span>
-															<input name="price[{!! $item['product_id'] !!}]" value="{!! $item['price'] !!}" class="js_price w-full pl-[10px] border border-blue-100">
+															<input name="{!! $item['product_id'] !!}" value="{!! $item['price'] !!}" class="js_price w-full pl-[10px] border border-blue-100">
 														</div>
 														<h3 class="font-bold text-blue-500 dark:text-white text-right w-[60%]">{{$item['tag']}}</h3>
 													</div>

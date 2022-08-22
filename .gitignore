@@ -18,3 +18,5 @@ yarn-error.log
 /public_html
 composer.lock
 package-lock.json
+*.pdf
+

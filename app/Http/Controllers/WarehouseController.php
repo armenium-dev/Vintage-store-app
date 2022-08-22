@@ -1,10 +1,12 @@
 <?php
 namespace App\Http\Controllers;
 
+use App\Models\Order;
 use Illuminate\Http\Request;
 use App\Models\MysteryBox;
 use Illuminate\Http\JsonResponse;
-use Barryvdh\DomPDF\PDF;
+use PDF;
+use Illuminate\Support\Facades\Log;
 
 class WarehouseController extends Controller {
 
@@ -34,11 +36,12 @@ class WarehouseController extends Controller {
 		#$query->leftJoin('variants', 'variants.variant_id', '=', 'mystery_boxes.variant_id');
 		$query->where(['mystery_boxes.packed' => 0]);
 		#$query->orderBy('mystery_boxes.formula');
+		$query->orderBy('mystery_boxes.selected');
 		$query->orderBy('mystery_boxes.sort_num_1');
 		$query->orderBy('mystery_boxes.sort_num_2');
 
 		$mystery_boxes = $query->get()->toArray();
-
+		#$query->dd();
 		#dump($mystery_boxes);
 
 		#$mystery_boxes = $this->sortResult($mystery_boxes);
@@ -70,15 +73,13 @@ class WarehouseController extends Controller {
 			if(!empty($item['order_data'])){
 				$data = json_decode($item['order_data'], true);
 				$item['order_num'] = $data['name'];
-			}else{
-				$item['order_num'] = '';
-			}
+			}else $item['order_num'] = '';
+
 			unset($item['order_data']);
 
-			if($item['formula'] == 'SweatshirtItems')
+			if($item['formula'] == 'SweatshirtItems'){
 				$SweatshirtItems[] = $item;
-			else
-				$new_items[] = $item;
+			}else $new_items[] = $item;
 		}
 
 		if(!empty($SweatshirtItems))
@@ -160,30 +161,57 @@ class WarehouseController extends Controller {
 
 	public function packProduct(Request $request): JsonResponse{
 		$id = $request->post('id');
+		$prices = $request->post('prices');
 		$a = explode(':', $id);
 		$order_id = $a[0];
 		$line_id = $a[1];
 
-		$model = MysteryBox::where([
+
+		$res = $this->createPDF($order_id, $line_id);
+		Log::stack(['custom'])->debug($res);
+
+		/*MysteryBox::where([
 			'order_id' => $order_id,
 			'line_id' => $line_id,
-		])->get();
+		])->update(['packed' => 1]);
 
+		if(!empty($prices)){
+			foreach($prices as $product_id => $price){
+				MysteryBox::where([
+					'order_id' => $order_id,
+					'line_id' => $line_id,
+					'product_id' => $product_id,
+				])->update(['price' => $price]);
+			}
+		}
 
+		$order = Order::whereOrderId($order_id);
+		$order->delete();*/
 
-		$error = 0;
+		$error = 1;
 
 		return response()->json(compact('error'));
-
 	}
 
 	// Generate PDF
-	private function createPDF($data) {
+	private function createPDF($order_id, $line_id) {
+		$mystery_boxes = MysteryBox::where([
+			'order_id' => $order_id,
+			'line_id' => $line_id,
+		])->get()->toArray();
+
 		// share data to view
 		#view()->share('employee', $data);
 
-		$pdf = PDF::loadView('warehouse.pdf', $data);
+		if(!is_dir(public_path('downloads')))
+			mkdir(public_path('downloads'), 0755);
 
-		return $pdf->download('pdf_file.pdf');
+		$save_file = public_path(sprintf('%s%s%d_%s.pdf', 'downloads', DIRECTORY_SEPARATOR, $order_id, 'warehouse'));
+
+		PDF::setOption(['chroot' => __DIR__]);
+		$pdf = PDF::loadView('warehouse.pdf', ['mystery_boxes' => $mystery_boxes]);
+		$pdf->save($save_file);
+
+		return $save_file;
 	}
 }

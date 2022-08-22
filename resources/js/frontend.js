@@ -13,7 +13,10 @@
 				pick_product: "warehouse-pick-product",
 				pack_product: "warehouse-pack-product",
 			},
-			els: {},
+			els: {
+				js_file_placeholder: $("#js_file_placeholder"),
+				js_image_preview: $("#js_image_preview"),
+			},
 			Main: {
 				Init: function(){
 					FJS.Uploader.init();
@@ -64,6 +67,9 @@
 							break;
 						case "pack_product":
 							FJS.MysteryBox.packProduct($this);
+							break;
+						case "display_selected_files":
+							FJS.CProducts.displaySelectedFiles(e);
 							break;
 						default:
 							break;
@@ -271,39 +277,49 @@
 				},
 				packProduct: function($btn){
 					let entry_id = $btn.data('id'),
-						$parent = $('#item_'+entry_id),
-						prices = [];
+						$parent = $btn.parents('li'), //$('#item_'+entry_id),
+						_prices = {};
 
-					/*$.ajax({
+
+					$parent.find('.js_price').each(function(i, el){
+						let name = $(el).attr('name');
+						_prices[name] = $(el).val();
+					});
+					console.log(_prices);
+
+					$.ajax({
 						type: "POST",
 						url: FJS.Common.createAjaxUrl(FJS.routes.pack_product),
 						headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
-						data: {id: entry_id},
+						data: {id: entry_id, prices: _prices},
 						dataType: "json",
 						beforeSend: function(xhr){
 							$btn.attr('disabled', true).find('span').text('............');
 						}
 					}).done(function(response){
 						if(response.error === 0){
-							let btn_text = '';
-
-							if(response.selected === 1){
-								btn_text = 'Cancel';
-								$parent.addClass('dark');
-							}else{
-								btn_text = 'Found id';
-								$parent.removeClass('dark');
-							}
-
-							$btn.attr('disabled', false).find('span').text(btn_text);
+							let btn_text = 'Done & Create PDF';
+							$btn.addClass('hidden').find('span').text(btn_text);
+						}else{
+							$btn.attr('disabled', false).find('span').text('Done & Create PDF');
 						}
 					}).fail(function(){
-						$btn.attr('disabled', false).find('span').text('Found id');
+						$btn.attr('disabled', false).find('span').text('Done & Create PDF');
 						console.log(FJS.messages.ajax_error);
-					});*/
+					});
 
 				},
-			}
+			},
+			CProducts: {
+				displaySelectedFiles: function(e){
+					const [file] = e.target.files;
+					console.log(e.target.files);
+
+					FJS.els.js_file_placeholder.html('<ol><li>'+e.target.files[0].name+'</li></ol>');
+					FJS.els.js_image_preview.prop('src', URL.createObjectURL(file));
+
+				},
+			},
 		};
 
 		FJS.Main.Init();

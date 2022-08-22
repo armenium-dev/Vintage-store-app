@@ -38,7 +38,7 @@ module.exports = {
                 '20p': '20%',
             },
             dropShadow: {
-                'inset-1': '-1px -1px 0px rgba(0, 0, 0, 0.2)',
+                'inset-1': '-1px -1px 0px rgba(0, 0, 0, 0.08)',
             }
         },
     },

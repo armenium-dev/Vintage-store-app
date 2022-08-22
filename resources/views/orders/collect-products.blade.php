@@ -37,20 +37,20 @@
 							<div id="accordion-flush-body-{{$k}}" class="" aria-labelledby="accordion-flush-heading-{{$k}}">
 								<div class="py-5 font-light border-b border-gray-200 sm:max-h-70s sm:overflow-y-auto">
 									@if(empty($box['items']))
-										<h2 class="text-gray-200 font-bold drop-shadow-inset-1 text-center text-3xl">{{__('Not found')}}</h2>
+										<h2 class="text-gray-50 font-bold drop-shadow-inset-1 text-center text-3xl">{{__('Not found')}}</h2>
 									@else
 										<ul class="js_container flex flex-wrap justify-center" data-choice-max-count="{!! $box['count'] !!}">
 											@foreach($box['items'] as $item)
-												<li id="item_{!! $item['id'] !!}" class="w-full xs:w-1/2 sm:w-1/3 md:w-1/4 lg:w-20p p-2 {!! ($item['exist'] == 0) ?: 'dark'!!}">
+												<li id="item_{!! $item['id'] !!}_{!! $item['product_id'] !!}_{!! $item['variant_id'] !!}" class="w-full xs:w-1/2 sm:w-1/3 md:w-1/4 lg:w-20p p-2 {!! ($item['exist'] == 0) ?: 'dark'!!}">
 													<label class="flex flex-col justify-between bg-white hover:bg-{!! $box['color'] !!}-100 dark:bg-{!! $box['color'] !!}-500 dark:hover:bg-{!! $box['color'] !!}-700 rounded-lg border border-gray-100 dark:border-{!! $box['color'] !!}-500 dark:hover:border-{!! $box['color'] !!}-700 shadow-md overflow-hidden h-full cursor-pointer transition ease-out duration-200">
 														<img src="{!! \App\Http\Helpers\Image::letProductThumb($item['image']) !!}" class="">
 														<div class="p-3">
-															<h2 class="pb-3 text-sm dark:text-white">{{$item['product_title']}}</h2>
+															<h2 class="pb-3 text-sm dark:text-white">{{$item['product_title']}}<small class="block">{{$item['variant_title']}}</small></h2>
 															<div class="flex flex-row flex-nowrap justify-between">
 																<h3 class="font-bold text-{!! $box['color'] !!}-500 dark:text-white">&pound;{{$item['price']}}</h3>
 																<input type="checkbox" name="items[]" value="{!! $k !!}:{!! $order->order_id !!}:{!! $lid !!}:{!! $item['product_id'] !!}:{!! $item['variant_id'] !!}" {!! ($item['exist'] == 0) ?: 'checked="checked"'!!}
 																	   class="text-{!! $box['color'] !!}-500 bg-white rounded border-0 border-{!! $box['color'] !!}-300 focus:ring-0 focus:ring-offset-0"
-																	   data-trigger="js_action_change" data-action="choice_mb_product" data-parent="#item_{!! $item['id'] !!}">
+																	   data-trigger="js_action_change" data-action="choice_mb_product" data-parent="#item_{!! $item['id'] !!}_{!! $item['product_id'] !!}_{!! $item['variant_id'] !!}">
 															</div>
 														</div>
 													</label>
@@ -73,6 +73,7 @@
 					<div class="dark:bg-blue-500 hover:bg-blue-100 dark:bg-blue-500 dark:hover:bg-blue-700 dark:border-blue-500 dark:hover:border-blue-700 border-blue-300"></div>
 					<div class="bg-cyan-500 hover:bg-cyan-100 dark:bg-cyan-500 dark:hover:bg-cyan-700 dark:border-cyan-500 dark:hover:border-cyan-700 border-cyan-300"></div>
 					<div class="bg-teal-500 hover:bg-teal-100 dark:bg-teal-500 dark:hover:bg-teal-700 dark:border-teal-500 dark:hover:border-teal-700 border-teal-300"></div>
+					<div class="bg-emerald-500 hover:bg-emerald-100 dark:bg-emerald-500 dark:hover:bg-emerald-700 dark:border-emerald-500 dark:hover:border-emerald-700 border-emerald-300"></div>
 				</form>
 
 			</div>

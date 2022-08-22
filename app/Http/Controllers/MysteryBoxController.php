@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\JewelryItems;
 use App\Models\MysteryBox;
 use App\Models\Order;
 use App\Models\Tag;
@@ -23,27 +24,29 @@ class MysteryBoxController extends Controller {
 	private array $exclude_product_ids;
 	private array $mb_rules = [
 		'StandardVintageMysteryBox' => [
-			'VintageHandpickItems' => ['title' => 'Vintage Handpick Items', 'color' => 'indigo', 'count' => 1, 'items' => []],
-			'VintageItems' => ['title' => 'Vintage Items', 'color' => 'blue', 'count' => 1, 'items' => []],
-			'SweatshirtItems' => ['title' => 'Sweatshirt Items', 'color' => 'cyan', 'count' => 1, 'items' => []],
+			'JewelryItems' => ['title' => 'Jewelry Items', 'color' => 'indigo', 'count' => 1, 'items' => []],
+			'VintageHandpickItems' => ['title' => 'Vintage Handpick Items', 'color' => 'blue', 'count' => 1, 'items' => []],
+			'VintageItems' => ['title' => 'Vintage Items', 'color' => 'cyan', 'count' => 1, 'items' => []],
+			'SweatshirtItems' => ['title' => 'Sweatshirt Items', 'color' => 'teal', 'count' => 1, 'items' => []],
 		],
 		'VintageMysterySingleItemBox' => [
-			'VintageHandpickItems' => ['title' => 'Vintage Handpick Items', 'color' => 'indigo', 'count' => 1, 'items' => []],
+			'VintageHandpickItems' => ['title' => 'Vintage Handpick Items', 'color' => 'blue', 'count' => 1, 'items' => []],
 		],
 		'VintageMysteryDoubleItemBox' => [
-			'VintageHandpickItems' => ['title' => 'Vintage Handpick Items', 'color' => 'indigo', 'count' => 1, 'items' => []],
-			'SweatshirtItems' => ['title' => 'Sweatshirt Items', 'color' => 'cyan', 'count' => 1, 'items' => []],
+			'VintageHandpickItems' => ['title' => 'Vintage Handpick Items', 'color' => 'blue', 'count' => 1, 'items' => []],
+			'SweatshirtItems' => ['title' => 'Sweatshirt Items', 'color' => 'teal', 'count' => 1, 'items' => []],
 		],
 		'PremiumVintageMysteryBox' => [
-			'VintageHandpickItems' => ['title' => 'Vintage Handpick Items', 'color' => 'indigo', 'count' => 2, 'items' => []],
-			'VintageItems' => ['title' => 'Vintage Items', 'color' => 'blue', 'count' => 2, 'items' => []],
-			'SweatshirtItems' => ['title' => 'Sweatshirt Items', 'color' => 'cyan', 'count' => 2, 'items' => []],
+			'JewelryItems' => ['title' => 'Jewelry Items', 'color' => 'indigo', 'count' => 2, 'items' => []],
+			'VintageHandpickItems' => ['title' => 'Vintage Handpick Items', 'color' => 'blue', 'count' => 2, 'items' => []],
+			'VintageItems' => ['title' => 'Vintage Items', 'color' => 'cyan', 'count' => 2, 'items' => []],
+			'SweatshirtItems' => ['title' => 'Sweatshirt Items', 'color' => 'teal', 'count' => 2, 'items' => []],
 		],
 		'ReworkSingleMysteryBox' => [
-			'ReworkItems' => ['title' => 'Rework Items', 'color' => 'teal', 'count' => 1, 'items' => []],
+			'ReworkItems' => ['title' => 'Rework Items', 'color' => 'emerald', 'count' => 1, 'items' => []],
 		],
 		'ReworkTripleItemMysteryBox' => [
-			'ReworkItems' => ['title' => 'Rework Items', 'color' => 'teal', 'count' => 3, 'items' => []],
+			'ReworkItems' => ['title' => 'Rework Items', 'color' => 'emerald', 'count' => 3, 'items' => []],
 		],
 	];
 
@@ -95,17 +98,6 @@ class MysteryBoxController extends Controller {
 				'option1' => $this->variant->option2,
 			]);
 		});
-
-		/*$query->where([
-			'option1' => $this->variant->option1,
-			'option2' => $this->variant->option2,
-			'option3' => $this->variant->option3,
-		])->orWhere([
-			'option1' => $this->variant->option1,
-			'option2' => $this->variant->option2,
-		])->orWhere([
-			'option1' => $this->variant->option2,
-		]);*/
 
 		$query->whereIn('tags.tag', $this->tags);
 		#$query->dd();
@@ -193,6 +185,34 @@ class MysteryBoxController extends Controller {
 		$result = $query->get()->toArray();
 
 		return $this->setSelectedItems($result, 'ReworkItems');
+	}
+
+	private function getJewelryItems(): array{
+		$query = JewelryItems::query();
+		#$query->leftJoin('tags', 'tags.product_id', '=', 'rework_items.product_id');
+
+		if(!empty($this->exclude_product_ids)){
+			$query->whereNotIn('jewelry_items.product_id', $this->exclude_product_ids);
+		}
+
+		/*$query->where(function($query){
+			return $query->where([
+				'option1' => $this->variant->option1,
+				'option2' => $this->variant->option2,
+				'option3' => $this->variant->option3,
+			])->orWhere([
+				'option1' => $this->variant->option1,
+				'option2' => $this->variant->option2,
+			])->orWhere([
+				'option1' => $this->variant->option2,
+			]);
+		});*/
+
+		#$query->whereIn('tags.tag', $this->tags);
+
+		$result = $query->get()->toArray();
+
+		return $this->setSelectedItems($result, 'JewelryItems');
 	}
 
 	private function setRepetitiveItems($items): array{
