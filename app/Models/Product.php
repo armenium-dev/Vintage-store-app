@@ -22,6 +22,7 @@ class Product extends Model {
         'title',
         'body',
         'status',
+        'online_store_url',
         'link_depop',
         'link_asos',
         'image',

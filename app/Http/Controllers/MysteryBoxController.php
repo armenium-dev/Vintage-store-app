@@ -101,8 +101,11 @@ class MysteryBoxController extends Controller {
 
 		$query->whereIn('tags.tag', $this->tags);
 		#$query->dd();
-		$result = $query->get()->toArray();
-
+		#$result = $query->get()->toArray();
+		$result = $query->get();
+		
+		$result = $this->filterAvailableOnOnlineStore($result);
+		
 		return $this->setSelectedItems($result, 'VintageHandpickItems');
 	}
 
@@ -213,6 +216,11 @@ class MysteryBoxController extends Controller {
 		$result = $query->get()->toArray();
 
 		return $this->setSelectedItems($result, 'JewelryItems');
+	}
+	
+	private function filterAvailableOnOnlineStore($items): array{
+		$items = $items->pluck('product_id')->toArray();
+		dd($items);
 	}
 
 	private function setRepetitiveItems($items): array{
