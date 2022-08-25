@@ -52,11 +52,10 @@
                                 <div class="mt-1 flex rounded-md shadow-sm">
                                     <span class="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-300 bg-gray-50 text-gray-500 text-sm">{{ __('Category') }}</span>
                                     <select name="category" class="border border-gray-300 text-gray-900 text-sm rounded-none rounded-r-md focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
-                                        <option selected>Choose a size</option>
-                                        <option value="US">United States</option>
-                                        <option value="CA">Canada</option>
-                                        <option value="FR">France</option>
-                                        <option value="DE">Germany</option>
+                                        <option selected>Choose a category</option>
+                                        @foreach($categories as $name => $title)
+                                            <option value="{!! $name !!}">{!! $title !!}</option>
+                                        @endforeach
                                     </select>
                                 </div>
                             </div>

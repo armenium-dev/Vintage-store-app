@@ -1,4 +1,4 @@
-DROP VIEW IF EXISTS jewelry_items;
+#DROP VIEW IF EXISTS jewelry_items;
 CREATE VIEW jewelry_items AS SELECT
     p.id,
     p.shop_id,

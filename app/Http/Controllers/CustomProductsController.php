@@ -28,7 +28,17 @@ class CustomProductsController extends Controller {
 	 * @return Application|Factory|View
 	 */
 	public function create(): View|Factory|Application{
-		return view('custom-products.create');
+		$categories = ['Category 1', 'Category 2', 'Category 3'];
+		$sizes = [
+			'2XL',
+			'3XL',
+			'Large',
+			'Medium',
+			'Small',
+			'XLarge'
+		];
+		
+		return view('custom-products.create', compact('categories', 'sizes'));
 	}
 
 	/**
