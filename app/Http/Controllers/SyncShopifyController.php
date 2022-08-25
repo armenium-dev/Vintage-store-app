@@ -61,33 +61,10 @@ class SyncShopifyController extends Controller {
 		return $res;
 	}
 
-	public function syncSalesChannel(): array{
-		$res = [];
-
-		$shops = Settings::getLike('_sales_channel_since_id');
-
-		if(count($shops) == 0) return $res;
-
-		foreach($shops as $name => $since_id){
-			$this->shop_id = intval(explode('_', $name)[1]);
-			$this->option_name = $name;
-			$this->since_id = $since_id;
-
-			#Log::stack(['cron'])->debug(['shop_id' => $this->shop_id, 'since_id' => $this->since_id]);
-
-			$this->shopifyApi = new MyShopify($this->shop_id);
-
-			$res[$this->shop_id] = $this->_updateOrCreateShopifyProducts();
-
-			sleep(1);
-		}
-
-		return $res;
-	}
-
 	private function _updateOrCreateShopifyProducts(): int{
 		$res = [];
-		
+		$product_ids = [];
+
 		$shopify_products = $this->_getShopifyProducts();
 
 		if(empty($shopify_products)) return 0;
@@ -101,6 +78,8 @@ class SyncShopifyController extends Controller {
 			#$tags = $this->_parseProductTags($s_product['tags']);
 
 			#if(empty($tags['link_depop']) && empty($tags['link_asos'])) continue;
+
+			$product_ids[] = $product_id;
 
 			if(str_contains(strtolower($s_product['title']), 'mystery')){
 				$is_mystery_box = 1;
@@ -170,7 +149,9 @@ class SyncShopifyController extends Controller {
 			}
 		}
 		#Log::stack(['cron'])->debug($res);
-		
+
+		$result = $this->_updateProductsOnlineStoreUrl($product_ids);
+
 		return count($res);
 	}
 
@@ -194,30 +175,50 @@ class SyncShopifyController extends Controller {
 		return $result['products'];
 	}
 
-	private function _updateProductsChannel(): int{
+	private function _updateProductsOnlineStoreUrl($product_ids): array{
 		$res = [];
 
-		$shopify_products = $this->_getShopifyOnlineStoreProductIDs();
-	}
+		if(empty($product_ids)) return $res;
 
-	private function _getShopifyOnlineStoreProductIDs(): array{
-		$since_id = $this->since_id;
-
-		$url = sprintf("/products.json?since_id=%d&limit=%d&fields=%s", $since_id, $this->limit_partials, implode(',', $this->fields));
-		$result = $this->shopifyApi->get($url);
-
-		$since_id = empty($result['products']) ? 0 : end($result['products'])['id'];
-
-		if($since_id == 0){
-			Settings::where(['name' => $this->option_name])->update([
-				'value' => $since_id,
-				'active' => 0
-			]);
-		}else{
-			Settings::set($this->option_name, $since_id);
+		$data = [];
+		foreach($product_ids as $id){
+			$data[] = 'product_'.$id.': product(id: "gid://shopify/Product/'.$id.'") {id,title,status,productType,publishedAt,onlineStoreUrl,onlineStorePreviewUrl}';
 		}
 
-		return $result['products'];
+		$query = '{'.implode('', $data).'}';
+
+		#$this->shopifyApi = new MyShopify(1);
+		$response = $this->shopifyApi->post('/graphql.json', ["query" => $query]);
+
+		if(!empty($response) && isset($response['data']) && !empty($response['data'])){
+			foreach($response['data'] as $key => $product){
+				$product_id = str_replace('product_', '', $key);
+				$url = null;
+				if($this->shop_id == 3){
+					if(!is_null($product['onlineStoreUrl'])){
+						$url = $product['onlineStoreUrl'];
+					}elseif(!is_null($product['onlineStorePreviewUrl'])){
+						$url = $product['onlineStorePreviewUrl'];
+					}
+				}else{
+					if(!is_null($product['onlineStoreUrl'])){
+						$url = $product['onlineStoreUrl'];
+					}
+				}
+
+				if(!is_null($url)){
+					Product::where(['shop_id' => $this->shop_id, 'product_id' => $product_id])
+						->update(['online_store_url' => $url]);
+					$res[] = $product_id;
+				}
+			}
+		}
+
+		#Log::stack(['cron'])->debug($res);
+
+		#dd($response['data']);
+
+		return $res;
 	}
 
 	/**------------------------------------------------------------**/
@@ -261,7 +262,9 @@ class SyncShopifyController extends Controller {
 	 * @return \Illuminate\Contracts\View\View
 	 */
 	public function shopifySync(){
-		$sync_products = $this->syncShopsProducts();
+		#$sync_products = $this->syncShopsProducts();
+		$products_ids = Product::select('product_id')->limit(250)->get()->pluck('product_id')->toArray();
+		$sync_products = $this->_updateProductsOnlineStoreUrl($products_ids);
 		dd($sync_products);
 		#return view('shopify.list', ['SyncProducts' => $sync_products]);
 	}

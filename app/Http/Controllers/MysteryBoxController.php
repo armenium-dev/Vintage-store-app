@@ -101,10 +101,9 @@ class MysteryBoxController extends Controller {
 
 		$query->whereIn('tags.tag', $this->tags);
 		#$query->dd();
-		#$result = $query->get()->toArray();
-		$result = $query->get();
-		
-		$result = $this->filterAvailableOnOnlineStore($result);
+		$result = $query->get()->toArray();
+
+		#$result = $this->filterAvailableOnOnlineStore($query->get());
 		
 		return $this->setSelectedItems($result, 'VintageHandpickItems');
 	}

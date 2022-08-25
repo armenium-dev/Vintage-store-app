@@ -195,11 +195,44 @@ class ShopifyController extends Controller {
 		return $product;
 	}
 
+	private function _getProductOnlineStoreUrl($shop_id, $product_id){
+		$url = null;
+
+		$params = 'product_'.$product_id.': product(id: "gid://shopify/Product/'.$product_id.'") {id,title,status,productType,publishedAt,onlineStoreUrl,onlineStorePreviewUrl}';
+		$query = '{'.$params.'}';
+		$response = $this->shopify_client->post('/graphql.json', ["query" => $query]);
+
+		if(!empty($response) && isset($response['data']) && !empty($response['data'])){
+			foreach($response['data'] as $key => $product){
+				if($shop_id == 3){
+					if(!is_null($product['onlineStoreUrl'])){
+						$url = $product['onlineStoreUrl'];
+					}elseif(!is_null($product['onlineStorePreviewUrl'])){
+						$url = $product['onlineStorePreviewUrl'];
+					}
+				}else{
+					if(!is_null($product['onlineStoreUrl'])){
+						$url = $product['onlineStoreUrl'];
+					}
+				}
+			}
+		}
+
+		/*Log::stack(['webhook'])->debug([
+			'shop_id' => $shop_id,
+			'product_id' => $product_id,
+			'url' => $url,
+		]);*/
+
+		return $url;
+	}
+
 	/**-------------- WEBHOOK PRODUCTS ----------------**/
 
 	public function createOrUpdateProduct($shop_id, $product_id): bool{
 		$this->shopify_client = new MyShopify($shop_id);
 		$product = $this->_getProduct($product_id);
+		$product_online_store_url = $this->_getProductOnlineStoreUrl($shop_id, $product_id);
 		#Log::stack(['webhook'])->debug($product);
 
 		$title = $product['product']['title'];
@@ -224,6 +257,7 @@ class ShopifyController extends Controller {
 			'link_depop' => $tags['link_depop'],
 			'link_asos' => $tags['link_asos'],
 			'tags' => $tags['tags'],
+			'online_store_url' => $product_online_store_url,
 		]);
 
 		if(count($variants)){
