@@ -7,9 +7,13 @@
 			options: {},
 			vars: {ww: 0, wh: 0},
 			labels: {},
-			messages: {ajax_error: 'SYSTEM TECHNICAL ERROR'},
+			messages: {
+				ajax_error: 'SYSTEM TECHNICAL ERROR',
+				remove_custom_product_confirmation: 'Are you sure you want to remove this product "{title}"?',
+			},
 			routes: {
 				remove_sale: "sales-remove",
+				remove_custom_product: "custom-products/{id}",
 				pick_product: "warehouse-pick-product",
 				pack_product: "warehouse-pack-product",
 			},
@@ -71,6 +75,9 @@
 						case "display_selected_files":
 							FJS.CProducts.displaySelectedFiles(e);
 							break;
+						case "remove_custom_product":
+							FJS.CProducts.remove($this);
+							break;
 						default:
 							break;
 					}
@@ -79,8 +86,14 @@
 				},
 			},
 			Common: {
-				createAjaxUrl: function(endpoint){
+				createAjaxUrl: function(endpoint, params){
 					let baseurl = $('meta[name="baseurl"]').attr('content');
+
+					if(undefined !== params){
+						$.each(params, function(k, v){
+							endpoint = endpoint.replace('{'+k+'}', v);
+						});
+					}
 
 					return baseurl + '/' + endpoint;
 				},
@@ -317,6 +330,34 @@
 
 					FJS.els.js_file_placeholder.html('<ol><li>'+e.target.files[0].name+'</li></ol>');
 					FJS.els.js_image_preview.prop('src', URL.createObjectURL(file));
+
+				},
+				remove: function($btn){
+					let entry_id = $btn.data('id'),
+						$parent = $($btn.data('parent')),
+						title = $parent.find('.js_title').text();
+
+					if(!confirm(FJS.messages.remove_custom_product_confirmation.replace('{title}', title))){
+						return false;
+					}
+
+					$.ajax({
+						type: "DELETE",
+						url: FJS.Common.createAjaxUrl(FJS.routes.remove_custom_product, {'id': entry_id}),
+						headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
+						data: {type: 'ajax'},
+						dataType: "json",
+						beforeSend: function(xhr){
+							$btn.attr('disabled', true);
+						}
+					}).done(function(response){
+						if(response.error == 0){
+							$parent.remove();
+						}
+					}).fail(function(){
+						$btn.attr('disabled', false);
+						console.log(FJS.messages.ajax_error);
+					});
 
 				},
 			},

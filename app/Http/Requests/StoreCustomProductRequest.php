@@ -4,27 +4,34 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class StoreCustomProductRequest extends FormRequest
-{
-    /**
-     * Determine if the user is authorized to make this request.
-     *
-     * @return bool
-     */
-    public function authorize()
-    {
-        return false;
-    }
+class StoreCustomProductRequest extends CustomProductRequest{
 
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array<string, mixed>
-     */
-    public function rules()
-    {
-        return [
-            //
-        ];
-    }
+	/**
+	 * Determine if the user is authorized to make this request.
+	 *
+	 * @return array
+	 */
+	public function authorize(){
+		return $this->requestData();
+	}
+
+	/**
+	 * Get the validation rules that apply to the request.
+	 *
+	 * @return array<string, mixed>
+	 */
+	public function rules(){
+		return [
+			'image' => 'required|file|mimes:jpg,jpeg,png|max:20480',
+		];
+	}
+
+	public function messages(){
+		return [
+			'image.required' => 'An Image is required',
+			'image.file' => 'File Must be an jpg,jpeg or png',
+			'image.mimes' => 'The Image must be an extension jpg,jpeg or png',
+		];
+	}
+
 }

@@ -1,7 +1,7 @@
 <x-app-layout>
     <x-slot name="header">
         <div class="flex flex-row flex-nowrap align-middle justify-between">
-            <div class="flex-auto"><h2 class="font-semibold text-xl text-gray-800 leading-tight">{{ __('Custom product create') }}</h2></div>
+            <div class="flex-auto"><h2 class="font-semibold text-xl text-gray-800 leading-tight">{{ __('Custom product edit') }}</h2></div>
             <div class="flex-none">
                 <a href="{{ route('custom-products.create') }}" class="hover:bg-blue-400 group flex items-center rounded-md bg-blue-500 text-white text-sm font-medium pl-2 pr-3 py-2 shadow-sm">
                     <svg width="20" height="20" fill="currentColor" class="mr-2" aria-hidden="true">
@@ -19,8 +19,9 @@
             <div class="p-6">
 
                 <div class="shadow sm:rounded-md sm:overflow-hidden max-w-md mx-auto">
-                    <form action="{!! route('custom-products.store') !!}" method="POST" enctype="multipart/form-data">
+                    <form action="{!! route('custom-products.update', ['custom_product' => $product->id]) !!}" method="POST" enctype="multipart/form-data">
                         @csrf
+                        <input name="_method" type="hidden" value="PUT">
                         @include('custom-products.fields')
                     </form>
                 </div>

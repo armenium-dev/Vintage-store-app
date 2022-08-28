@@ -5,7 +5,7 @@
     "isEntry": true
   },
   "resources/js/frontend.js": {
-    "file": "assets/frontend.8fd22d80.js",
+    "file": "assets/frontend.54c34179.js",
     "src": "resources/js/frontend.js",
     "isEntry": true
   },
@@ -15,7 +15,7 @@
     "isEntry": true
   },
   "resources/css/app.css": {
-    "file": "assets/app.30c81a86.css",
+    "file": "assets/app.63b54318.css",
     "src": "resources/css/app.css",
     "isEntry": true
   }
