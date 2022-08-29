@@ -91,6 +91,9 @@ class ShopifyController extends Controller {
 						$tags['link_depop'] = trim($tags['link_depop']);
 						$tags['link_asos'] = trim($tags['link_asos']);
 
+						// Эта проверка нужна для того, чтобы определиться,
+						// нужно ли удалять этот товар на площадках Depop и Asos,
+						// если этого товара не осталось на Shopify магазине.
 						if(intval($variant['inventory_quantity']) == 0){
 							if(!empty($tags['link_depop'])){
 								Sales::updateOrCreate(
@@ -446,7 +449,7 @@ class ShopifyController extends Controller {
 									"inventory_item_id" => $level['inventory_item_id'],
 									"available" => intval($level['available'])-1
 								];
-								$result = $shopify_client->post('/inventory_levels/set.json', $data);
+								$result = $shopify_client->post('/inventory_levels/set.json', $data); // decrease inventory availability via shopify api
 								#Log::stack(['cron'])->debug($result);
 								if(!empty($result['inventory_level'])){
 									$res[] = $result['inventory_level']['available'];

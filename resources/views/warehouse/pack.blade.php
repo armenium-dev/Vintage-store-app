@@ -23,8 +23,13 @@ use App\Http\Helpers\Image;
 									<h2 class="px-3 pb-3"><b>Order {!! $order['name'] !!}</b><br>{!! $order['title'] !!}</h2>
 									<div class="flex-1 flex flex-wrap content-start mb-3 h-full">
 										@foreach($order['products'] as $item)
-											<div class="w-1/2 p-2" title="{{$item['product_title']}}">
-												<img src="{!! Image::letProductThumb($item['image']) !!}" class="block mx-auto w-full h-auto rounded-md border border-blue-100">
+											<div class="w-1/2 p-2 flex flex-col" title="{{$item['product_title']}}">
+												<div class="relative rounded-md border border-blue-100 overflow-hidden flex-1">
+													@if($item['formula'] == 'RepetitiveItems')
+														<div class="absolute z-10 left-3 right-3 top-3 bottom-3 p-3 bg-black/50 text-white text-center uppercase text-sm hover:opacity-0 transition ease-in-out duration-200 flex items-center justify-center">Repetitive<br>{!! $item['category'] !!}</div>
+													@endif
+													<img src="{!! Image::letProductThumb($item['image']) !!}" class="block mx-auto w-full h-full">
+												</div>
 												<div class="pt-2 text-sm">
 													<h3 class="pb-3 dark:text-white hidden">{{$item['product_title']}}</h3>
 													<div class="flex flex-row flex-wrap justify-between items-center text-[12px]">

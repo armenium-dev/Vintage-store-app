@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\CustomProduct;
 use App\Models\JewelryItems;
 use App\Models\MysteryBox;
 use App\Models\Order;
@@ -13,6 +14,7 @@ use App\Models\VintageHandpickItems;
 use App\Models\VintageItems;
 use App\Models\SweatshirtItems;
 use App\Models\ReworkItems;
+use Illuminate\Support\Facades\DB;
 
 class MysteryBoxController extends Controller {
 
@@ -22,31 +24,36 @@ class MysteryBoxController extends Controller {
 	private int $line_id = 0;
 	private array $tags;
 	private array $exclude_product_ids;
+	private array $exclude_custom_product_ids;
 	private array $mb_rules = [
 		'StandardVintageMysteryBox' => [
-			'JewelryItems' => ['title' => 'Jewelry Items', 'color' => 'indigo', 'count' => 1, 'items' => []],
-			'VintageHandpickItems' => ['title' => 'Vintage Handpick Items', 'color' => 'blue', 'count' => 1, 'items' => []],
-			'VintageItems' => ['title' => 'Vintage Items', 'color' => 'cyan', 'count' => 1, 'items' => []],
-			'SweatshirtItems' => ['title' => 'Sweatshirt Items', 'color' => 'teal', 'count' => 1, 'items' => []],
+			'RepetitiveItems' => ['title' => 'Repetitive Items', 'color' => 'indigo', 'count' => 1, 'items' => []],
+			'JewelryItems' => ['title' => 'Jewelry Items', 'color' => 'blue', 'count' => 1, 'items' => []],
+			'VintageHandpickItems' => ['title' => 'Vintage Handpick Items', 'color' => 'cyan', 'count' => 1, 'items' => []],
+			'VintageItems' => ['title' => 'Vintage Items', 'color' => 'teal', 'count' => 1, 'items' => []],
+			'SweatshirtItems' => ['title' => 'Sweatshirt Items', 'color' => 'emerald', 'count' => 1, 'items' => []],
 		],
 		'VintageMysterySingleItemBox' => [
-			'VintageHandpickItems' => ['title' => 'Vintage Handpick Items', 'color' => 'blue', 'count' => 1, 'items' => []],
+			'RepetitiveItems' => ['title' => 'Repetitive Items', 'color' => 'indigo', 'count' => 1, 'items' => []],
+			'VintageHandpickItems' => ['title' => 'Vintage Handpick Items', 'color' => 'cyan', 'count' => 1, 'items' => []],
 		],
 		'VintageMysteryDoubleItemBox' => [
-			'VintageHandpickItems' => ['title' => 'Vintage Handpick Items', 'color' => 'blue', 'count' => 1, 'items' => []],
-			'SweatshirtItems' => ['title' => 'Sweatshirt Items', 'color' => 'teal', 'count' => 1, 'items' => []],
+			'RepetitiveItems' => ['title' => 'Repetitive Items', 'color' => 'indigo', 'count' => 1, 'items' => []],
+			'VintageHandpickItems' => ['title' => 'Vintage Handpick Items', 'color' => 'cyan', 'count' => 1, 'items' => []],
+			'SweatshirtItems' => ['title' => 'Sweatshirt Items', 'color' => 'emerald', 'count' => 1, 'items' => []],
 		],
 		'PremiumVintageMysteryBox' => [
-			'JewelryItems' => ['title' => 'Jewelry Items', 'color' => 'indigo', 'count' => 2, 'items' => []],
-			'VintageHandpickItems' => ['title' => 'Vintage Handpick Items', 'color' => 'blue', 'count' => 2, 'items' => []],
-			'VintageItems' => ['title' => 'Vintage Items', 'color' => 'cyan', 'count' => 2, 'items' => []],
-			'SweatshirtItems' => ['title' => 'Sweatshirt Items', 'color' => 'teal', 'count' => 2, 'items' => []],
+			'RepetitiveItems' => ['title' => 'Repetitive Items', 'color' => 'indigo', 'count' => 2, 'items' => []],
+			'JewelryItems' => ['title' => 'Jewelry Items', 'color' => 'blue', 'count' => 2, 'items' => []],
+			'VintageHandpickItems' => ['title' => 'Vintage Handpick Items', 'color' => 'cyan', 'count' => 2, 'items' => []],
+			'VintageItems' => ['title' => 'Vintage Items', 'color' => 'teal', 'count' => 2, 'items' => []],
+			'SweatshirtItems' => ['title' => 'Sweatshirt Items', 'color' => 'emerald', 'count' => 2, 'items' => []],
 		],
 		'ReworkSingleMysteryBox' => [
-			'ReworkItems' => ['title' => 'Rework Items', 'color' => 'emerald', 'count' => 1, 'items' => []],
+			'ReworkItems' => ['title' => 'Rework Items', 'color' => 'lime', 'count' => 1, 'items' => []],
 		],
 		'ReworkTripleItemMysteryBox' => [
-			'ReworkItems' => ['title' => 'Rework Items', 'color' => 'emerald', 'count' => 3, 'items' => []],
+			'ReworkItems' => ['title' => 'Rework Items', 'color' => 'lime', 'count' => 3, 'items' => []],
 		],
 	];
 
@@ -75,7 +82,7 @@ class MysteryBoxController extends Controller {
 
 		#dd($items);
 
-		return $this->setRepetitiveItems($items);
+		return $items;
 	}
 
 	private function getVintageHandpickItems(): array{
@@ -216,21 +223,33 @@ class MysteryBoxController extends Controller {
 
 		return $this->setSelectedItems($result, 'JewelryItems');
 	}
-	
-	private function filterAvailableOnOnlineStore($items): array{
-		$items = $items->pluck('product_id')->toArray();
-		dd($items);
-	}
 
-	private function setRepetitiveItems($items): array{
-		/*dd($items);
-		foreach($items as $k => $item){
-			foreach($item['items'] as $k2 => $data){
+	private function getRepetitiveItems(): array{
+		$query = CustomProduct::query();
+		$query->select(['id', 'id as product_id', 'title as product_title', 'price', 'size as variant_title', 'image', DB::raw('0 as variant_id')]);
+		#$query->leftJoin('tags', 'tags.product_id', '=', 'rework_items.product_id');
 
-			}
-		}*/
+		if(!empty($this->exclude_custom_product_ids)){
+			$query->whereNotIn('id', $this->exclude_custom_product_ids);
+		}
 
-		return $items;
+		$query->where(function($query){
+			return $query->where([
+				'size' => $this->variant->option1,
+			])->orWhere([
+				'size' => $this->variant->option2,
+			])->orWhere([
+				'size' => $this->variant->option3,
+			]);
+		});
+
+		$query->where('count', '>', 0);
+
+		$result = $query->get()->toArray();
+
+		#dd($result);
+
+		return $this->setSelectedItems($result, 'RepetitiveItems');
 	}
 
 	private function setSelectedItems($items, $formula): array{
@@ -334,13 +353,37 @@ class MysteryBoxController extends Controller {
 	}
 
 	private function setExcludeProductIDs(){
-		$this->exclude_product_ids = MysteryBox::where(['selected' => 0, 'packed' => 0])
+		$this->exclude_product_ids = MysteryBox::where([/*'selected' => 0,*/ 'packed' => 0])
 			->where('order_id', '!=', $this->order->order_id)
+			->where('formula', '!=', 'RepetitiveItems')
 			->get()
 			->pluck('product_id')
 			->toArray();
 
-		#dd($this->exclude_product_ids);
+
+		$mb_custom_products_with_count_and_id = MysteryBox::where(['packed' => 0, 'formula' => 'RepetitiveItems'])
+			->where('order_id', '!=', $this->order->order_id)
+			->select([DB::raw('COUNT(*) as count'), 'product_id'])
+			->groupBy('product_id')
+			->get()
+			->toArray();
+
+		if(!is_null($mb_custom_products_with_count_and_id)){
+			$p_ids = [];
+			foreach($mb_custom_products_with_count_and_id as $item){
+				$p_id = CustomProduct::where(['id' => $item['product_id']])
+					->where('count', '<=', $item['count'])
+					->get()
+					->pluck('id')->pop();
+
+				if(!is_null($p_id)){
+					$this->exclude_custom_product_ids[] = $p_id;
+				}
+			}
+		}
+
+		#dd($mb_custom_products_with_count_and_id);
+		#dd([$this->exclude_product_ids, $this->exclude_custom_product_ids]);
 	}
 
 }

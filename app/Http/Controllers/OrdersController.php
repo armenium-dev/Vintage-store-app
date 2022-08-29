@@ -211,7 +211,9 @@ class OrdersController extends Controller {
 		$res = ['tag' => '', 'num_1' => 0, 'num_2' => 0];
 
 		$product = Product::whereProductId($product_id)->first();
-		#dump($product);
+		#dd($product);
+
+		if(is_null($product)) return $res;
 
 		$tag = $this->Parser->getVCUKtag($product->body);
 

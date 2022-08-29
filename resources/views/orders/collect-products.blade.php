@@ -73,7 +73,8 @@
 					<div class="dark:bg-blue-500 hover:bg-blue-100 dark:bg-blue-500 dark:hover:bg-blue-700 dark:border-blue-500 dark:hover:border-blue-700 border-blue-300"></div>
 					<div class="bg-cyan-500 hover:bg-cyan-100 dark:bg-cyan-500 dark:hover:bg-cyan-700 dark:border-cyan-500 dark:hover:border-cyan-700 border-cyan-300"></div>
 					<div class="bg-teal-500 hover:bg-teal-100 dark:bg-teal-500 dark:hover:bg-teal-700 dark:border-teal-500 dark:hover:border-teal-700 border-teal-300"></div>
-					<div class="bg-emerald-500 hover:bg-emerald-100 dark:bg-emerald-500 dark:hover:bg-emerald-700 dark:border-emerald-500 dark:hover:border-emerald-700 border-emerald-300"></div>
+					<div class="bg-emerald-500 hover:bg-emerald-100 dark:bg-emerald-500 dark:hover:bg-emerald-700 dark:border-emerald-500 dark:hover:border-emerald-700 border-emerald-300 text-emerald-500"></div>
+					<div class="bg-lime-500 hover:bg-lime-100 dark:bg-lime-500 dark:hover:bg-lime-700 dark:border-lime-500 dark:hover:border-lime-700 border-lime-300 text-lime-500"></div>
 				</form>
 
 			</div>

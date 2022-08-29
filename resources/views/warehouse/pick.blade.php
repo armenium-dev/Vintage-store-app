@@ -20,7 +20,12 @@ use App\Http\Helpers\Image;
 						@foreach($mystery_boxes as $item)
 							<li id="item_{!! $item['id'] !!}" class="w-full sm:w-1/2 md:w-1/3 lg:w-20p p-2 {!! ($item['selected'] == 0) ?: 'dark'!!}">
 								<div class="flex flex-col justify-between bg-white hover:bg-pink-100 dark:bg-pink-500 dark:hover:bg-pink-700 rounded-lg border border-gray-100 dark:border-pink-500 dark:hover:border-pink-700 shadow-md overflow-hidden h-full cursor-pointer transition ease-out duration-200">
-									<img src="{!! Image::letProductThumb($item['image']) !!}" class="">
+									<div class="relative">
+										@if($item['formula'] == 'RepetitiveItems')
+										<div class="absolute z-10 left-3 right-3 top-3 bottom-3 p-3 bg-black/50 text-white text-center uppercase text-lg hover:opacity-0 transition ease-in-out duration-200 flex items-center justify-center">Repetitive<br>{!! $item['category'] !!}</div>
+										@endif
+										<img src="{!! Image::letProductThumb($item['image']) !!}" class="max-w-none w-full">
+									</div>
 									<div class="p-3">
 										<h2 class="pb-3 text-sm dark:text-white">{{$item['product_title']}}</h2>
 										<div class="flex flex-row flex-wrap justify-between mb-3">

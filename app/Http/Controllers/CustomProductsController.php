@@ -57,9 +57,7 @@ class CustomProductsController extends Controller {
 	 * @param \App\Models\CustomProduct $customProduct
 	 * @return \Illuminate\Http\Response
 	 */
-	public function show(CustomProduct $customProduct){
-		//
-	}
+	public function show(CustomProduct $customProduct){}
 
 	/**
 	 * Show the form for editing the specified resource.
