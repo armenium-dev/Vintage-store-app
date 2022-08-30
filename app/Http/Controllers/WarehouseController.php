@@ -318,7 +318,7 @@ class WarehouseController extends Controller {
 
 		$save_file = public_path(sprintf('%s%s%d_%s.pdf', 'downloads', DIRECTORY_SEPARATOR, $order_id, 'warehouse'));
 
-		PDF::setOption(['chroot' => __DIR__]);
+		#PDF::setOption(['chroot' => __DIR__]);
 		$pdf = PDF::loadView('warehouse.pdf', ['mystery_boxes' => $mystery_boxes]);
 		$pdf->save($save_file);
 

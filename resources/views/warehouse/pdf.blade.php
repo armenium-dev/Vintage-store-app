@@ -4,11 +4,10 @@
     <meta charset="utf-8">
     <title></title>
     <style type="text/css">
-        body {background: #fff url(pdf_bg.jpg) no-repeat center top; background-size: cover;}
+        body {background: #fff url({!! asset('img/pdf_bg.jpg') !!}) no-repeat center top; background-size: cover;}
     </style>
 </head>
 <body>
-<img src="./pdf_bg.jpg">
 <table class="table table-bordered">
     @foreach($mystery_boxes as $mystery_box)
         <tr>
