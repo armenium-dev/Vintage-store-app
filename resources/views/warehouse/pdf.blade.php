@@ -4,6 +4,7 @@
     <meta charset="utf-8">
     <title></title>
     <style type="text/css">
+        html, body {margin: 0; padding: 0;}
         body {background: #fff url({!! asset('img/pdf_bg.jpg') !!}) no-repeat center top; background-size: cover;}
     </style>
 </head>
