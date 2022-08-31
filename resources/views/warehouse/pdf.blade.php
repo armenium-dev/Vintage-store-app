@@ -14,66 +14,74 @@
                 font-family: 'Raleway', 'Helvetica', sans-serif;
                 font-weight: 700;
             }
-            h1, h2, h3, p {margin: 0; padding: 0; text-transform: uppercase; text-align: center;}
-            h1, h2, h3 {font-weight: 900; line-height: 1;}
-            h1 {font-size: 20pt;}
-            main {padding: 150px 300px 0; background-color: rgba(0, 200, 0, 0.2);}
+            h1,
+            .savings .value,
+            .savings .title,
+            h4,
+            p {margin: 0; padding: 0; text-transform: uppercase; text-align: center;}
+            h1,
+            .savings .value,
+            .savings .title,
+            h4 {font-weight: 900; line-height: 1;}
+            h1 {font-size: 19pt; margin-bottom: 120px;}
+            .savings .title {font-size: 24pt;}
+            .savings .value {font-size: 70pt; border-bottom: 5px solid #000;}
+            h4 {font-size: 26pt;}
+            p {font-size: 22pt; font-weight: 800;}
+            main {padding: 160px 300px 0; background-color: rgba(0, 200, 0, 0.2);}
             main .inner {border: 1px solid #c00; background-color: rgba(255, 255, 255, 0.5);}
-            .table-data * {font-size: 16pt;}
-            .table-data {
-                /*position: absolute;
-                z-index: 1;
-                left: 25%;
-                top: 25%;*/
-                width: 900px;
-                border: 1px solid #00c;
-            }
-            table thead,
+            table {}
+            table thead th,
             table tfoot {text-transform: uppercase; font-weight: 900;}
-            table .title {width: 70%;}
-            table .price {width: 30%; text-align: right;}
+            table thead th {font-size: 16pt; padding-bottom: 10px;}
+            table td {}
+            table tbody td {vertical-align: bottom; line-height: 1; padding: 20px;}
+            table .b-right {border-right: 5px solid #000;}
+            table .p-left {padding-left: 65px;}
+            table .title {width: 65%; font-size: 11pt;}
+            table .price {width: 35%; font-size: 14pt;}
+            table tfoot td {border-top: 5px solid #000; font-size: 15pt; padding: 30px 20px;}
+            .savings,
+            .footer {text-align: center;}
         </style>
     </head>
     <body>
         <main>
             <div class="inner">
                 <h1>Thank you for<br>your order</h1>
-                <div class="table-data">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Items</th>
-                                <th>Value</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                        @foreach($box_items as $item)
-                            <tr>
-                                <td class="title">{!! $item['title'] !!}</td>
-                                <td class="price">&pound;{!! $item['price'] !!}</td>
-                            </tr>
-                        @endforeach
-                        </tbody>
-                        <tfoot>
-                            <tr>
-                                <td>Total value</td>
-                                <td>&pound;{!! $box_total !!}</td>
-                            </tr>
-                            <tr>
-                                <td>Box price</td>
-                                <td>&pound;{!! $box_price !!}</td>
-                            </tr>
-                        </tfoot>
-                    </table>
-                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Items</th>
+                            <th>Value</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    @foreach($box_items as $item)
+                        <tr>
+                            <td class="title b-right">{!! $item['title'] !!}</td>
+                            <td class="price p-left">&pound;{!! $item['price'] !!}</td>
+                        </tr>
+                    @endforeach
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td class="b-right">Total value</td>
+                            <td class="p-left">&pound;{!! $box_total !!}</td>
+                        </tr>
+                        <tr>
+                            <td class="b-right">Box price</td>
+                            <td class="p-left">&pound;{!! $box_price !!}</td>
+                        </tr>
+                    </tfoot>
+                </table>
                 <div class="savings">
-                    <h3>Total savings:</h3>
-                    <h2>&pound;{!! $total_saving !!}</h2>
+                    <div class="title">Total savings:</div>
+                    <div class="value">&pound;{!! $total_saving !!}</div>
                 </div>
                 <div class="footer">
                     <h4>Order again</h4>
-                    <p class="p1">10% off yur next box</p>
-                    <p class="p2">Use code: <u>Mystery</u></p>
+                    <p>10% off yur next box<br>Use code: <u>Mystery</u></p>
                 </div>
             </div>
         </main>

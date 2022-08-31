@@ -387,16 +387,14 @@ class WarehouseController extends Controller {
 		if(!is_null($mystery_boxes)){
 			foreach($mystery_boxes as $mystery_box){
 				if($mystery_box['formula'] == 'RepetitiveItems'){
-					$res['items'][$mystery_box['id']] = [
-						'title' => $mystery_box['r_title'],
-						'price' => !is_null($mystery_box['new_price']) ? $mystery_box['new_price'] : $mystery_box['r_price']
-					];
+					$title = $mystery_box['r_title'];
+					$price = !is_null($mystery_box['new_price']) ? $mystery_box['new_price'] : $mystery_box['r_price'];
 				}else{
-					$res['items'][$mystery_box['id']] = [
-						'title' => $mystery_box['product_title'],
-						'price' => !is_null($mystery_box['new_price']) ? $mystery_box['new_price'] : $mystery_box['price']
-					];
+					$title = $mystery_box['product_title'];
+					$price = !is_null($mystery_box['new_price']) ? $mystery_box['new_price'] : $mystery_box['price'];
 				}
+				$res['items'][$mystery_box['id']] = ['title' => $title, 'price' => $price];
+				$res['total'] += $price;
 			}
 		}
 
