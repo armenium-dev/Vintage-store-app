@@ -199,9 +199,6 @@ class WarehouseController extends Controller {
 		$this->addSales($order_id, $line_id);
 		$this->decrementCustomProduct($order_id, $line_id);
 
-		$res = $this->createPDF($order_id, $line_id);
-		Log::stack(['custom'])->debug($res);
-
 		/*MysteryBox::where([
 			'order_id' => $order_id,
 			'line_id' => $line_id,
@@ -219,7 +216,10 @@ class WarehouseController extends Controller {
 
 		$order = Order::whereOrderId($order_id);
 		$order->delete();*/
-
+		
+		$res = $this->createPDF($order_id, $line_id);
+		#Log::stack(['custom'])->debug($res);
+		
 		$error = 1;
 
 		return response()->json(compact('error'));
@@ -304,12 +304,36 @@ class WarehouseController extends Controller {
 	}
 
 	// Generate PDF
-	private function createPDF($order_id, $line_id) {
-		$mystery_boxes = MysteryBox::where([
-			'order_id' => $order_id,
-			'line_id' => $line_id,
-		])->get()->toArray();
-
+	private function createPDF($order_id, $line_id){
+		$query = MysteryBox::query();
+		$query->select([
+			'mystery_boxes.id',
+			'mystery_boxes.order_id',
+			'mystery_boxes.product_id',
+			'mystery_boxes.line_id',
+			'mystery_boxes.tag',
+			'mystery_boxes.price as new_price',
+			'products.title as product_title',
+			#'products.image',
+			'variants.price',
+			#'orders.data',
+			#'mystery_boxes.formula',
+		]);
+		$query->leftJoin('orders', 'orders.order_id', '=', 'mystery_boxes.order_id');
+		$query->leftJoin('products', 'products.product_id', '=', 'mystery_boxes.product_id');
+		$query->leftJoin('variants', 'variants.variant_id', '=', 'mystery_boxes.variant_id');
+		$query->where([
+			'mystery_boxes.order_id' => $order_id,
+			'mystery_boxes.line_id' => $line_id,
+			'mystery_boxes.packed' => 1,
+			'mystery_boxes.selected' => 1
+		]);
+		$query->orderBy('mystery_boxes.order_id');
+		
+		$mystery_boxes = $query->get()->toArray();
+		
+		dd($mystery_boxes);
+		
 		// share data to view
 		#view()->share('employee', $data);
 
