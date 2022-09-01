@@ -37,15 +37,52 @@ class OrdersController extends Controller {
 	 *
 	 * @return \Illuminate\Contracts\View\View
 	 */
-	public function mysteryBox(){
-		$orders = Order::whereIsMysteryBox(1)
-			#->whereNull('fulfillment_status')
-			#->orWhere('fulfillment_status', '!=', 'fulfilled')
-			#->orderByDesc('updated_at')
-			->orderBy('order_id')
-			->get();
+	public function mysteryBox(Request $request){
+		$finished = $request->get('finished');
+		$fulfilled = $request->get('fulfilled');
+		$ordering = $request->get('ordering');
 
-		return view('orders.mystery', compact('orders'));
+		$query = Order::query();
+		$query->where(['is_mystery_box' => 1]);
+		$query->where(['finished' => intval($finished)]);
+
+		if(intval($fulfilled) == 1){
+			$query->where(function($query){
+				return $query->whereNotNull('fulfillment_status')->orWhere(['fulfillment_status' => 'fulfilled']);
+			});
+		}else{
+			$query->where(function($query){
+				return $query->whereNull('fulfillment_status')->orWhere('fulfillment_status', '!=', 'fulfilled');
+			});
+		}
+
+		switch($ordering){
+			case "date-asc":
+				$query->orderBy('updated_at');
+				break;
+			case "date-desc":
+				$query->orderByDesc('updated_at');
+				break;
+			case "id-desc":
+				$query->orderByDesc('order_id');
+				break;
+			case "id-asc":
+			default:
+				$query->orderBy('order_id');
+				break;
+		}
+
+		$orders = $query->get();
+
+		return view('orders.mystery', [
+			'orders' => $orders,
+			'total' => $orders->count(),
+			'filter' => [
+				'finished' => $finished,
+				'fulfilled' => $fulfilled,
+				'ordering' => $ordering,
+			]
+		]);
 	}
 
 	/**
@@ -55,7 +92,6 @@ class OrdersController extends Controller {
 	 */
 	public function mysteryBoxCollect($id){
 		$order = Order::whereId($id)->first();
-
 
 		$line_items = [];
 

@@ -9,38 +9,51 @@
         <style type="text/css">
             html, body {margin: 0; padding: 0;}
             body {
-                background: #fff url({!! asset('img/pdf_bg.jpg') !!}) no-repeat center top;
+                background: #fff url({!! asset('img/pdf_bg2.jpg') !!}) no-repeat center top;
                 background-size: contain;
                 font-family: 'Raleway', 'Helvetica', sans-serif;
                 font-weight: 700;
             }
-            h1,
-            .savings .value,
-            .savings .title,
-            h4,
-            p {margin: 0; padding: 0; text-transform: uppercase; text-align: center;}
-            h1,
-            .savings .value,
-            .savings .title,
-            h4 {font-weight: 900; line-height: 1;}
-            h1 {font-size: 19pt; margin-bottom: 120px;}
-            .savings .title {font-size: 24pt;}
-            .savings .value {font-size: 70pt; border-bottom: 5px solid #000;}
-            h4 {font-size: 26pt;}
-            p {font-size: 22pt; font-weight: 800;}
-            main {padding: 160px 300px 0; background-color: rgba(0, 200, 0, 0.2);}
-            main .inner {border: 1px solid #c00; background-color: rgba(255, 255, 255, 0.5);}
-            table {}
+            .main-title,
+            .savings,
+            .footer {margin: 0; padding: 0; text-transform: uppercase; text-align: center; font-weight: 900; line-height: 1;}
+
+            @if($box_items_count > 5)
+            main {padding: 100px 200px 0;}
+            .main-title {margin-bottom: 40px;}
+            table .p-left {padding-left: 40px;}
+            table .title {width: 80%; font-size: 9pt;}
+            table .price {width: 20%; font-size: 12pt;}
+            table tbody td {padding: 10px;}
+            table thead th {font-size: 13pt;}
+            table tfoot td {font-size: 13pt; padding: 20px 10px;}
+            .savings {margin-top: 15px;}
+            .savings .value {font-size: 40pt;}
+            @else
+            main {padding: 120px 300px 0; background-color: rgba(0, 200, 0, 0);}
+            .main-title {margin-bottom: 100px;}
+            table .p-left {padding-left: 65px;}
+            table .title {width: 70%; font-size: 11pt;}
+            table .price {width: 30%; font-size: 14pt;}
+            table tbody td {padding: 20px;}
+            table thead th {font-size: 15pt;}
+            table tfoot td {font-size: 15pt; padding: 30px 20px;}
+            .savings {margin-top: 30px;}
+            .savings .value {font-size: 60pt;}
+            @endif
+
+            .main-title {font-size: 19pt;}
+            .savings .title {font-size: 22pt;}
+            .savings .value {border-bottom: 5px solid #000;}
+            .footer .title {font-size: 22pt;}
+            .footer .desc {font-size: 14pt;}
+            main .inner {border: 0px solid #c00; background-color: rgba(255, 255, 255, 0);}
             table thead th,
             table tfoot {text-transform: uppercase; font-weight: 900;}
-            table thead th {font-size: 16pt; padding-bottom: 10px;}
-            table td {}
-            table tbody td {vertical-align: bottom; line-height: 1; padding: 20px;}
+            table thead th {padding-bottom: 10px;}
+            table tbody td {vertical-align: bottom; line-height: 1; border-bottom: 1px solid #000;}
             table .b-right {border-right: 5px solid #000;}
-            table .p-left {padding-left: 65px;}
-            table .title {width: 65%; font-size: 11pt;}
-            table .price {width: 35%; font-size: 14pt;}
-            table tfoot td {border-top: 5px solid #000; font-size: 15pt; padding: 30px 20px;}
+            table tfoot td {border-top: 5px solid #000;}
             .savings,
             .footer {text-align: center;}
         </style>
@@ -48,7 +61,7 @@
     <body>
         <main>
             <div class="inner">
-                <h1>Thank you for<br>your order</h1>
+                <div class="main-title">Thank you for<br>your order</div>
                 <table>
                     <thead>
                         <tr>
@@ -80,8 +93,8 @@
                     <div class="value">&pound;{!! $total_saving !!}</div>
                 </div>
                 <div class="footer">
-                    <h4>Order again</h4>
-                    <p>10% off yur next box<br>Use code: <u>Mystery</u></p>
+                    <div class="title">Order again</div>
+                    <div class="desc">10% off yur next box<br>Use code: <u>Mystery</u></div>
                 </div>
             </div>
         </main>

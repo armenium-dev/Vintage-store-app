@@ -4,7 +4,9 @@
 	jQuery(document).ready(function($){
 
 		const FJS = {
-			options: {},
+			options: {
+				base_url: $('meta[name="baseurl"]').attr('content')
+			},
 			vars: {ww: 0, wh: 0},
 			labels: {},
 			messages: {
@@ -78,6 +80,9 @@
 						case "remove_custom_product":
 							FJS.CProducts.remove($this);
 							break;
+						case "orders_filter":
+							FJS.Orders.filter($this);
+							break;
 						default:
 							break;
 					}
@@ -116,6 +121,35 @@
 					}
 
 					$source.addClass('color-red');
+				},
+				openInNewTab: function(url, filename){
+					Object.assign(document.createElement('a'), {
+						target: '_blank',
+						rel: 'noopener noreferrer',
+						href: url,
+						//download: filename,
+					}).click();
+				},
+				http_build_query: function(formdata, numeric_prefix, arg_separator){
+					let key, use_val, use_key, i = 0, tmp_arr = [];
+
+					if(!arg_separator){
+						arg_separator = '&';
+					}
+
+					for(key in formdata){
+						use_key = escape(key);
+						use_val = escape((formdata[key].toString()));
+						use_val = use_val.replace(/%20/g, '+');
+
+						if(numeric_prefix && !isNaN(key)){
+							use_key = numeric_prefix + i;
+						}
+						tmp_arr[i] = use_key + '=' + use_val;
+						i++;
+					}
+
+					return tmp_arr.join(arg_separator);
 				},
 			},
 			Uploader: {
@@ -199,6 +233,18 @@
 					if($dropdown_toggle.is('empty')){
 						console.log($obj);
 					}
+				},
+				filter: function($obj){
+					let orders_url = FJS.options.base_url + '/orders/mystery-box/?';
+					let $js_orders_filters = $('body').find('.js_orders_filter');
+					let vars = {};
+
+					$js_orders_filters.each(function(i, el){
+						vars[$(el).prop('name')] = $(el).val();
+					});
+					console.log(vars);
+
+					window.location.href = orders_url + FJS.Common.http_build_query(vars);
 				},
 			},
 			MysteryBox: {
@@ -298,7 +344,7 @@
 						let name = $(el).attr('name');
 						_prices[name] = $(el).val();
 					});
-					console.log(_prices);
+					//console.log(_prices);
 
 					$.ajax({
 						type: "POST",
@@ -310,11 +356,14 @@
 							$btn.attr('disabled', true).find('span').text('............');
 						}
 					}).done(function(response){
+						let btn_text = 'Done & Create PDF';
 						if(response.error === 0){
-							let btn_text = 'Done & Create PDF';
+							//$btn.attr('disabled', false).find('span').text(btn_text);
 							$btn.addClass('hidden').find('span').text(btn_text);
+
+							FJS.Common.openInNewTab(response.pdf_url, response.file_name);
 						}else{
-							$btn.attr('disabled', false).find('span').text('Done & Create PDF');
+							$btn.attr('disabled', false).find('span').text(btn_text);
 						}
 					}).fail(function(){
 						$btn.attr('disabled', false).find('span').text('Done & Create PDF');

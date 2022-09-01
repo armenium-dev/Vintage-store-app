@@ -214,15 +214,21 @@ class WarehouseController extends Controller {
 			}
 		}
 
+		$pdf_url = $this->createPDF($order_id, $line_id);
+
+		$file_name = basename($pdf_url);
+
+		Order::whereOrderId($order_id)->update([
+			'finished' => 1,
+			'pdf_file' => $file_name,
+		]);
+
 		/*$order = Order::whereOrderId($order_id);
 		$order->delete();*/
-		
-		$res = $this->createPDF($order_id, $line_id);
-		#Log::stack(['custom'])->debug($res);
-		
-		$error = 1;
 
-		return response()->json(compact('error'));
+		$error = 0;
+
+		return response()->json(compact('error', 'pdf_url', 'file_name'));
 	}
 
 	private function addSales($order_id, $line_id){
@@ -315,20 +321,23 @@ class WarehouseController extends Controller {
 		if(!is_dir(public_path('downloads')))
 			mkdir(public_path('downloads'), 0755);
 
-		$save_file = public_path(sprintf('%s%s%d-%s-%d.pdf', 'downloads', DIRECTORY_SEPARATOR, $order_id, 'warehouse', time()));
+		$suffix = time();
+		$save_file = public_path(sprintf('%s%s%d-%s-%d.pdf', 'downloads', DIRECTORY_SEPARATOR, $order_id, 'warehouse', $suffix));
+		$save_file_url = url(sprintf('%s%s%d-%s-%d.pdf', 'downloads', '/', $order_id, 'warehouse', $suffix));
 
 		#PDF::setOption(['chroot' => __DIR__]);
 		$dompdf = PDF::loadView('warehouse.pdf', [
+			'box_items_count' => count($box_items['items']),
 			'box_items' => $box_items['items'],
 			'box_total' => $box_items['total'],
 			'box_price' => $box_price,
 			'total_saving' => $box_items['total'] - $box_price,
 		]);
 		$dompdf->setPaper([0, 0, 380, 600], 'portrait');
-		$dompdf->setOption(['dpi' => 300, 'defaultFont' => 'Helvetica']);
+		$dompdf->setOption(['dpi' => 300, 'defaultFont' => 'Helvetica', 'font_height_ratio' => 1]);
 		$dompdf->save($save_file);
 
-		return $save_file;
+		return $save_file_url;
 	}
 
 	private function getBoxPrice($order_id, $line_id): float{
