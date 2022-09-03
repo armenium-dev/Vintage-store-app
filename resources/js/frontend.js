@@ -12,10 +12,12 @@
 			messages: {
 				ajax_error: 'SYSTEM TECHNICAL ERROR',
 				remove_custom_product_confirmation: 'Are you sure you want to remove this product "{title}"?',
+				remove_order_confirmation: 'Are you sure you want to remove this order "{title}"?',
 			},
 			routes: {
 				remove_sale: "sales-remove",
 				remove_custom_product: "custom-products/{id}",
+				remove_order: "orders/{id}",
 				pick_product: "warehouse-pick-product",
 				pack_product: "warehouse-pack-product",
 			},
@@ -82,6 +84,9 @@
 							break;
 						case "orders_filter":
 							FJS.Orders.filter($this);
+							break;
+						case "remove_order":
+							FJS.Orders.remove($this);
 							break;
 						default:
 							break;
@@ -245,6 +250,34 @@
 					console.log(vars);
 
 					window.location.href = orders_url + FJS.Common.http_build_query(vars);
+				},
+				remove: function($btn){
+					let entry_id = $btn.data('id'),
+						$parent = $($btn.data('parent')),
+						title = $parent.find('.js_title').text();
+
+					if(!confirm(FJS.messages.remove_order_confirmation.replace('{title}', title))){
+						return false;
+					}
+
+					$.ajax({
+						type: "DELETE",
+						url: FJS.Common.createAjaxUrl(FJS.routes.remove_order, {'id': entry_id}),
+						headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
+						data: {type: 'ajax'},
+						dataType: "json",
+						beforeSend: function(xhr){
+							$btn.attr('disabled', true);
+						}
+					}).done(function(response){
+						if(response.error == 0){
+							$parent.fadeOut(400);//.remove();
+						}
+					}).fail(function(){
+						$btn.attr('disabled', false);
+						console.log(FJS.messages.ajax_error);
+					});
+
 				},
 			},
 			MysteryBox: {

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Shopify\MyShopify;
+use App\Models\MysteryBox;
 use App\Models\Product;
 use App\Models\Variant;
 use App\Models\Tag;
@@ -40,9 +41,9 @@ class ShopifyController extends Controller {
 		$products = $data['products'];
 		$order = $data['order'];
 		$is_mystery_box_order = 0;
-
+		#dd($products);
 		if(!empty($products)){
-			foreach($products as $product){
+			foreach($products as $line_id => $product){
 				$product_id = $product['product']['id'];
 				$title = $product['product']['title'];
 				$body = $product['product']['body_html'];
@@ -144,6 +145,11 @@ class ShopifyController extends Controller {
 				}
 
 				$add_order = true;
+
+				MysteryBox::firstOrCreate(
+					['order_id' => $order['order']['id'], 'line_id' => $line_id],
+					['order_id' => $order['order']['id'], 'line_id' => $line_id, 'finished' => 0]
+				);
 			}
 
 			if($add_order){
@@ -167,7 +173,7 @@ class ShopifyController extends Controller {
 				foreach($order['order']['line_items'] as $product){
 					#Log::stack(['webhook'])->debug($product);
 					if(!is_null($product['product_id'])){
-						$products[] = $this->_getProduct($product['product_id']);
+						$products[$product['id']] = $this->_getProduct($product['product_id']);
 					}
 				}
 			}

@@ -2,6 +2,7 @@
 
 namespace App\View\Components;
 
+use App\Models\MysteryBox;
 use Illuminate\View\Component;
 use App\Models\Order;
 
@@ -32,9 +33,16 @@ class OrdersCount extends Component{
 		
 		switch($this->type){
 			case "shop_1":
-				$count = Order::where(['shop_id' => 1, 'is_mystery_box' => 1])
+				/*$count = Order::where(['shop_id' => 1, 'is_mystery_box' => 1])
 					->whereNull('fulfillment_status')
 					->orWhere('fulfillment_status', '!=', 'fulfilled')
+					->count();*/
+				$count = MysteryBox::where(['mystery_boxes.finished' => 0])
+					->leftJoin('orders', 'orders.order_id', '=', 'mystery_boxes.order_id')
+					->where(['orders.is_mystery_box' => 1])
+					->whereNull('orders.deleted_at')
+					->whereNull('orders.fulfillment_status')
+					->orWhere('orders.fulfillment_status', '!=', 'fulfilled')
 					->count();
 				break;
 			case "shop_2":

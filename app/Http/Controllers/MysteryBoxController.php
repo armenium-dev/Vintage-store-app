@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\CustomProduct;
 use App\Models\JewelryItems;
-use App\Models\MysteryBox;
+use App\Models\MysteryBoxProduct;
 use App\Models\Order;
 use App\Models\Tag;
 use Illuminate\Http\Request;
@@ -57,7 +57,7 @@ class MysteryBoxController extends Controller {
 		],
 	];
 
-	public function getMysteryBoxItems(Order $o, Product $p, Variant $v, int $line_id){
+	public function getMysteryBoxProducts(Order $o, Product $p, Variant $v, int $line_id){
 		$this->order = $o;
 		$this->product = $p;
 		$this->variant = $v;
@@ -257,7 +257,7 @@ class MysteryBoxController extends Controller {
 		
 		if(!empty($items)){
 			foreach($items as $k => $item){
-				$count = MysteryBox::where([
+				$count = MysteryBoxProduct::where([
 					'order_id' => $this->order->order_id,
 					'line_id' => $this->line_id,
 					'product_id' => $item['product_id'],
@@ -341,7 +341,7 @@ class MysteryBoxController extends Controller {
 		foreach($this->mb_rules[$rule] as $formula => $v){
 			$total += $v['count'];
 
-			$count += MysteryBox::where([
+			$count += MysteryBoxProduct::where([
 				'order_id' => $order_id,
 				'line_id' => $line_item['id'],
 				'formula' => $formula,
@@ -353,7 +353,7 @@ class MysteryBoxController extends Controller {
 	}
 
 	private function setExcludeProductIDs(){
-		$this->exclude_product_ids = MysteryBox::where([/*'selected' => 0,*/ 'packed' => 0])
+		$this->exclude_product_ids = MysteryBoxProduct::where([/*'selected' => 0,*/ 'packed' => 0])
 			->where('order_id', '!=', $this->order->order_id)
 			->where('formula', '!=', 'RepetitiveItems')
 			->get()
@@ -361,7 +361,7 @@ class MysteryBoxController extends Controller {
 			->toArray();
 
 
-		$mb_custom_products_with_count_and_id = MysteryBox::where(['packed' => 0, 'formula' => 'RepetitiveItems'])
+		$mb_custom_products_with_count_and_id = MysteryBoxProduct::where(['packed' => 0, 'formula' => 'RepetitiveItems'])
 			->where('order_id', '!=', $this->order->order_id)
 			->select([DB::raw('COUNT(*) as count'), 'product_id'])
 			->groupBy('product_id')

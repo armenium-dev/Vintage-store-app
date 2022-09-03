@@ -2,8 +2,8 @@
 
 namespace App\View\Components;
 
+use App\Models\MysteryBoxProduct;
 use Illuminate\View\Component;
-use App\Models\MysteryBox;
 use Illuminate\Support\Facades\DB;
 
 class WarehouseCount extends Component{
@@ -30,10 +30,10 @@ class WarehouseCount extends Component{
 		
 		switch($this->type){
 			case "pick":
-				$count = MysteryBox::where(['selected' => 0, 'packed' => 0])->count();
+				$count = MysteryBoxProduct::where(['selected' => 0, 'packed' => 0])->count();
 				break;
 			case "pack":
-				$result = MysteryBox::where(['selected' => 1, 'packed' => 0])
+				$result = MysteryBoxProduct::where(['selected' => 1, 'packed' => 0])
                     ->select('order_id')->groupBy('order_id')->get();
 				$count = $result->count();
 				break;

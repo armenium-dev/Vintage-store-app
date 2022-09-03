@@ -3,11 +3,13 @@ namespace App\Http\Controllers;
 
 use App\Http\Helpers\Parser;
 use App\Models\MysteryBox;
+use App\Models\MysteryBoxProduct;
 use App\Models\Order;
 use App\Models\Product;
 use App\Models\Variant;
 use Illuminate\Http\Request;
 use Ramsey\Collection\Collection;
+use Illuminate\Support\Facades\DB;
 
 class OrdersController extends Controller {
 
@@ -38,37 +40,110 @@ class OrdersController extends Controller {
 	 * @return \Illuminate\Contracts\View\View
 	 */
 	public function mysteryBox(Request $request){
-		$finished = $request->get('finished');
+		$finished = (int) $request->get('finished');
 		$fulfilled = $request->get('fulfilled');
 		$ordering = $request->get('ordering');
 
-		$query = Order::query();
-		$query->where(['is_mystery_box' => 1]);
-		$query->where(['finished' => intval($finished)]);
+		$query = MysteryBox::query();
+		$query->select([
+			'orders.id as id',
+			'orders.shop_id as shop_id',
+			'orders.order_id as order_id',
+			'orders.payment_status as payment_status',
+			'orders.fulfillment_status as fulfillment_status',
+			'orders.data as data',
+			'orders.updated_at as updated_at',
+			DB::raw('data->> "$.name" as num'),
+			DB::raw('data->> "$.total_price" as total_price'),
+			'mystery_boxes.line_id as line_id',
+			'mystery_boxes.finished as finished',
+			'mystery_boxes.pdf_file as pdf_file',
+		]);
+		$query->whereNull('orders.deleted_at');
+		$query->where(['orders.is_mystery_box' => 1]);
+
+		$query->leftJoin('orders', 'orders.order_id', '=', 'mystery_boxes.order_id');
+
+		$query->where(['mystery_boxes.finished' => $finished]);
 
 		if(intval($fulfilled) == 1){
 			$query->where(function($query){
-				return $query->whereNotNull('fulfillment_status')->orWhere(['fulfillment_status' => 'fulfilled']);
+				return $query->whereNotNull('orders.fulfillment_status')->orWhere(['orders.fulfillment_status' => 'fulfilled']);
 			});
 		}else{
 			$query->where(function($query){
-				return $query->whereNull('fulfillment_status')->orWhere('fulfillment_status', '!=', 'fulfilled');
+				return $query->whereNull('orders.fulfillment_status')->orWhere('orders.fulfillment_status', '!=', 'fulfilled');
 			});
 		}
 
 		switch($ordering){
 			case "date-asc":
-				$query->orderBy('updated_at');
+				$query->orderBy('orders.updated_at');
 				break;
 			case "date-desc":
-				$query->orderByDesc('updated_at');
+				$query->orderByDesc('orders.updated_at');
 				break;
 			case "id-desc":
-				$query->orderByDesc('order_id');
+				$query->orderByDesc('orders.order_id');
 				break;
 			case "id-asc":
 			default:
-				$query->orderBy('order_id');
+				$query->orderBy('orders.order_id');
+				break;
+		}
+
+		#$query->dd();
+
+		$orders = $query->get();
+
+		return view('orders.mystery', [
+			'orders' => $orders,
+			'total' => $orders->count(),
+			'filter' => [
+				'finished' => $finished,
+				'fulfilled' => $fulfilled,
+				'ordering' => $ordering,
+			]
+		]);
+	}
+
+	/*
+	public function mysteryBox(Request $request){
+		$finished = $request->get('finished');
+		$fulfilled = $request->get('fulfilled');
+		$ordering = $request->get('ordering');
+
+		$query = Order::query();
+		$query->where(['orders.is_mystery_box' => 1]);
+
+		if($finished){
+			$query->leftJoin('mystery_boxes', 'mystery_boxes.order_id', '=', 'orders.order_id');
+			$query->where(['mystery_boxes.finished' => intval($finished)]);
+		}
+
+		if(intval($fulfilled) == 1){
+			$query->where(function($query){
+				return $query->whereNotNull('orders.fulfillment_status')->orWhere(['orders.fulfillment_status' => 'fulfilled']);
+			});
+		}else{
+			$query->where(function($query){
+				return $query->whereNull('orders.fulfillment_status')->orWhere('orders.fulfillment_status', '!=', 'fulfilled');
+			});
+		}
+
+		switch($ordering){
+			case "date-asc":
+				$query->orderBy('orders.updated_at');
+				break;
+			case "date-desc":
+				$query->orderByDesc('orders.updated_at');
+				break;
+			case "id-desc":
+				$query->orderByDesc('orders.order_id');
+				break;
+			case "id-asc":
+			default:
+				$query->orderBy('orders.order_id');
 				break;
 		}
 
@@ -84,6 +159,7 @@ class OrdersController extends Controller {
 			]
 		]);
 	}
+	*/
 
 	/**
 	 * Display a listing of the resource.
@@ -130,7 +206,7 @@ class OrdersController extends Controller {
 
 		#dd([$order->data['line_items'], $product, $variant]);
 
-		$box_items = $this->MysteryBoxController->getMysteryBoxItems($order, $product, $variant, $lid);
+		$box_items = $this->MysteryBoxController->getMysteryBoxProducts($order, $product, $variant, $lid);
 		#dd($box_items);
 
 		return view('orders.collect-products', compact('order', 'product', 'variant', 'box_items', 'lid'));
@@ -225,13 +301,13 @@ class OrdersController extends Controller {
 
 			if(!empty($delete_data)){
 				foreach($delete_data as $data){
-					MysteryBox::where($data)->delete();
+					MysteryBoxProduct::where($data)->delete();
 				}
 			}
 
 			if(!empty($insert_data)){
 				foreach($insert_data as $data){
-					if($mystery_box = MysteryBox::create($data)){
+					if($mystery_box = MysteryBoxProduct::create($data)){
 						$messages[] = sprintf(__('Mystery Box %s created successfully!'), $mystery_box->id);
 					}else{
 						$messages[] = __('Error! Mystery Box not created');
@@ -283,6 +359,33 @@ class OrdersController extends Controller {
 		return $res;
 	}
 
+	public function createOrdersMysteryBoxes(){
+		$query = Order::query();
+		#$query->leftJoin('mystery_boxes', 'mystery_boxes.order_id', '!=', 'orders.order_id');
+		$query->where(['orders.is_mystery_box' => 1]);
+		$orders = $query->get();
+
+		$result = [];
+
+		foreach($orders as $order){
+			$order_id = $order['order_id'];
+			foreach($order->data['line_items'] as $item){
+				if(str_contains(strtolower($item['title']), 'mystery')){
+					$line_id = $item['id'];
+					$mb = MysteryBox::firstOrCreate(
+						['order_id' => $order_id, 'line_id' => $line_id],
+						['order_id' => $order_id, 'line_id' => $line_id, 'finished' => 0]
+					);
+
+					if($mb) $result[] = ['order_id' => $order_id, 'line_id' => $line_id];
+				}
+
+			}
+		}
+
+		dd($result);
+	}
+
 	/**
 	 * Show the form for creating a new resource.
 	 *
@@ -326,9 +429,27 @@ class OrdersController extends Controller {
 	/**
 	 * Remove the specified resource from storage.
 	 *
-	 * @param int $id
-	 * @return \Illuminate\Http\Response
+	 * @param \App\Models\Order $order
+	 * @param \Illuminate\Http\Request
+	 * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse
 	 */
-	public function destroy($id){}
+	public function destroy(Order $order, Request $request){
+		$order_id = $order->order_id;
+
+		$order->delete();
+		$error = $order->trashed() ? 0 : 1;
+
+		if($error == 0){
+			MysteryBox::where('order_id', $order_id)->delete();
+			MysteryBoxProduct::where('order_id', $order_id)->delete();
+		}
+
+		if($request->type == 'ajax'){
+			return response()->json(compact('error', $request->id));
+		}else{
+			return redirect()->route('mysteryBox')->with('status', 'Order Deleted');
+		}
+
+	}
 
 }

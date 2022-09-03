@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class MysteryBox extends Model{
-	use HasFactory;
+	use HasFactory, SoftDeletes;
 
 	protected $table = 'mystery_boxes';
 
@@ -20,15 +20,30 @@ class MysteryBox extends Model{
 	protected $fillable = [
 		'order_id',
 		'line_id',
-		'product_id',
-		'variant_id',
-		'formula',
-		'tag',
-		'sort_num_1',
-		'sort_num_2',
-		'selected',
-		'packed',
+		'finished',
+		'pdf_file',
 	];
 
+	public function productName(): string{
+		#dd($this->line_id);
+		#return $this->data['line_items'][0]['title'];
+
+		$data = json_decode($this->data, true);
+
+		$res = '';
+
+		if(!empty($data)){
+			$titles = [];
+			foreach($data['line_items'] as $item){
+				if($item['id'] == $this->line_id){
+					$titles[] = '<b>'.$item['title'].'</b>';
+					$titles[] = '<small>'.$item['variant_title'].'</small>';
+				}
+			}
+			$res = implode('<br/>', $titles);
+		}
+
+		return $res;
+	}
 
 }

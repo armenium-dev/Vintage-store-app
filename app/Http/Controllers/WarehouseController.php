@@ -7,6 +7,7 @@ use App\Models\Product;
 use App\Models\Sales;
 use App\Models\Variant;
 use Illuminate\Http\Request;
+use App\Models\MysteryBoxProduct;
 use App\Models\MysteryBox;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
@@ -23,40 +24,40 @@ class WarehouseController extends Controller {
 	];
 
 	public function pick(){
-		$query = MysteryBox::query();
+		$query = MysteryBoxProduct::query();
 		$query->select([
-			'mystery_boxes.id',
+			'mystery_box_products.id',
 			'products.title as product_title',
-			'mystery_boxes.tag',
-			'mystery_boxes.formula',
+			'mystery_box_products.tag',
+			'mystery_box_products.formula',
 			'products.image',
-			'mystery_boxes.selected',
+			'mystery_box_products.selected',
 			'orders.data as order_data',
-			'mystery_boxes.product_id',
-			#'mystery_boxes.variant_id',
+			'mystery_box_products.product_id',
+			#'mystery_box_products.variant_id',
 			#'variants.title as variant_title',
 		]);
-		#$query->leftJoin('products_custom', 'products_custom.id', '=', 'mystery_boxes.product_id');
-		$query->leftJoin('products', 'products.product_id', '=', 'mystery_boxes.product_id');
-		$query->leftJoin('orders', 'orders.order_id', '=', 'mystery_boxes.order_id');
-		#$query->leftJoin('variants', 'variants.variant_id', '=', 'mystery_boxes.variant_id');
-		$query->where(['mystery_boxes.packed' => 0]);
-		#$query->orderBy('mystery_boxes.formula');
-		$query->orderBy('mystery_boxes.selected');
-		$query->orderBy('mystery_boxes.sort_num_1');
-		$query->orderBy('mystery_boxes.sort_num_2');
+		#$query->leftJoin('products_custom', 'products_custom.id', '=', 'mystery_box_products.product_id');
+		$query->leftJoin('products', 'products.product_id', '=', 'mystery_box_products.product_id');
+		$query->leftJoin('orders', 'orders.order_id', '=', 'mystery_box_products.order_id');
+		#$query->leftJoin('variants', 'variants.variant_id', '=', 'mystery_box_products.variant_id');
+		$query->where(['mystery_box_products.packed' => 0]);
+		#$query->orderBy('mystery_box_products.formula');
+		$query->orderBy('mystery_box_products.selected');
+		$query->orderBy('mystery_box_products.sort_num_1');
+		$query->orderBy('mystery_box_products.sort_num_2');
 
-		$mystery_boxes = $query->get()->toArray();
+		$mystery_box_products = $query->get()->toArray();
 		#$query->dd();
-		#dump($mystery_boxes);
+		#dump($mystery_box_products);
 
-		#$mystery_boxes = $this->sortResult($mystery_boxes);
-		$mystery_boxes = $this->sortResult2($mystery_boxes);
-		$mystery_boxes = $this->setRepetitiveItems($mystery_boxes);
-		#dd($mystery_boxes);
+		#$mystery_box_products = $this->sortResult($mystery_box_products);
+		$mystery_box_products = $this->sortResult2($mystery_box_products);
+		$mystery_box_products = $this->setRepetitiveItems($mystery_box_products);
+		#dd($mystery_box_products);
 
 
-		return view('warehouse.pick', compact('mystery_boxes'));
+		return view('warehouse.pick', compact('mystery_box_products'));
 	}
 
 	private function sortResult($items){
@@ -96,30 +97,30 @@ class WarehouseController extends Controller {
 		return $new_items;
 	}
 
-	private function setRepetitiveItems($mystery_boxes){
-		if(empty($mystery_boxes)) return $mystery_boxes;
+	private function setRepetitiveItems($mystery_box_products){
+		if(empty($mystery_box_products)) return $mystery_box_products;
 
-		$mystery_boxes_r = [];
-		foreach($mystery_boxes as $k => $mystery_box){
+		$mystery_box_products_r = [];
+		foreach($mystery_box_products as $k => $mystery_box){
 			if($mystery_box['formula'] == 'RepetitiveItems'){
 				$custom_product = CustomProduct::find($mystery_box['product_id']);
 				if(!is_null($custom_product)){
-					$mystery_boxes_r[$k] = $mystery_box;
-					$mystery_boxes_r[$k]['product_title'] = sprintf('%s / %s', $custom_product->title, $custom_product->size);
-					$mystery_boxes_r[$k]['image'] = $custom_product->image;
-					$mystery_boxes_r[$k]['category'] = $custom_product->category;
-					$mystery_boxes_r[$k]['price'] = $custom_product->price;
+					$mystery_box_products_r[$k] = $mystery_box;
+					$mystery_box_products_r[$k]['product_title'] = sprintf('%s / %s', $custom_product->title, $custom_product->size);
+					$mystery_box_products_r[$k]['image'] = $custom_product->image;
+					$mystery_box_products_r[$k]['category'] = $custom_product->category;
+					$mystery_box_products_r[$k]['price'] = $custom_product->price;
 
-					unset($mystery_boxes[$k]);
+					unset($mystery_box_products[$k]);
 				}
 			}
 		}
 
-		return array_merge($mystery_boxes_r, $mystery_boxes);
+		return array_merge($mystery_box_products_r, $mystery_box_products);
 	}
 
 	public function pickProduct(Request $request): JsonResponse{
-		$model = MysteryBox::find($request->post('id'));
+		$model = MysteryBoxProduct::find($request->post('id'));
 		$selected = ($model->selected == 1) ? 0 : 1;
 
 		$model->update(['selected' => $selected]);
@@ -131,34 +132,34 @@ class WarehouseController extends Controller {
 	}
 
 	public function pack(){
-		$query = MysteryBox::query();
+		$query = MysteryBoxProduct::query();
 		$query->select([
-			'mystery_boxes.id',
-			'mystery_boxes.order_id',
-			'mystery_boxes.product_id',
-			'mystery_boxes.line_id',
-			'mystery_boxes.tag',
-			'mystery_boxes.price as new_price',
+			'mystery_box_products.id',
+			'mystery_box_products.order_id',
+			'mystery_box_products.product_id',
+			'mystery_box_products.line_id',
+			'mystery_box_products.tag',
+			'mystery_box_products.price as new_price',
+			'mystery_box_products.formula',
 			'products.title as product_title',
 			'products.image',
 			'variants.price',
 			'orders.data',
-			'mystery_boxes.formula',
 		]);
-		$query->leftJoin('orders', 'orders.order_id', '=', 'mystery_boxes.order_id');
-		$query->leftJoin('products', 'products.product_id', '=', 'mystery_boxes.product_id');
-		$query->leftJoin('variants', 'variants.variant_id', '=', 'mystery_boxes.variant_id');
-		$query->where(['mystery_boxes.packed' => 0, 'mystery_boxes.selected' => 1]);
-		$query->orderBy('mystery_boxes.order_id');
+		$query->leftJoin('orders', 'orders.order_id', '=', 'mystery_box_products.order_id');
+		$query->leftJoin('products', 'products.product_id', '=', 'mystery_box_products.product_id');
+		$query->leftJoin('variants', 'variants.variant_id', '=', 'mystery_box_products.variant_id');
+		$query->where(['mystery_box_products.packed' => 0, 'mystery_box_products.selected' => 1]);
+		$query->orderBy('mystery_box_products.order_id');
 
-		$mystery_boxes = $query->get()->toArray();
-		#dump($mystery_boxes);
-		$mystery_boxes = $this->setRepetitiveItems($mystery_boxes);
-		$mystery_boxes = $this->groupResults($mystery_boxes);
+		$mystery_box_products = $query->get()->toArray();
+		#dump($mystery_box_products);
+		$mystery_box_products = $this->setRepetitiveItems($mystery_box_products);
+		$mystery_box_products = $this->groupResults($mystery_box_products);
 
-		#dd($mystery_boxes);
+		#dd($mystery_box_products);
 
-		return view('warehouse.pack', compact('mystery_boxes'));
+		return view('warehouse.pack', compact('mystery_box_products'));
 	}
 
 	private function groupResults($items): array{
@@ -199,14 +200,14 @@ class WarehouseController extends Controller {
 		$this->addSales($order_id, $line_id);
 		$this->decrementCustomProduct($order_id, $line_id);
 
-		MysteryBox::where([
+		MysteryBoxProduct::where([
 			'order_id' => $order_id,
 			'line_id' => $line_id,
 		])->update(['packed' => 1]);
 
 		if(!empty($prices)){
 			foreach($prices as $product_id => $price){
-				MysteryBox::where([
+				MysteryBoxProduct::where([
 					'order_id' => $order_id,
 					'line_id' => $line_id,
 					'product_id' => $product_id,
@@ -218,10 +219,10 @@ class WarehouseController extends Controller {
 
 		$file_name = basename($pdf_url);
 
-		Order::whereOrderId($order_id)->update([
-			'finished' => 1,
-			'pdf_file' => $file_name,
-		]);
+		MysteryBox::updateOrCreate(
+			['order_id' => $order_id, 'line_id' => $line_id],
+			['finished' => 1, 'pdf_file' => $file_name]
+		);
 
 		/*$order = Order::whereOrderId($order_id);
 		$order->delete();*/
@@ -234,11 +235,11 @@ class WarehouseController extends Controller {
 	private function addSales($order_id, $line_id){
 		$order = Order::whereOrderId($order_id)->first();
 
-		$mystery_boxes = MysteryBox::where(['order_id' => $order_id, 'line_id' => $line_id, 'selected' => 1, 'packed' => 0])
+		$mystery_box_products = MysteryBoxProduct::where(['order_id' => $order_id, 'line_id' => $line_id, 'selected' => 1, 'packed' => 0])
 			->where('formula', '!=', 'RepetitiveItems')->get();
 
-		if($mystery_boxes->count()){
-			foreach($mystery_boxes as $mystery_box){
+		if($mystery_box_products->count()){
+			foreach($mystery_box_products as $mystery_box){
 				$product = Product::whereProductId($mystery_box->product_id)->first();
 
 				if($product->count()){
@@ -294,7 +295,7 @@ class WarehouseController extends Controller {
 	}
 
 	private function decrementCustomProduct($order_id, $line_id){
-		$mystery_boxes = MysteryBox::where([
+		$mystery_box_products = MysteryBoxProduct::where([
 			'order_id' => $order_id,
 			'line_id' => $line_id,
 			'selected' => 1,
@@ -302,8 +303,8 @@ class WarehouseController extends Controller {
 			'formula' => 'RepetitiveItems'
 		])->get();
 
-		if($mystery_boxes->count()){
-			foreach($mystery_boxes as $mystery_box){
+		if($mystery_box_products->count()){
+			foreach($mystery_box_products as $mystery_box){
 				CustomProduct::find($mystery_box->product_id)->decrement('count', 1);
 			}
 		}
@@ -312,7 +313,7 @@ class WarehouseController extends Controller {
 	// Generate PDF
 	private function createPDF($order_id, $line_id){
 		$box_price = $this->getBoxPrice($order_id, $line_id);
-		$box_items = $this->getBoxItemsAndTotals($order_id, $line_id);
+		$box_items = $this->getBoxProductsAndTotals($order_id, $line_id);
 
 		
 		// share data to view
@@ -358,43 +359,43 @@ class WarehouseController extends Controller {
 		return $box_price;
 	}
 
-	private function getBoxItemsAndTotals($order_id, $line_id): array{
+	private function getBoxProductsAndTotals($order_id, $line_id): array{
 		$res = ['total' => 0, 'items' => []];
 
-		$query = MysteryBox::query();
+		$query = MysteryBoxProduct::query();
 		$query->select([
-			'mystery_boxes.id',
-			#'mystery_boxes.order_id',
-			#'mystery_boxes.product_id',
-			#'mystery_boxes.line_id',
-			#'mystery_boxes.tag',
+			'mystery_box_products.id',
+			#'mystery_box_products.order_id',
+			#'mystery_box_products.product_id',
+			#'mystery_box_products.line_id',
+			#'mystery_box_products.tag',
 			'products.title as product_title',
-			'mystery_boxes.price as new_price',
+			'mystery_box_products.price as new_price',
 			'variants.price',
 			#'products.image',
 			#'orders.data',
-			'mystery_boxes.formula',
+			'mystery_box_products.formula',
 			'products_custom.price as r_price',
 			'products_custom.title as r_title',
 		]);
-		$query->leftJoin('orders', 'orders.order_id', '=', 'mystery_boxes.order_id');
-		$query->leftJoin('products', 'products.product_id', '=', 'mystery_boxes.product_id');
-		$query->leftJoin('variants', 'variants.variant_id', '=', 'mystery_boxes.variant_id');
-		$query->leftJoin('products_custom', 'products_custom.id', '=', 'mystery_boxes.product_id');
+		$query->leftJoin('orders', 'orders.order_id', '=', 'mystery_box_products.order_id');
+		$query->leftJoin('products', 'products.product_id', '=', 'mystery_box_products.product_id');
+		$query->leftJoin('variants', 'variants.variant_id', '=', 'mystery_box_products.variant_id');
+		$query->leftJoin('products_custom', 'products_custom.id', '=', 'mystery_box_products.product_id');
 		$query->where([
-			'mystery_boxes.order_id' => $order_id,
-			'mystery_boxes.line_id' => $line_id,
-			'mystery_boxes.packed' => 1,
-			'mystery_boxes.selected' => 1
+			'mystery_box_products.order_id' => $order_id,
+			'mystery_box_products.line_id' => $line_id,
+			'mystery_box_products.packed' => 1,
+			'mystery_box_products.selected' => 1
 		]);
-		$query->orderBy('mystery_boxes.order_id');
+		$query->orderBy('mystery_box_products.order_id');
 
-		$mystery_boxes = $query->get()->toArray();
+		$mystery_box_products = $query->get()->toArray();
 
-		#dd($mystery_boxes);
+		#dd($mystery_box_products);
 
-		if(!is_null($mystery_boxes)){
-			foreach($mystery_boxes as $mystery_box){
+		if(!is_null($mystery_box_products)){
+			foreach($mystery_box_products as $mystery_box){
 				if($mystery_box['formula'] == 'RepetitiveItems'){
 					$title = $mystery_box['r_title'];
 					$price = !is_null($mystery_box['new_price']) ? $mystery_box['new_price'] : $mystery_box['r_price'];

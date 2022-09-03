@@ -20,10 +20,10 @@
                     </select>
                     <select data-trigger="js_action_change" data-action="orders_filter" name="ordering"
                             class="js_orders_filter border border-gray-300 text-gray-900 text-sm rounded-none rounded-r-md focus:ring-0 focus:border-gray-300 block p-2.5 pr-7">
-                        <option value="id-asc" @if($filter['ordering'] == 'id-asc') selected @endif>{{__('Order by ID')}} &downarrow;</option>
-                        <option value="id-desc" @if($filter['ordering'] == 'id-desc') selected @endif>{{__('Order by ID')}} &uparrow;</option>
-                        <option value="date-asc" @if($filter['ordering'] == 'date-asc') selected @endif>{{__('Order by Date')}} &downarrow;</option>
-                        <option value="date-desc" @if($filter['ordering'] == 'date-desc') selected @endif>{{__('Order by Date')}} &uparrow;</option>
+                        <option value="id-asc" @if($filter['ordering'] == 'id-asc') selected @endif>{{__('Sort by ID')}} &downarrow;</option>
+                        <option value="id-desc" @if($filter['ordering'] == 'id-desc') selected @endif>{{__('Sort by ID')}} &uparrow;</option>
+                        <option value="date-asc" @if($filter['ordering'] == 'date-asc') selected @endif>{{__('Sort by Date')}} &downarrow;</option>
+                        <option value="date-desc" @if($filter['ordering'] == 'date-desc') selected @endif>{{__('Sort by Date')}} &uparrow;</option>
                     </select>
                 </div>
             </div>
@@ -39,7 +39,7 @@
                         <table class="table-auto w-full">
                             <thead>
                                 <tr class="text-slate-400 dark:text-slate-200 text-left cursor-default">
-                                    <th class="border-b dark:border-slate-600 font-medium p-3 hidden">#</th>
+                                    <th class="border-b dark:border-slate-600 font-medium p-3 ">#</th>
                                     <th class="border-b dark:border-slate-600 font-medium p-3 hidden">Shop</th>
                                     <th class="border-b dark:border-slate-600 font-medium p-3 whitespace-nowrap">Order #</th>
                                     <th class="border-b dark:border-slate-600 font-medium p-3">Order ID</th>
@@ -53,26 +53,36 @@
                             </thead>
                             <tbody>
                                 @foreach($orders as $k => $order)
-                                <tr id="js_orderitem_{{$order->id}}" class="text-slate-500 dark:text-slate-400 hover:bg-lime-100 cursor-default">
-                                    <td class="border-b border-slate-100 dark:border-slate-700 p-3 hidden">{{ ($k+1) }}</td>
-                                    <td class="border-b border-slate-100 dark:border-slate-700 p-3 hidden">{{ $order->getShopName() }}</td>
-                                    <td class="border-b border-slate-100 dark:border-slate-700 p-3">{{ $order->data['name'] }}</td>
+                                <tr class="js_orderitem_{{$order->id}} text-slate-500 dark:text-slate-400 hover:bg-lime-100 cursor-default">
+                                    <td class="border-b border-slate-100 dark:border-slate-700 p-3 ">{{ ($k+1) }}</td>
+                                    <td class="border-b border-slate-100 dark:border-slate-700 p-3 hidden">{{-- $order->getShopName() --}}</td>
+                                    <td class="js_title border-b border-slate-100 dark:border-slate-700 p-3">{{ $order->num }}</td>
                                     <td class="border-b border-slate-100 dark:border-slate-700 p-3">{{ $order->order_id }}</td>
                                     <td class="border-b border-slate-100 dark:border-slate-700 p-3 hidden">{{ $order->payment_status }}</td>
                                     <td class="border-b border-slate-100 dark:border-slate-700 p-3">{{ $order->fulfillment_status }}</td>
-                                    <td class="border-b border-slate-100 dark:border-slate-700 p-3 text-right">&pound;{{ $order->data['total_price'] }}</td>
+                                    <td class="border-b border-slate-100 dark:border-slate-700 p-3 text-right">&pound;{{ $order->total_price }}</td>
                                     <td class="border-b border-slate-100 dark:border-slate-700 p-3">{{ $order->updated_at->format('Y-m-d H:i') }}</td>
                                     <td class="border-b border-slate-100 dark:border-slate-700 p-3">{!! $order->productName() !!}</td>
                                     <td class="border-b border-slate-100 dark:border-slate-700 p-3">
                                         <div class="flex flex-nowrap">
                                             @if($order->finished == 0)
-                                            <a href="{!! route('mysteryBoxCollect', [$order->id]) !!}"
-                                                class="hover:bg-lime-600 bg-lime-500 focus:outline-none focus:ring focus:ring-lime-200 transition ease-in-out duration-150 flex items-center rounded-md text-white text-sm font-medium pl-2 pr-3 py-1 mr-2 shadow-sm">
-                                                <svg xmlns="http://www.w3.org/2000/svg" class="mr-2 h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                                    <path d="M7 3a1 1 0 000 2h6a1 1 0 100-2H7zM4 7a1 1 0 011-1h10a1 1 0 110 2H5a1 1 0 01-1-1zM2 11a2 2 0 012-2h12a2 2 0 012 2v4a2 2 0 01-2 2H4a2 2 0 01-2-2v-4z" />
-                                                </svg>
-                                                {{ __('Collect') }}
-                                            </a>
+                                                <a href="{!! route('mysteryBoxCollect', [$order->id]) !!}"
+                                                    class="hover:bg-lime-600 bg-lime-500 focus:outline-none focus:ring focus:ring-lime-200 transition ease-in-out duration-150 flex items-center rounded-md text-white text-sm font-medium pl-2 pr-3 py-1 mr-2 shadow-sm">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="mr-2 h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                                        <path d="M7 3a1 1 0 000 2h6a1 1 0 100-2H7zM4 7a1 1 0 011-1h10a1 1 0 110 2H5a1 1 0 01-1-1zM2 11a2 2 0 012-2h12a2 2 0 012 2v4a2 2 0 01-2 2H4a2 2 0 01-2-2v-4z" />
+                                                    </svg>
+                                                    {{ __('Collect') }}
+                                                </a>
+                                                <button type="button" data-trigger="js_action_click" data-action="remove_order" data-id="{{$order->id}}" data-parent=".js_orderitem_{{$order->id}}"
+                                                        class="hover:bg-lime-600 bg-lime-500 focus:outline-none focus:ring focus:ring-lime-200 transition ease-in-out duration-150 flex items-center rounded-md text-white text-sm font-medium p-1 shadow-sm">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="group-disabled:hidden h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                                        <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
+                                                    </svg>
+                                                    <svg class="hidden group-disabled:animate-spin group-disabled:block h-5 w-5 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                                    </svg>
+                                                </button>
                                             @endif
                                             @if($order->pdf_file)
                                                 <a href="{!! url('downloads/', [$order->pdf_file]) !!}" target="_blank"
@@ -83,16 +93,6 @@
                                                     {{ __('PDF') }}
                                                 </a>
                                             @endif
-                                            <button type="button" data-trigger="js_action_click" data-action="" data-id="{{$order->id}}" data-parent="#js_orderitem_{{$order->id}}"
-                                                    class="hidden hover:bg-lime-600 bg-lime-500 focus:outline-none focus:ring focus:ring-lime-200 transition ease-in-out duration-150 flex items-center rounded-md text-white text-sm font-medium p-1 shadow-sm">
-                                                <svg xmlns="http://www.w3.org/2000/svg" class="group-disabled:hidden h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                                    <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
-                                                </svg>
-                                                <svg class="hidden group-disabled:animate-spin group-disabled:block h-5 w-5 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                                </svg>
-                                            </button>
                                         </div>
                                     </td>
                                 </tr>

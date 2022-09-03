@@ -13,11 +13,11 @@ use App\Http\Helpers\Image;
 		<div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
 			<div class="p-6 bg-white shadow-sm sm:rounded-lg">
 
-				@if(empty($mystery_boxes))
+				@if(empty($mystery_box_products))
 					<h2 class="text-gray-200 font-bold drop-shadow-inset-1 text-center text-3xl">{{__('Not found')}}</h2>
 				@else
 					<ul class="js_container flex flex-wrap justify-center">
-						@foreach($mystery_boxes as $item)
+						@foreach($mystery_box_products as $item)
 							<li id="item_{!! $item['id'] !!}" class="w-full sm:w-1/2 md:w-1/3 lg:w-20p p-2 {!! ($item['selected'] == 0) ?: 'dark'!!}">
 								<div class="flex flex-col justify-between bg-white hover:bg-pink-100 dark:bg-pink-500 dark:hover:bg-pink-700 rounded-lg border border-gray-100 dark:border-pink-500 dark:hover:border-pink-700 shadow-md overflow-hidden h-full cursor-pointer transition ease-out duration-200">
 									<div class="relative">

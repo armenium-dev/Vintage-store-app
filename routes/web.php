@@ -41,6 +41,7 @@ Route::get('orders/mystery-box-collect/{id}', [OrdersController::class, 'mystery
 Route::get('import-order-by-id', [OrdersController::class, 'importOrderByID'])->middleware(['auth'])->name('importOrderByID');
 Route::post('store-order-by-id', [OrdersController::class, 'storeOrderByID'])->middleware(['auth'])->name('storeOrderByID');
 Route::post('store-order-mystery-box', [OrdersController::class, 'storeOrderMysteryBox'])->middleware(['auth'])->name('storeOrderMysteryBox');
+Route::get('create-orders-mystery-boxes', [OrdersController::class, 'createOrdersMysteryBoxes'])->middleware(['auth'])->name('createOrdersMysteryBoxes');
 Route::resource('orders', OrdersController::class);
 Route::resource('custom-products', CustomProductsController::class);
 
