@@ -42,10 +42,11 @@ class WarehouseController extends Controller {
 		$query->leftJoin('orders', 'orders.order_id', '=', 'mystery_box_products.order_id');
 		#$query->leftJoin('variants', 'variants.variant_id', '=', 'mystery_box_products.variant_id');
 		$query->where(['mystery_box_products.packed' => 0]);
+
 		#$query->orderBy('mystery_box_products.formula');
 		$query->orderBy('mystery_box_products.selected');
-		$query->orderBy('mystery_box_products.sort_num_1');
-		$query->orderBy('mystery_box_products.sort_num_2');
+		#$query->orderBy('mystery_box_products.sort_num_1');
+		#$query->orderBy('mystery_box_products.sort_num_2');
 
 		$mystery_box_products = $query->get()->toArray();
 		#$query->dd();
