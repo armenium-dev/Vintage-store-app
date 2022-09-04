@@ -105,6 +105,20 @@
                     </x-slot>
 
                     <x-slot name="content">
+                        <x-dropdown-link :href="route('listWebhooks')">
+                            {{ __('Webhooks list') }}
+                        </x-dropdown-link>
+                        <x-dropdown-link :href="route('resyncData')">
+                            {{ __('Data Resync') }}
+                        </x-dropdown-link>
+                        <x-dropdown-link :href="route('resyncDataFull')">
+                            {{ __('Data Full Resync') }}
+                        </x-dropdown-link>
+                        <!--
+                        <x-dropdown-link :href="route('resetApp')">
+                            {{ __('App Full Reset') }}
+                        </x-dropdown-link>
+                        -->
                         <!-- Authentication -->
                         <form method="POST" action="{{ route('logout') }}">
                             @csrf

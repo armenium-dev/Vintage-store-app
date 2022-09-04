@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Settings;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class SettingsController extends Controller{
 
@@ -194,4 +195,39 @@ class SettingsController extends Controller{
         return redirect('design')->with('status', 'Setting Destroyed');
     }
 
+	public function resyncData($redirect = true){
+		Settings::where('name', 'like', '%_sync_since_id')->update([
+			'value' => 0,
+			'active' => 1,
+		]);
+		
+		if($redirect)
+			return redirect('dashboard');
+	}
+	
+	public function resyncDataFull($redirect = true){
+		DB::statement('TRUNCATE TABLE variants');
+		DB::statement('TRUNCATE TABLE products');
+		DB::statement('TRUNCATE TABLE tags');
+
+		$this->resyncData(false);
+
+		if($redirect)
+			return redirect('dashboard');
+	}
+	
+	public function resetApp(){
+		DB::statement('TRUNCATE TABLE mystery_boxes');
+		DB::statement('TRUNCATE TABLE mystery_box_products');
+		DB::statement('TRUNCATE TABLE orders');
+		DB::statement('TRUNCATE TABLE products');
+		DB::statement('TRUNCATE TABLE products_custom');
+		DB::statement('TRUNCATE TABLE sales');
+		DB::statement('TRUNCATE TABLE tags');
+		DB::statement('TRUNCATE TABLE uploads');
+		DB::statement('TRUNCATE TABLE variants');
+		
+		return redirect('dashboard');
+	}
+	
 }

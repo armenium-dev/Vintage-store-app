@@ -41,9 +41,13 @@ Route::get('orders/mystery-box-collect/{id}', [OrdersController::class, 'mystery
 Route::get('import-order-by-id', [OrdersController::class, 'importOrderByID'])->middleware(['auth'])->name('importOrderByID');
 Route::post('store-order-by-id', [OrdersController::class, 'storeOrderByID'])->middleware(['auth'])->name('storeOrderByID');
 Route::post('store-order-mystery-box', [OrdersController::class, 'storeOrderMysteryBox'])->middleware(['auth'])->name('storeOrderMysteryBox');
-Route::get('create-orders-mystery-boxes', [OrdersController::class, 'createOrdersMysteryBoxes'])->middleware(['auth'])->name('createOrdersMysteryBoxes');
 Route::resource('orders', OrdersController::class);
 Route::resource('custom-products', CustomProductsController::class);
+Route::get('create-orders-mystery-boxes', [OrdersController::class, 'createOrdersMysteryBoxes'])->middleware(['auth'])->name('createOrdersMysteryBoxes');
+
+Route::get('resync-data', [SettingsController::class, 'resyncData'])->middleware(['auth'])->name('resyncData');
+Route::get('resync-data-full', [SettingsController::class, 'resyncDataFull'])->middleware(['auth'])->name('resyncDataFull');
+Route::get('reset-app', [SettingsController::class, 'resetApp'])->middleware(['auth'])->name('resetApp');
 
 Route::get('warehouse-pick', [WarehouseController::class, 'pick'])->middleware(['auth'])->name('warehousePick');
 Route::get('warehouse-pack', [WarehouseController::class, 'pack'])->middleware(['auth'])->name('warehousePack');
