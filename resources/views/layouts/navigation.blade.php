@@ -19,7 +19,7 @@
 
                 <div class="space-x-8 sm:-my-px sm:ml-10 lg:flex">
                     <x-nav-link :href="route('custom-products.index')" :active="request()->routeIs('custom-products.index')">
-                        {{ __('Custom Products') }}
+                        {{ __('Repetitive Products') }}
                     </x-nav-link>
                 </div>
 
